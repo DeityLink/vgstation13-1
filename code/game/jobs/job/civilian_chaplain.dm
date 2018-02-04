@@ -364,10 +364,10 @@
 				deity_name = "The Syndicate"
 				H.equip_or_collect(new /obj/item/clothing/suit/syndicatefake(H), slot_wear_suit)
 				H.equip_or_collect(new /obj/item/clothing/head/syndicatefake(H), slot_head)
-			if("cult", "narsie", "nar'sie", "narnar")
+			if("cult", "narsie", "nar'sie", "narnar", "nar-sie")
 				B.name = "The Arcane Tome"
 				J = "Cultist"
-				deity_name = "Nar'Sie"
+				deity_name = "Nar-Sie"
 			if("changeling", "ling", "hive", "succ")
 				B.name = "Proboscis"
 				J = "Changeling"
