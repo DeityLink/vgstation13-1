@@ -159,11 +159,9 @@
 
 #define isvampire(H) H.mind && H.mind.GetRole(VAMPIRE)
 
-#define iscult(H) H.mind && (iscultist(H) || isculthead(H) || faction == "cult")
+#define iscult(H) H.mind && (iscultist(H) || faction == "cult")
 
 #define iscultist(H) H.mind && H.mind.GetRole(CULTIST)
-
-#define isculthead(H) H.mind && H.mind && H.mind.GetRole(HEADCULTIST)
 
 #define ischangeling(H) H.mind && H.mind.GetRole(CHANGELING)
 
