@@ -1580,6 +1580,7 @@ var/list/blind_victims = list()
 /datum/rune_spell/reveal/Added(var/mob/mover)
 	if (!isliving(mover))
 		return
+	var/mob/living/L = mover
 	if (last_threeshold + 10 SECONDS > world.time)
 		return
 	if (!iscultist(L))
