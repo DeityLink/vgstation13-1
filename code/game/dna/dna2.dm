@@ -426,7 +426,7 @@ var/global/list/facial_hair_styles_female_list	= list()
 			ResetSE()
 
 		if(length(unique_enzymes) != 32)
-			unique_enzymes = md5(character.real_name)
+			unique_enzymes = md5("[character.real_name]\ref[character]")
 	else
 		if(length(uni_identity) != 3*DNA_UI_LENGTH)
 			uni_identity = "00600200A00E0110148FC01300B0095BD7FD3F4"
@@ -440,7 +440,7 @@ var/global/list/facial_hair_styles_female_list	= list()
 
 	ResetSE()
 
-	unique_enzymes = md5(character.real_name)
+	unique_enzymes = md5("[character.real_name]\ref[character]")
 	reg_dna[unique_enzymes] = character.real_name
 	if(character.species)
 		species = character.species.name
