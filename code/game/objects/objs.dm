@@ -57,6 +57,9 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 	var/is_cooktop //If true, the object can be used in conjunction with a cooking vessel, eg. a frying pan, to cook food.
 	var/obj/item/weapon/reagent_containers/pan/cookvessel //The vessel being used to cook food in. If generalized out to other types of vessels, make sure to also generalize the frying pan's cook_start(), etc. as well.
 
+	var/image/greased_up = null
+	var/blood_copied = 0
+
 /obj/New()
 	..()
 	if(breakable_flags)

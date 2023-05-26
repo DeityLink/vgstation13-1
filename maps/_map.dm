@@ -129,8 +129,6 @@
 		addZLevel(new path, i)
 
 /datum/map/proc/addZLevel(datum/zLevel/level, z_to_use = 0, make_base_turf = FALSE, fast_base_turf = FALSE)
-
-
 	if(!istype(level))
 		warning("ERROR: addZLevel received [level ? "a bad level of type [ispath(level) ? "[level]" : "[level.type]" ]" : "no level at all!"]")
 		return

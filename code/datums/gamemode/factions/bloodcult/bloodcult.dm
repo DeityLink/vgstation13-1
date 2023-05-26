@@ -36,7 +36,7 @@
 	var/datum/mind/sacrifice_mind = null
 	var/target_sacrificed = FALSE
 
-
+	var/datum/zLevel/narsie/blood_realm
 
 /datum/faction/bloodcult/check_win()
 	if(stage <= FACTION_DEFEATED)
@@ -168,6 +168,13 @@
 	initialize_rune_words()
 	AppendObjective(/datum/objective/bloodcult)
 	initialize_rituals()
+	for(var/datum/zLevel/z in map.zLevels)
+		if (z.name == "realm of Nar-Sie")
+			blood_realm = z
+			break
+	if (!blood_realm)
+		message_admins("Blood Cult: Realm of Nar-Sie Z-Level not found.")
+		log_admin("Blood Cult: Realm of Nar-Sie Z-Level not found.")
 	for (var/datum/role/R in members)
 		var/mob/M = R.antag.current
 		to_chat(M, "<span class='sinister'>Our communion must remain small and secretive.</span>")

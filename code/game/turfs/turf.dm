@@ -73,6 +73,11 @@
 
 	var/mute_time = 0
 
+	// Blood Dimension
+	var/bloodcarved = 0
+	var/denomination = "clot"
+	var/list/turf_icon_parts = list()
+
 /turf/examine(mob/user)
 	..()
 	if(bullet_marks)
@@ -299,6 +304,54 @@
 /turf/proc/add_dust()
 	return
 
+/turf/proc/AddTracks(var/typepath,var/bloodDNA,var/comingdir,var/goingdir,var/bloodcolor=DEFAULT_BLOOD)
+	var/obj/effect/decal/cleanable/blood/tracks/tracks = locate(typepath) in src
+	if(!tracks)
+		tracks = new typepath(src)
+	tracks.AddTracks(bloodDNA,comingdir,goingdir,bloodcolor)
+
+/turf/proc/blood_tracks_and_tripping(var/mob/living/carbon/M)
+	if (!istype(M))
+		return
+	if(!M.on_foot())
+		return
+	if(istype(M, /mob/living/carbon/human))
+		var/mob/living/carbon/human/H = M
+
+		// Tracking blood
+		var/list/bloodDNA = null
+		var/bloodcolor=""
+
+		// Do we have shoes?
+		if(H.shoes)
+			var/obj/item/clothing/shoes/S = H.shoes
+			if(S.track_blood && S.blood_DNA)
+				bloodDNA   = S.blood_DNA
+				bloodcolor = S.blood_color
+				S.track_blood = max(round(S.track_blood - 1, 1),0)
+		else
+			if(H.track_blood && H.feet_blood_DNA)
+				bloodDNA   = H.feet_blood_DNA
+				bloodcolor = H.feet_blood_color
+				H.track_blood = max(round(H.track_blood - 1, 1),0)
+
+		if (bloodDNA)
+			src.AddTracks(H.get_footprint_type(),bloodDNA,H.dir,0,bloodcolor) // Coming
+			var/turf/simulated/from = get_step(H,opposite_dirs[H.dir])
+			if(istype(from) && from)
+				from.AddTracks(H.get_footprint_type(),bloodDNA,0,H.dir,bloodcolor) // Going
+
+		bloodDNA = null
+
+		// Floorlength braids?  Enjoy your tripping.
+		if(H.my_appearance.h_style && !H.check_hidden_head_flags(HIDEHEADHAIR))
+			var/datum/sprite_accessory/hair_style = hair_styles_list[H.my_appearance.h_style]
+			if(hair_style && (hair_style.flags & HAIRSTYLE_CANTRIP))
+				if(H.m_intent == "run" && prob(5))
+					if (H.Slip(4, 5))
+						step(H, H.dir)
+						to_chat(H, "<span class='notice'>You tripped over your hair!</span>")
+
 //Creates a new turf
 /turf/proc/ChangeTurf(var/turf/N, var/tell_universe=1, var/force_lighting_update = 0, var/allow = 1)
 	if(loc)
@@ -317,6 +370,8 @@
 	var/old_density = density
 	var/old_holomap_draw_override = holomap_draw_override
 	var/old_registered_events = registered_events
+	var/old_bloodcarved = bloodcarved
+	var/old_denomination = denomination
 
 	var/old_holomap = holomap_data
 //	to_chat(world, "Replacing [src.type] with [N]")
@@ -417,6 +472,8 @@
 	registered_events = old_registered_events
 	if(density != old_density)
 		densityChanged()
+	bloodcarved = old_bloodcarved
+	denomination = old_denomination
 
 /turf/proc/AddDecal(const/image/decal)
 	if(!turfdecals)

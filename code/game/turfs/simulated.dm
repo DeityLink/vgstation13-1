@@ -27,58 +27,13 @@
 		holy = 1
 	levelupdate()
 
-/turf/simulated/proc/AddTracks(var/typepath,var/bloodDNA,var/comingdir,var/goingdir,var/bloodcolor=DEFAULT_BLOOD)
-	var/obj/effect/decal/cleanable/blood/tracks/tracks = locate(typepath) in src
-	if(!tracks)
-		tracks = new typepath(src)
-	tracks.AddTracks(bloodDNA,comingdir,goingdir,bloodcolor)
-
 /turf/simulated/Entered(atom/A, atom/OL)
 	if(movement_disabled && usr.ckey != movement_disabled_exception)
 		to_chat(usr, "<span class='warning'>Movement is admin-disabled.</span>")//This is to identify lag problems
-
 		return
 
-	if (istype(A,/mob/living/carbon))
-		var/mob/living/carbon/M = A
-		if(!M.on_foot())
-			return ..()
-		if(istype(M, /mob/living/carbon/human))
-			var/mob/living/carbon/human/H = M
+	blood_tracks_and_tripping(A)
 
-			// Tracking blood
-			var/list/bloodDNA = null
-			var/bloodcolor=""
-
-			// Do we have shoes?
-			if(H.shoes)
-				var/obj/item/clothing/shoes/S = H.shoes
-				if(S.track_blood && S.blood_DNA)
-					bloodDNA   = S.blood_DNA
-					bloodcolor = S.blood_color
-					S.track_blood = max(round(S.track_blood - 1, 1),0)
-			else
-				if(H.track_blood && H.feet_blood_DNA)
-					bloodDNA   = H.feet_blood_DNA
-					bloodcolor = H.feet_blood_color
-					H.track_blood = max(round(H.track_blood - 1, 1),0)
-
-			if (bloodDNA)
-				src.AddTracks(H.get_footprint_type(),bloodDNA,H.dir,0,bloodcolor) // Coming
-				var/turf/simulated/from = get_step(H,opposite_dirs[H.dir])
-				if(istype(from) && from)
-					from.AddTracks(H.get_footprint_type(),bloodDNA,0,H.dir,bloodcolor) // Going
-
-			bloodDNA = null
-
-			// Floorlength braids?  Enjoy your tripping.
-			if(H.my_appearance.h_style && !H.check_hidden_head_flags(HIDEHEADHAIR))
-				var/datum/sprite_accessory/hair_style = hair_styles_list[H.my_appearance.h_style]
-				if(hair_style && (hair_style.flags & HAIRSTYLE_CANTRIP))
-					if(H.m_intent == "run" && prob(5))
-						if (H.Slip(4, 5))
-							step(H, H.dir)
-							to_chat(H, "<span class='notice'>You tripped over your hair!</span>")
 	..()
 
 //returns 1 if made bloody, returns 0 otherwise

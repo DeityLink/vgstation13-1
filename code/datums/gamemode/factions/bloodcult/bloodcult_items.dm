@@ -1589,7 +1589,7 @@ var/list/arcane_tomes = list()
 	if (iscultist(user))
 		return
 	var/datum/faction/bloodcult/cult = find_active_faction_by_type(/datum/faction/bloodcult)
-	if (!cult)
+	if (!cult && ticker?.mode)
 		cult = ticker.mode.CreateFaction(/datum/faction/bloodcult, null, 1)
 		cult.OnPostSetup()
 	var/datum/role/cultist/newCultist = new /datum/role/cultist()

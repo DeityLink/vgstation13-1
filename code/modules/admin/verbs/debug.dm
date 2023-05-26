@@ -1509,3 +1509,20 @@ var/obj/blend_test = null
 	log_admin("[key_name(usr)] has edited the message of the day. The new text is as follows: [newmotd].")
 	feedback_add_details("admin_verb", "Edit MotD")
 	message_admins("[key_name(usr)] has edited the message of the day. Check the game log for the full text.")
+
+/client/proc/blood_realm_test_radius()
+	set category = "Debug"
+	set name = "Blood Realm Test Radius"
+	set desc = "Mirrors the surrounding area into the blood dimension."
+
+	if (!check_rights(R_DEBUG))
+		return
+
+	var/radius = input("Radius?","Radius:",0) as num
+	var/approx = input("Approx?","Approx:",0) as num
+
+	var/turf/T = get_turf(mob)
+	var/turf/U = locate(T.x,T.y,map.zMainStation)
+
+	U.blood_dimension_radius(radius,approx)
+

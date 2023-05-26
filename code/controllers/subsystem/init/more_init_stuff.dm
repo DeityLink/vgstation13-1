@@ -40,6 +40,10 @@ var/datum/subsystem/more_init/SSmore_init
 	..()
 
 	watch=start_watch()
+	create_bloodrealm()
+	log_debug("  Finished initializing blood dimension in [stop_watch(watch)]s.")
+
+	watch=start_watch()
 	process_teleport_locs()				//Sets up the wizard teleport locations
 	process_ghost_teleport_locs()		//Sets up ghost teleport locations.
 	process_adminbus_teleport_locs()	//Sets up adminbus teleport locations.
