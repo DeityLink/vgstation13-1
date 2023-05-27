@@ -212,6 +212,7 @@
 	var/list/watcher_maps = list()
 	var/datum/station_holomap/cult/holomap_datum
 
+	var/holomap_refresh_halver = 0
 
 /obj/structure/cult/altar/New()
 	..()
@@ -430,10 +431,12 @@
 			if(M.client)
 				spawn(5)//we give it time to fade out
 					M.client.images -= watcher_maps["\ref[M]"]
+					watcher_maps -= "\ref[M]"
 				M.unregister_event(/event/face, src, /obj/structure/cult/altar/proc/checkPosition)
 				animate(watcher_maps["\ref[M]"], alpha = 0, time = 5, easing = LINEAR_EASING)
 
 		watching_mobs = list()
+		processing_objects.Remove(src)
 	else
 		if(user.client)
 			spawn(5)//we give it time to fade out
@@ -444,6 +447,22 @@
 			animate(watcher_maps["\ref[user]"], alpha = 0, time = 5, easing = LINEAR_EASING)
 
 			watching_mobs -= user
+			if (!watching_mobs.len)
+				processing_objects.Remove(src)
+
+/obj/structure/cult/altar/process()
+	if (holomap_refresh_halver)
+		updateWatching()
+	holomap_refresh_halver = !holomap_refresh_halver
+
+/obj/structure/cult/altar/proc/updateWatching()
+	for(var/mob/M in watching_mobs)
+		if(M.client)
+			M.client.images -= watcher_maps["\ref[M]"]
+			watcher_maps -= "\ref[M]"
+			var/image/I = prepare_holomap(M)
+			I.loc = M.hud_used.holomap_obj
+			M.client.images |= watcher_maps["\ref[M]"]
 
 /obj/structure/cult/altar/conceal()
 	if (blade || altar_task)
@@ -611,22 +630,12 @@
 				onclose(user, "cultroster")
 			if ("Look through Veil")
 				if(user.hud_used && user.hud_used.holomap_obj)
-					if(!("\ref[user]" in watcher_maps))
-						var/image/personnal_I = prepare_cult_holomap()
-						var/turf/T = get_turf(src)
-						if(map.holomap_offset_x.len >= T.z)
-							holomap_datum.cursor.pixel_x = (T.x-8+map.holomap_offset_x[T.z])*PIXEL_MULTIPLIER
-							holomap_datum.cursor.pixel_y = (T.y-8+map.holomap_offset_y[T.z])*PIXEL_MULTIPLIER
-						else
-							holomap_datum.cursor.pixel_x = (T.x-8)*PIXEL_MULTIPLIER
-							holomap_datum.cursor.pixel_y = (T.y-8)*PIXEL_MULTIPLIER
-						if (T.z == map.zMainStation)
-							personnal_I.overlays += holomap_datum.cursor
-						watcher_maps["\ref[user]"] = personnal_I
-					var/image/I = watcher_maps["\ref[user]"]
+					var/image/I = prepare_holomap(user)
 					I.loc = user.hud_used.holomap_obj
 					I.alpha = 0
 					animate(watcher_maps["\ref[user]"], alpha = 255, time = 5, easing = LINEAR_EASING)
+					if (!watching_mobs.len)
+						processing_objects.Add(src)
 					watching_mobs |= user
 					user.client.images |= watcher_maps["\ref[user]"]
 					user.register_event(/event/face, src, /obj/structure/cult/altar/proc/checkPosition)
@@ -684,6 +693,20 @@
 					var/obj/item/soulstone/gem/gem = new (loc)
 					gem.pixel_y = 4
 
+/obj/structure/cult/altar/proc/prepare_holomap(var/mob/user)
+	if(!("\ref[user]" in watcher_maps))
+		var/image/personnal_I = prepare_cult_holomap()
+		var/turf/T = get_turf(src)
+		if(map.holomap_offset_x.len >= T.z)
+			holomap_datum.cursor.pixel_x = (T.x-8+map.holomap_offset_x[T.z])*PIXEL_MULTIPLIER
+			holomap_datum.cursor.pixel_y = (T.y-8+map.holomap_offset_y[T.z])*PIXEL_MULTIPLIER
+		else
+			holomap_datum.cursor.pixel_x = (T.x-8)*PIXEL_MULTIPLIER
+			holomap_datum.cursor.pixel_y = (T.y-8)*PIXEL_MULTIPLIER
+		if (T.z == map.zMainStation)
+			personnal_I.overlays += holomap_datum.cursor
+		watcher_maps["\ref[user]"] = personnal_I
+	return watcher_maps["\ref[user]"]
 
 /obj/structure/cult/altar/proc/StartSacrifice(var/mob/user)
 	var/mob/M = get_locked(lock_type)[1]

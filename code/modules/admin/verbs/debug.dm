@@ -1520,9 +1520,9 @@ var/obj/blend_test = null
 
 	var/radius = input("Radius?","Radius:",0) as num
 	var/approx = input("Approx?","Approx:",0) as num
+	var/paint = input("Paint?","Paint:",0) as num
 
 	var/turf/T = get_turf(mob)
 	var/turf/U = locate(T.x,T.y,map.zMainStation)
 
-	U.blood_dimension_radius(radius,approx)
-
+	U.blood_dimension_radius(radius,approx,paint)

@@ -165,6 +165,7 @@ var/global/list/ghdel_profiling = list()
 	else if(isturf(hit_atom) && !istype(src,/obj/mecha))//heavy mechs don't just bounce off walls, also it can fuck up rocket dashes
 		var/turf/T = hit_atom
 		if(T.density)
+			T.hitby(src,speed)
 			spawn(2)
 				step(src, turn(src.dir, 180))
 			if(istype(src,/mob/living))

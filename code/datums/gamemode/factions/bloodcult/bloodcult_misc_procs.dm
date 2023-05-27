@@ -18,6 +18,10 @@
 //Instead of updating in realtime, cult holomaps update every time you check them again, saves some CPU.
 /proc/prepare_cult_holomap()
 	var/image/I = image(extraMiniMaps[HOLOMAP_EXTRA_CULTMAP])
+	var/image/bloodrealm = image(extraMiniMaps[HOLOMAP_EXTRA_BLOODMAP])
+	bloodrealm.blend_mode = BLEND_ADD
+	bloodrealm.alpha = 200
+	I.overlays += bloodrealm
 	for(var/marker in holomap_markers)
 		var/datum/holomap_marker/holomarker = holomap_markers[marker]
 		var/image/markerImage = image(holomarker.icon,holomarker.id)

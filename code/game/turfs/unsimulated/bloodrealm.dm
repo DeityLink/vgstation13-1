@@ -12,8 +12,10 @@
 	holomap_draw_override = HOLOMAP_DRAW_FULL
 	var/maxHealth = 100
 	var/health = 100
+	var/healing_rate = 2
 	var/image/damage_overlay = null
 	var/list/possible_wounds = list("blood_1","blood_2","blood_3","blood_4","blood_5")
+	var/list/acquired_wounds = list()
 
 /turf/unsimulated/floor/bloodrealm
 	name = "greasy floor"
@@ -38,6 +40,31 @@
 	machine_flags = WRENCHMOVE
 
 ///////OH BOY HERE WE CGO
+
+/turf/proc/bloodcarve(var/new_level)
+	if (!bloodZ || z != bloodZ)
+		return
+	if (new_level <= bloodcarved)
+		return
+	bloodcarved = new_level
+
+	var/paint = "#B65127"
+
+	switch (bloodcarved)
+		if (1)
+			paint = "#B65127"
+		if (2)
+			paint = "#B67C27"
+		if (3)
+			paint = "#C49215"
+
+	var/icon/canvas = extraMiniMaps[HOLOMAP_EXTRA_BLOODMAP]
+
+	if(map.holomap_offset_x.len >= map.zMainStation)
+		canvas.DrawBox(paint, min(x+map.holomap_offset_x[map.zMainStation],((2 * world.view + 1)*WORLD_ICON_SIZE)), min(y+map.holomap_offset_y[map.zMainStation],((2 * world.view + 1)*WORLD_ICON_SIZE)))
+	else
+		canvas.DrawBox(paint, x, y)
+
 
 /turf/unsimulated/floor/bloodrealm/initialize()
 	..()
@@ -126,38 +153,111 @@
 		else
 			overlays += "corner_rib_southwest"
 
-
 /turf/unsimulated/floor/bloodrealm/Entered(atom/A, atom/OL)
 	//enabling bloody footprints
 	blood_tracks_and_tripping(A)
 	..()
 
-/atom/proc/blood_dimension_radius(transformRadius = 1, approxRadius = 1)
+/turf/proc/cicatrize()
+
+/turf/unsimulated/floor/bloodrealm/wound
+	name = "wounded floor"
+	desc = "It appears to be slowly healing"
+	icon_state = "floor_clot"
+	var/countdown_to_healing = 50
+
+/turf/unsimulated/floor/bloodrealm/wound/initialize()
+	..()
+	processing_objects.Add(src)
+
+/turf/unsimulated/floor/bloodrealm/wound/ChangeTurf(var/turf/N, var/tell_universe=1, var/force_lighting_update = 0, var/allow = 1)
+	processing_objects.Remove(src)
+	..()
+
+/turf/unsimulated/floor/bloodrealm/wound/process()
+	countdown_to_healing--
+	if (countdown_to_healing <= 0)
+		processing_objects.Remove(src)
+		ChangeTurf(/turf/unsimulated/wall/bloodrealm/wound)
+		cicatrize()
+
+/turf/unsimulated/floor/bloodrealm/wound/cicatrize()
+	if (denomination == "membrane")
+		icon_state = "floor_membrane"
+		name = "viscous floor"
+		countdown_to_healing = 10
+		blood_splatter(src,null,TRUE,"#9D7300")
+	else
+		denomination = "clot"
+		blood_splatter(src,null,TRUE,"#6D0000")
+
+/turf/unsimulated/wall/bloodrealm/wound/cicatrize()
+	if (denomination == "rib")
+		denomination = "clot"
+	playsound(src, "sound/effects/squelch1.ogg", 50, 1)
+	for (var/obj/effect/decal/cleanable/C in src)
+		qdel(C)
+	for (var/direction in alldirs)
+		var/turf/T = get_step(src, direction)
+		if (istype(T, /turf/unsimulated/wall/bloodrealm))
+			var/turf/unsimulated/wall/bloodrealm/W = T
+			W.remove_ribs(src)
+		if (istype(T, /turf/unsimulated/floor/bloodrealm))
+			apply_ribs(T)
+	overlays += "[denomination]_scar"
+	switch(denomination)
+		if ("clot")
+			maxHealth = 50
+			health = 50
+		if ("membrane")
+			maxHealth = 25
+			health = 25
+			icon_state = "membrane"
+			name = "membrane"
+			opacity = 0
+			possible_wounds = list("pus_1","pus_2","pus_3","pus_4","pus_5")
+	take_damage(maxHealth-2, null, 0)
+
+/turf/unsimulated/floor/bloodrealm/wound/Entered(atom/A, atom/OL)
+	//stuff passing through the wounds slows down its healing
+	countdown_to_healing++
+	..()
+
+/atom/proc/blood_dimension_radius(transformRadius = 1, approxRadius = 1, paintRadius = 1)
 	//mirrors tiles in a radius on the station into the blood dimension
 	if (z != map.zMainStation || !bloodZ)
 		return
 	var/turf/T = locate(x,y,z)
 	if (!T)
 		return
+	var/list/tiles_to_carve = list()
 	var/list/tiles_to_mirror = list()
 	for (var/i = (-1 * transformRadius) to transformRadius)
 		for (var/j = (-1 * transformRadius) to transformRadius)
 			var/dist = cheap_pythag(i,j)
 			if (dist <= transformRadius)
 				if (dist <= approxRadius || prob(50))
-					tiles_to_mirror |= list(list(i+T.x,j+T.y))
+					if (dist <= paintRadius)
+						tiles_to_mirror |= list(list(i+T.x,j+T.y))
+					else
+						tiles_to_carve |= list(list(i+T.x,j+T.y))
 	spawn()
 		while(tiles_to_mirror.len)
 			var/tile_to_mirror = pick(tiles_to_mirror)
 			tiles_to_mirror -= list(tile_to_mirror)
-			blood_dimension_coordinates(tile_to_mirror[1], tile_to_mirror[2])
+			blood_dimension_coordinates(tile_to_mirror[1], tile_to_mirror[2], TRUE)
+			sleep(1)
+		while(tiles_to_carve.len)
+			var/tile_to_carve = pick(tiles_to_carve)
+			tiles_to_carve -= list(tile_to_carve)
+			blood_dimension_coordinates(tile_to_carve[1], tile_to_carve[2], FALSE)
 			sleep(1)
 
-/proc/blood_dimension_coordinates(var/targetX, var/targetY)
+/proc/blood_dimension_coordinates(var/targetX, var/targetY, var/paintFloor)
 	//mirrors the station tile at the given coordinates into the blood dimension
 	var/turf/T = locate(targetX,targetY,map.zMainStation)
 	if (T)
-		T.blood_dimension_shape()
+		T.blood_dimension_shape(paint = paintFloor)
 
 /turf/proc/blood_dimension_walltype(var/type = "clot")
 	return
@@ -183,14 +283,14 @@
 			health = 50
 			possible_wounds = list("pus_1","pus_2","pus_3","pus_4","pus_5")
 
-/turf/proc/blood_dimension_shape()
+/turf/proc/blood_dimension_shape(var/dress = TRUE, var/paint = TRUE)
 	//mirrors this specific tile into the blood dimension
 	if (z != map.zMainStation || !bloodZ)
 		return//we only mirror station tiles
 	var/turf/T = locate(x,y,bloodZ)
 	if (T.bloodcarved)
 		return//already mirrored
-	T.bloodcarved = 1
+	T.bloodcarve(1)
 	blood_dimension_expand(T)
 	. = T
 
@@ -210,42 +310,50 @@
 			U.blood_dimension_walltype("membrane")
 			break
 
-/turf/unsimulated/wall/blood_dimension_shape()
+/turf/unsimulated/wall/blood_dimension_shape(var/dress = TRUE, var/paint = TRUE)
 	. = ..()
-	if (.)
+	if (. && dress)
 		var/turf/T = .
 		T.blood_dimension_dress()
 
-/turf/simulated/wall/blood_dimension_shape()
+/turf/simulated/wall/blood_dimension_shape(var/dress = TRUE, var/paint = TRUE)
 	. = ..()
-	if (.)
+	if (. && dress)
 		var/turf/T = .
 		T.blood_dimension_dress()
 
-/turf/unsimulated/floor/blood_dimension_shape()
+/turf/unsimulated/floor/blood_dimension_shape(var/dress = TRUE, var/paint = TRUE)
 	. = ..()
-	if (.)
+	if (. && !istype(loc, /area/shuttle))
 		var/turf/T = .
-		T.blood_dimension_carve()
+		T.blood_dimension_carve(dress,paint)
 
-/turf/simulated/floor/blood_dimension_shape()
+/turf/simulated/floor/blood_dimension_shape(var/dress = TRUE, var/paint = TRUE)
 	. = ..()
-	if (.)
+	if (. && !istype(loc, /area/shuttle))
 		var/turf/T = .
-		T.blood_dimension_carve()
+		T.blood_dimension_carve(dress,paint)
 
-/turf/proc/blood_dimension_carve(var/dress = TRUE)
+/turf/proc/blood_dimension_carve(var/dress = TRUE, var/paint = TRUE, var/turf_type = /turf/unsimulated/floor/bloodrealm)
 	if (dress && (denomination == "membrane"))
 		opacity = 0
 		blood_dimension_dress()
 		return
-	ChangeTurf(/turf/unsimulated/floor/bloodrealm)
+	ChangeTurf(turf_type)
 	for (var/turf/unsimulated/wall/bloodrealm/W in range(1,src))
 		W.apply_ribs(src)
 	if (dress)
-		blood_dimension_dress()
+		blood_dimension_dress(paint)
+
+/turf/unsimulated/wall/bloodrealm/wound/blood_dimension_carve(var/dress = TRUE, var/paint = TRUE, var/turf_type = /turf/unsimulated/floor/bloodrealm)
+	ChangeTurf(/turf/unsimulated/floor/bloodrealm/wound)
+	for (var/turf/unsimulated/wall/bloodrealm/W in range(1,src))
+		W.apply_ribs(src)
 
 /turf/proc/apply_ribs()
+	return
+
+/turf/proc/remove_ribs()
 	return
 
 /turf/unsimulated/wall/bloodrealm/apply_ribs(var/turf/T)
@@ -267,9 +375,56 @@
 		if (SOUTHWEST)
 			overlays += "[denomination]_southwest"
 
+/turf/unsimulated/wall/bloodrealm/remove_ribs(var/turf/T)
+	switch(get_dir(src, T))
+		if (NORTH)
+			overlays -= "[denomination]_north"
+		if (SOUTH)
+			overlays -= "[denomination]_south"
+		if (EAST)
+			overlays -= "[denomination]_east"
+		if (WEST)
+			overlays -= "[denomination]_west"
+		if (NORTHEAST)
+			overlays -= "[denomination]_northeast"
+		if (NORTHWEST)
+			overlays -= "[denomination]_northwest"
+		if (SOUTHEAST)
+			overlays -= "[denomination]_southeast"
+		if (SOUTHWEST)
+			overlays -= "[denomination]_southwest"
+
 /turf/unsimulated/wall/bloodrealm/ChangeTurf(var/turf/N, var/tell_universe=1, var/force_lighting_update = 0, var/allow = 1)
 	overlays.len = 0
+	processing_objects.Remove(src)
 	..()
+
+/turf/unsimulated/wall/bloodrealm/process()
+	healing(healing_rate)
+
+/turf/unsimulated/wall/bloodrealm/proc/healing(var/rate)
+	var/next_threshold = 0
+	while (next_threshold < health)
+		next_threshold += maxHealth/5
+
+	overlays -= damage_overlay
+
+	health += rate
+
+	while (health > next_threshold && acquired_wounds.len)
+		var/new_wound = pick(acquired_wounds)
+		acquired_wounds -= new_wound
+		possible_wounds += new_wound
+		damage_overlay.overlays -= new_wound
+		next_threshold += maxHealth/5
+
+	if (health >= maxHealth)
+		health = maxHealth
+		processing_objects.Remove(src)
+		return
+
+	overlays += damage_overlay
+
 
 //gives objects a "greasy" look
 /obj/proc/greasify()
@@ -283,10 +438,10 @@
 var/list/bloodturf_cache = list()
 var/list/bloodturf_masks = list("center","north","south","east","west","northeast","northwest","southeast","southwest")
 
-/turf/proc/blood_dimension_dress()
+/turf/proc/blood_dimension_dress(var/doPaint = TRUE)
 	return
 
-/turf/unsimulated/wall/bloodrealm/blood_dimension_dress()
+/turf/unsimulated/wall/bloodrealm/blood_dimension_dress(var/doPaint = TRUE)
 	if (bloodcarved != 1)
 		return
 	var/turf/source = locate(x,y,map.zMainStation)
@@ -294,9 +449,9 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	for (var/obj/A in source)
 		A.blood_dimension_copy(src)
 
-	bloodcarved = 2
+	bloodcarve(2)
 
-/turf/unsimulated/floor/bloodrealm/blood_dimension_dress()
+/turf/unsimulated/floor/bloodrealm/blood_dimension_dress(var/doPaint = TRUE)
 	if (bloodcarved != 1)
 		return
 	var/turf/source = locate(x,y,map.zMainStation)
@@ -315,9 +470,10 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	for (var/obj/A in source)
 		A.blood_dimension_copy(src)
 
-	bloodcarved = 2
+	bloodcarve(2)
 
-	blood_dimension_paint()
+	if (doPaint)
+		blood_dimension_paint()
 
 //////////////////////////////////////////////////////////////////////TODO, move those to their proper files
 
@@ -474,7 +630,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 
 	overlays += turf_icon_parts["center"]
 
-	bloodcarved = 3
+	bloodcarve(3)
 
 	var/ok_dir = 0
 	for (var/direc in cardinal)
@@ -526,15 +682,23 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 
 ////////WAYS TO BREAK THEM WALLS
 
-/turf/unsimulated/wall/bloodrealm/proc/take_damage(var/damage = 0,var/hitsound = TRUE)
+/turf/unsimulated/wall/bloodrealm/proc/take_damage(var/damage = 0,var/mob/user,var/hitsound = get_sfx("machete_hit"))
 	if (!damage)
 		return
 
 	if (!damage_overlay)
 		damage_overlay = image(icon,src,"blank")
 
+	if (damage < 5)
+		if (user)
+			to_chat(user, "\the [src] endures the hit.")
+		return
+
+	if (health >= maxHealth)
+		processing_objects.Add(src)
+
 	if(hitsound)
-		playsound(loc, get_sfx("machete_hit"), 50, 1)
+		playsound(src, hitsound, 20, 1)
 
 	var/next_threshold = maxHealth
 	while (next_threshold > health)
@@ -546,21 +710,29 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 
 	if (health <= 0)
 		playsound(src, "sound/effects/blobsplat.ogg", 50, 1)
-		if (denomination == "membrane")
-			name = "viscous floor"
-			icon_state = "floor_accent"
-			anim(target = src, a_icon = icon, flick_anim = "membrane_break", sleeptime = 10, plane = src.plane, lay = layer+0.3)
-		else
-			anim(target = src, a_icon = icon, flick_anim = "rib_break", sleeptime = 10, plane = src.plane, lay = layer+0.3)
+		anim(target = src, a_icon = icon, flick_anim = "[denomination]_break", sleeptime = 10, plane = src.plane, lay = layer+0.3)
+		bloodcarve(1)
 		blood_dimension_expand(src)
-		blood_dimension_carve(FALSE)
+		carve()
 	else
-		while (health < next_threshold)
+		while (health < next_threshold && possible_wounds.len)
 			var/new_wound = pick(possible_wounds)
 			possible_wounds -= new_wound
+			acquired_wounds += new_wound
 			damage_overlay.overlays += new_wound
 			next_threshold -= maxHealth/5
 		overlays += damage_overlay
+
+/turf/unsimulated/wall/bloodrealm/proc/carve()
+	if (denomination == "rib" || denomination == "membrane")
+		blood_dimension_carve(FALSE, FALSE, /turf/unsimulated/floor/bloodrealm/wound)
+		cicatrize()
+	else
+		blood_dimension_carve(FALSE, FALSE)
+
+/turf/unsimulated/wall/bloodrealm/wound/carve()
+	blood_dimension_carve(FALSE, FALSE, /turf/unsimulated/floor/bloodrealm/wound)
+	cicatrize()
 
 //hit by held items
 /turf/unsimulated/wall/bloodrealm/attackby(var/obj/item/weapon/W, var/mob/living/user)
@@ -575,51 +747,56 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	if(dam)
 		user.do_attack_animation(src, W)
 		user.visible_message("<span class='danger'>\The [user] [pick(W.attack_verb)] \the [src] with \the [W].</span>")
-	take_damage(dam)
+	take_damage(dam,user)
 	..()
 
 //explosions
 /turf/unsimulated/wall/bloodrealm/ex_act(severity)
 	switch(severity)
 		if(1)
-			take_damage(rand(200, 300), FALSE)
+			take_damage(rand(200, 300),null, 0)
 		if(2)
-			take_damage(rand(50, 150), FALSE)
+			take_damage(rand(50, 150),null, 0)
 		if(3)
-			take_damage(rand(5, 50), FALSE)
+			take_damage(rand(5, 50),null, 0)
 
 //hit by bullets
 /turf/unsimulated/wall/bloodrealm/bullet_act(var/obj/item/projectile/Proj)
 	if(!Proj)
 		return
-	take_damage(Proj.damage)
+	take_damage(Proj.damage, Proj.firer)
 	return ..()
 
 //hit by thrown items
-/turf/unsimulated/wall/bloodrealm/hitby(var/atom/movable/AM)
+/turf/unsimulated/wall/bloodrealm/hitby(var/atom/movable/AM,var/speed = 5)
 	if(isitem(AM))
 		var/obj/item/I = AM
-		take_damage(I.throwforce)
+		take_damage(I.throwforce*speed/5)
 
 //slashed by simple_animals
 /turf/unsimulated/wall/bloodrealm/attack_animal(var/mob/living/simple_animal/user)
 	user.delayNextAttack(8)
 	user.do_attack_animation(src, user)
-	take_damage(user.get_unarmed_damage(src))
+	take_damage(user.get_unarmed_damage(src),user, user.get_unarmed_hit_sound())
 
 //slashed (touched?) by humans
 /turf/unsimulated/wall/bloodrealm/attack_hand(var/mob/living/carbon/human/user)
 	if (user.a_intent == I_HURT)
 		user.delayNextAttack(8)
 		user.do_attack_animation(src, user)
-		take_damage(user.get_unarmed_damage(src))
+		var/datum/species/S = user.get_organ_species(user.get_active_hand_organ())
+		user.visible_message("<span class='danger'>\The [user] [S.attack_verb] \the [src].</span>")
+		take_damage(user.get_unarmed_damage(src),user, user.get_unarmed_hit_sound())
 
 //slashed (touched?) by monkeys
 /turf/unsimulated/wall/bloodrealm/attack_paw(var/mob/living/carbon/monkey/user)
 	if (user.a_intent == I_HURT)
+		if(user.wear_mask?.is_muzzle)
+			to_chat(user, "<span class='notice'>You can't do this with \the [user.wear_mask] on!</span>")
+			return
 		user.delayNextAttack(8)
 		user.do_attack_animation(src, user)
-		take_damage(user.get_unarmed_damage(src))
+		take_damage(user.get_unarmed_damage(src),user, user.get_unarmed_hit_sound())
 
 //slashed by aliums
 /turf/unsimulated/wall/bloodrealm/attack_alien(var/mob/living/carbon/alien/humanoid/user)
@@ -628,8 +805,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	user.delayNextAttack(8)
 	user.do_attack_animation(src, user)
 	var/alienverb = pick(list("slam", "rip", "claw"))
-	user.delayNextAttack(8)
 	user.visible_message("<span class='warning'>[user] [alienverb]s \the [src].</span>", \
 						 "<span class='warning'>You [alienverb] \the [src].</span>", \
 						 "You hear ripping flesh.")
-	take_damage(rand(15,30))
+	take_damage(rand(15,30),user)
