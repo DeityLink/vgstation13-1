@@ -1512,7 +1512,7 @@ var/obj/blend_test = null
 
 /client/proc/blood_realm_test_radius()
 	set category = "Debug"
-	set name = "Blood Realm Test Radius"
+	set name = "(CULT4) Blood Realm Test Radius"
 	set desc = "Mirrors the surrounding area into the blood dimension."
 
 	if (!check_rights(R_DEBUG))
@@ -1526,3 +1526,14 @@ var/obj/blend_test = null
 	var/turf/U = locate(T.x,T.y,map.zMainStation)
 
 	U.blood_dimension_radius(radius,approx,paint)
+
+/client/proc/spawn_meat_blob()
+	set category = "Debug"
+	set name = "(CULT4) Spawn Meat Blob"
+	set desc = "Spawns a Meat Blob on the current tile"
+
+	if (!check_rights(R_DEBUG))
+		return
+
+	var/datum/meat_blob/new_blob = new()
+	new_blob.instantiate(mob.loc)

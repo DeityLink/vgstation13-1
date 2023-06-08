@@ -88,6 +88,7 @@ var/list/admin_verbs_admin = list(
 	/client/proc/artifacts_panel,
 	/client/proc/body_archive_panel,
 	/client/proc/blood_realm_test_radius,
+	/client/proc/spawn_meat_blob,
 	/client/proc/climate_panel,
 	/datum/admins/proc/ashInvokedEmotions,	/*Ashes all paper from the invoke emotion spell. An emergency purge.*/
 	/client/proc/toggle_admin_examine

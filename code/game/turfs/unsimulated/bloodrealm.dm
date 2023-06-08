@@ -809,3 +809,352 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 						 "<span class='warning'>You [alienverb] \the [src].</span>", \
 						 "You hear ripping flesh.")
 	take_damage(rand(15,30),user)
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+/datum/meat_blob
+	var/list/blob_tiles = list()
+	var/obj/meat_blob/center_blob = null	//there's no "core" but this is an arbitrary tile whose coordinates are fairly close to the center
+	var/obj/meat_blob/previous_center = null
+	var/initial_size = 10	//How many blob tiles are compacted inside the core. Will spread out given the chance.
+	var/mass_to_move = 0	//Some buffer to move around by contracting/expanding
+	var/average_x = 0
+	var/average_y = 0
+	var/turf/target_tile = null
+	var/turf/target_dist = 0
+	var/turf/target_dir = 0
+	var/blobZ = 1
+
+	var/target_modifier = 1
+	var/group_modifier = 2
+	var/block_modifier = -1
+	var/side_modifier = 1
+
+	var/list/high_scorers = list()
+	var/list/low_scorers = list()
+	var/list/low_scorers_necessary = list()
+	var/necessary_count = 0
+
+	var/timestopped = 0//TODO
+
+	var/update_speed = 5//lower = faster, don't set below 1
+
+	var/stuck_count = 0
+	var/stuck_critical = 10
+	var/mode_change_threshold = 20
+	var/list/integrity_check = list()
+
+/obj/meat_blob
+	name = "Meat Blob"
+	desc = "It looks fairly harmless, maybe tasty even."
+	icon = 'icons/turf/bloodrealm.dmi'
+	icon_state = "blob"
+	anchored = 1
+	density = 1
+	var/datum/meat_blob/blob_datum = null
+	var/existence_score = 0
+	var/created_when = 0
+	var/last_attack = 0
+
+	var/target_score = 0
+	var/group_score = 0
+	var/block_score = 0
+	var/side_score = 0
+	var/score = 0
+
+	var/list/available_directions = list()
+	var/list/connection_directions = list()
+
+/obj/meat_blob/New(turf/loc)
+	..()
+	created_when = world.time
+
+/obj/meat_blob/Destroy()
+	if (blob_datum)
+		blob_datum.remove_blob(src)
+	blob_datum = null
+	..()
+
+/obj/meat_blob/proc/set_target_score()
+	var/dist = abs(abs(x - blob_datum.target_tile.x) + abs(y - blob_datum.target_tile.y))
+	target_score = blob_datum.target_dist - dist
+
+/obj/meat_blob/proc/set_side_score()
+	side_score = 0
+	if (src != blob_datum.center_blob)
+		var/current_dir = get_dir(blob_datum.center_blob,src)
+		if (blob_datum.target_dir & current_dir)
+			side_score = 1
+		else
+			side_score = -1
+
+/obj/meat_blob/proc/set_group_and_block_score()
+	group_score = 0
+	block_score = 0
+	available_directions = list()
+	connection_directions = list()
+	for (var/direction in cardinal)
+		var/turf/T = get_step(loc,direction)
+		var/adjacent_blob = locate(/obj/meat_blob) in T
+		if (adjacent_blob && (adjacent_blob in blob_datum.blob_tiles))
+			group_score++
+			connection_directions += direction
+		else if (!T.Enter(src, loc, TRUE))
+			block_score++
+		else
+			available_directions += direction
+
+/obj/meat_blob/proc/is_necessary()
+	var/list/clockwise = list(
+		list(-1,1),
+		list(0,1),
+		list(1,1),
+		list(1,0),
+		list(1,-1),
+		list(0,-1),
+		list(-1,-1),
+		list(-1,0),
+		)
+	var/toggle_count = -1
+	var/toggle_status = -1
+	for (var/list/coord in clockwise)
+		var/nearby_blob = locate(/obj/meat_blob) in locate(x+coord[1],y+coord[2],z)
+		if (nearby_blob && (nearby_blob in blob_datum.blob_tiles))
+			if (toggle_status == 1)
+				continue
+			else
+				toggle_status = 1
+				toggle_count++
+		else
+			if (toggle_status == 0)
+				continue
+			else
+				toggle_status = 0
+				toggle_count++
+	return (toggle_count >= 3)
+
+/obj/meat_blob/attack_ghost(var/mob/user)//DEBUG, Don't forget to remove, idiot
+	if (blob_datum)
+		blob_datum.set_target(user.loc)
+
+/datum/meat_blob/proc/instantiate(var/turf/spawnpoint)
+	if (!spawnpoint)
+		qdel(src)
+		return
+	spawn()
+		custom_process()
+	blobZ = spawnpoint.z
+	var/obj/meat_blob/first_blob = new (spawnpoint)
+	blob_tiles += first_blob
+	first_blob.blob_datum = src
+	average_x = first_blob.x
+	average_y = first_blob.y
+	spawn()
+		expand_blob_list(list(first_blob), initial_size)
+		re_center()
+
+/datum/meat_blob/proc/custom_process()
+	set waitfor = FALSE
+	if (target_tile)
+		tally_scores()
+		if (mass_to_move)
+			if (stuck_count >= mode_change_threshold)//if we're having some trouble to move, let's try thinning ourselves a bit
+				target_modifier = 2
+				side_modifier = 2
+			else
+				target_modifier = 1
+				side_modifier = 1
+			if (high_scorers?.len)
+				var/obj/meat_blob/expanding = pick(high_scorers)
+				if (expanding.available_directions?.len)
+					var/expansion = pick(expanding.available_directions)
+					var/obj/meat_blob/new_blob = expand_blob(expanding.loc, get_step(expanding.loc,expansion))
+					if (new_blob)
+						mass_to_move--
+						set_target(target_tile)//updating target distance and direction
+		else
+			var/unshackle_attempt = 0
+			if ((stuck_count >= stuck_critical) && (necessary_count >= 8))//For there to be an actual shackle to cut there should be at least 8 "necessary" tiles
+				var/obj/meat_blob/retracting = pick(low_scorers_necessary)
+				integrity_check = list(center_blob)
+				core_integrity(list(center_blob),retracting)
+				if (integrity_check.len == (blob_tiles.len - 1))//making sure that we're not separating the blob in two
+					if (retracting.connection_directions?.len)
+						var/retraction = pick(retracting.connection_directions)
+						if (retraction)
+							remove_blob(retracting,retraction)
+							qdel(retracting)
+							mass_to_move++
+							set_target(target_tile)//updating target distance and direction
+							unshackle_attempt = 1
+			if (!unshackle_attempt && low_scorers?.len)
+				var/obj/meat_blob/retracting = pick(low_scorers)
+				if (retracting.connection_directions?.len)
+					var/retraction = pick(retracting.connection_directions)
+					if (retraction)
+						remove_blob(retracting,retraction)
+						qdel(retracting)
+						mass_to_move++
+						set_target(target_tile)//updating target distance and direction
+
+
+		tally_scores()//again for debug purposes
+		center_blob.maptext = "[stuck_count]"
+	sleep(update_speed)
+	custom_process()
+
+/datum/meat_blob/proc/re_center()
+	if (!blob_tiles?.len)
+		return
+	var/obj/meat_blob/preprevious_center = previous_center
+	previous_center = center_blob
+	var/closest_total_diff = 100
+	var/obj/meat_blob/most_centered = null
+	for (var/blob in blob_tiles)
+		var/obj/meat_blob/B = blob
+		var/diff_x = abs(B.x - average_x)
+		var/diff_y = abs(B.y - average_y)
+		var/total_diff = diff_x + diff_y
+		if ((total_diff < closest_total_diff) || ((total_diff == closest_total_diff) && prob(50)))
+			closest_total_diff = total_diff
+			most_centered = B
+	if (center_blob)
+		center_blob.icon_state = "blob"
+	center_blob = most_centered
+	center_blob.icon_state = "center"
+	if (((previous_center == center_blob)||(preprevious_center == center_blob)) && (target_dist > 2))//if the center hasn't moved in a while and we're nowhere near the target, we might be shackled
+		stuck_count++
+	else
+		stuck_count = 0
+
+/datum/meat_blob/proc/set_target(var/turf/T)
+	if (!T || (T.z != blobZ))
+		return
+	target_tile = T
+	target_dist = abs(abs(center_blob.x - T.x) + abs(center_blob.y - T.y))
+	target_dir = get_dir(center_blob,T)
+
+/datum/meat_blob/proc/core_integrity(var/list/blobs_to_check,var/obj/meat_blob/blob_to_kill = null)
+	var/list/next_blobs = list()
+	for(var/blob in blobs_to_check)
+		var/obj/meat_blob/B = blob
+		for (var/direction in cardinal)
+			var/turf/T = get_step(B.loc,direction)
+			var/obj/meat_blob/O = locate(/obj/meat_blob) in T
+			if (O && (O in blob_tiles) && (O != blob_to_kill))
+				if (!(O in integrity_check))
+					next_blobs += O
+				integrity_check |= O
+	if (next_blobs?.len)
+		core_integrity(next_blobs,blob_to_kill)
+
+/datum/meat_blob/proc/tally_scores()
+	high_scorers = list()
+	low_scorers = list()
+	low_scorers_necessary = list()
+	necessary_count = 0
+	var/high_score = -100
+	var/low_score = 100
+	var/low_score_critical = 100
+	for (var/blob in blob_tiles)
+		var/obj/meat_blob/B = blob
+		B.set_target_score()
+		B.set_side_score()
+		B.set_group_and_block_score()
+		B.score = B.target_score * target_modifier + B.group_score * group_modifier + B.side_score * side_modifier
+		B.maptext = "[B.score]"
+		if ((B.group_score + B.block_score) < 4)//we're not gonna try to expand off an inner tile or a blocked tile
+			if (B.score > high_score)
+				high_scorers = list(B)
+				high_score = B.score
+			else if (B.score == high_score)
+				high_scorers += B
+		if (!B.is_necessary())//we're not gonna cut off a tile that would separate the blob in two
+			if (B.score < low_score)
+				low_scorers = list(B)
+				low_score = B.score
+			else if (B.score == low_score)
+				low_scorers += B
+		else if (stuck_count > stuck_critical)//UNLESS we somehow shackled ourselves by accident
+			necessary_count++
+			if (B.score < low_score_critical)
+				low_scorers_necessary = list(B)
+				low_score_critical = B.score
+			else if (B.score == low_score_critical)
+				low_scorers_necessary += B
+
+/datum/meat_blob/proc/expand_blob_list(var/list/blob_list, var/amount_to_expand = 0)
+	var/list/new_list = list()
+	for(var/blob in blob_list)
+		var/obj/meat_blob/B = blob
+		var/turf/center = B.loc
+		if (amount_to_expand <= 0)
+			return
+		var/list/cardinal_tiles = list()
+		for (var/direction in cardinal)
+			cardinal_tiles += get_step(center,direction)
+		for (var/turf/T in cardinal_tiles)
+			if (amount_to_expand <= 0)
+				return
+			var/obj/meat_blob/new_blob = expand_blob(center,T)
+			if (new_blob)
+				new_list += new_blob
+				amount_to_expand--
+				sleep(2)
+	if (new_list.len > 0)
+		expand_blob_list(new_list, amount_to_expand)
+	else if (amount_to_expand)
+		mass_to_move = amount_to_expand
+
+/datum/meat_blob/proc/expand_blob(var/turf/source, var/turf/target)
+	var/obj/meat_blob/new_blob = new (source)
+	if(target.Enter(new_blob, source, TRUE))//Attempt to move into the tile
+		new_blob.Move(target)
+		new_blob.move_blob(get_dir(source,target))
+		new_blob.blob_datum = src
+		var/total_x = average_x * blob_tiles.len
+		var/total_y = average_y * blob_tiles.len
+		blob_tiles += new_blob
+		average_x = (total_x + new_blob.x) / blob_tiles.len
+		average_y = (total_y + new_blob.y) / blob_tiles.len
+		re_center()
+		return new_blob
+	else
+		qdel(new_blob)
+		return null
+
+/obj/meat_blob/proc/move_blob(var/direction)
+	switch(direction)
+		if (NORTH)
+			pixel_y = -32
+		if (SOUTH)
+			pixel_y = 32
+		if (EAST)
+			pixel_x = -32
+		if (WEST)
+			pixel_x = 32
+	animate(src,pixel_x = 0, pixel_y = 0, time = 2, easing = SINE_EASING|EASE_OUT)
+
+/datum/meat_blob/proc/remove_blob(var/obj/meat_blob/blob,var/merge)
+	blob.blob_datum = null
+	var/total_x = average_x * blob_tiles.len
+	var/total_y = average_y * blob_tiles.len
+	blob_tiles -= blob
+	average_x = (total_x - blob.x) / blob_tiles.len
+	average_y = (total_y - blob.y) / blob_tiles.len
+	re_center()
+	if (merge)
+		var/atom/movable/overlay/animation = new /atom/movable/overlay(blob.loc)
+		animation.layer -= 0.1
+		animation.appearance = blob.appearance
+		switch(merge)
+			if (NORTH)
+				animate(animation,pixel_y = 32, time = 2, easing = SINE_EASING|EASE_IN)
+			if (SOUTH)
+				animate(animation,pixel_y = -32, time = 2, easing = SINE_EASING|EASE_IN)
+			if (WEST)
+				animate(animation,pixel_x = -32, time = 2, easing = SINE_EASING|EASE_IN)
+			if (EAST)
+				animate(animation,pixel_x = 32, time = 2, easing = SINE_EASING|EASE_IN)
+		spawn(2)
+			qdel(animation)
