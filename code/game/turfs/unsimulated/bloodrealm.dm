@@ -841,16 +841,24 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 
 	var/stuck_count = 0
 	var/stuck_critical = 10
-	var/mode_change_threshold = 20
+	var/mode_change_threshold = 0
 	var/list/integrity_check = list()
 
+	var/state = "idle"//TODO: Replace with defines
+
 /obj/meat_blob
-	name = "Meat Blob"
+	name = "meat blob"
 	desc = "It looks fairly harmless, maybe tasty even."
-	icon = 'icons/turf/bloodrealm.dmi'
+	icon = 'icons/mob/meatblob.dmi'
 	icon_state = "blob"
 	anchored = 1
 	density = 1
+	layer = BLOB_BASE_LAYER
+	plane = BLOB_PLANE
+
+	health = 100
+	maxHealth = 100
+
 	var/datum/meat_blob/blob_datum = null
 	var/existence_score = 0
 	var/created_when = 0
@@ -905,6 +913,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 			available_directions += direction
 
 /obj/meat_blob/proc/is_necessary()
+	var/connections = ""
 	var/list/clockwise = list(
 		list(-1,1),
 		list(0,1),
@@ -920,22 +929,28 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	for (var/list/coord in clockwise)
 		var/nearby_blob = locate(/obj/meat_blob) in locate(x+coord[1],y+coord[2],z)
 		if (nearby_blob && (nearby_blob in blob_datum.blob_tiles))
+			connections += "O"
 			if (toggle_status == 1)
 				continue
 			else
 				toggle_status = 1
 				toggle_count++
 		else
+			connections += "X"
 			if (toggle_status == 0)
 				continue
 			else
 				toggle_status = 0
 				toggle_count++
+	icon_state = connections
 	return (toggle_count >= 3)
 
 /obj/meat_blob/attack_ghost(var/mob/user)//DEBUG, Don't forget to remove, idiot
 	if (blob_datum)
 		blob_datum.set_target(user.loc)
+
+/obj/meat_blob/blocks_doors()
+	return TRUE
 
 /datum/meat_blob/proc/instantiate(var/turf/spawnpoint)
 	if (!spawnpoint)
@@ -952,6 +967,10 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	spawn()
 		expand_blob_list(list(first_blob), initial_size)
 		re_center()
+		for (var/blob in blob_tiles)
+			var/obj/meat_blob/B = blob
+			B.is_necessary()//updates sprites
+		set_target(spawnpoint)
 
 /datum/meat_blob/proc/custom_process()
 	set waitfor = FALSE
@@ -968,8 +987,10 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 				var/obj/meat_blob/expanding = pick(high_scorers)
 				if (expanding.available_directions?.len)
 					var/expansion = pick(expanding.available_directions)
-					var/obj/meat_blob/new_blob = expand_blob(expanding.loc, get_step(expanding.loc,expansion))
+					var/obj/meat_blob/new_blob = expand_blob(expanding, get_step(expanding.loc,expansion))
 					if (new_blob)
+						for (var/obj/meat_blob/B in range(new_blob.loc,1))
+							B.is_necessary()//updating sprite
 						mass_to_move--
 						set_target(target_tile)//updating target distance and direction
 		else
@@ -982,8 +1003,11 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 					if (retracting.connection_directions?.len)
 						var/retraction = pick(retracting.connection_directions)
 						if (retraction)
+							var/turf/T = retracting.loc
 							remove_blob(retracting,retraction)
 							qdel(retracting)
+							for (var/obj/meat_blob/B in range(T,1))
+								B.is_necessary()//updating sprite
 							mass_to_move++
 							set_target(target_tile)//updating target distance and direction
 							unshackle_attempt = 1
@@ -992,14 +1016,17 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 				if (retracting.connection_directions?.len)
 					var/retraction = pick(retracting.connection_directions)
 					if (retraction)
+						var/turf/T = retracting.loc
 						remove_blob(retracting,retraction)
 						qdel(retracting)
+						for (var/obj/meat_blob/B in range(T,1))
+							B.is_necessary()//updating sprite
 						mass_to_move++
 						set_target(target_tile)//updating target distance and direction
 
 
-		tally_scores()//again for debug purposes
-		center_blob.maptext = "[stuck_count]"
+		//tally_scores()//again for debug purposes
+		//center_blob.maptext = "[stuck_count]"
 	sleep(update_speed)
 	custom_process()
 
@@ -1019,9 +1046,9 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 			closest_total_diff = total_diff
 			most_centered = B
 	if (center_blob)
-		center_blob.icon_state = "blob"
+		center_blob.overlays -= "center"
 	center_blob = most_centered
-	center_blob.icon_state = "center"
+	center_blob.overlays += "center"
 	if (((previous_center == center_blob)||(preprevious_center == center_blob)) && (target_dist > 2))//if the center hasn't moved in a while and we're nowhere near the target, we might be shackled
 		stuck_count++
 	else
@@ -1062,7 +1089,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 		B.set_side_score()
 		B.set_group_and_block_score()
 		B.score = B.target_score * target_modifier + B.group_score * group_modifier + B.side_score * side_modifier
-		B.maptext = "[B.score]"
+		//B.maptext = "[B.score]"
 		if ((B.group_score + B.block_score) < 4)//we're not gonna try to expand off an inner tile or a blocked tile
 			if (B.score > high_score)
 				high_scorers = list(B)
@@ -1087,16 +1114,15 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	var/list/new_list = list()
 	for(var/blob in blob_list)
 		var/obj/meat_blob/B = blob
-		var/turf/center = B.loc
 		if (amount_to_expand <= 0)
 			return
 		var/list/cardinal_tiles = list()
 		for (var/direction in cardinal)
-			cardinal_tiles += get_step(center,direction)
+			cardinal_tiles += get_step(B.loc,direction)
 		for (var/turf/T in cardinal_tiles)
 			if (amount_to_expand <= 0)
 				return
-			var/obj/meat_blob/new_blob = expand_blob(center,T)
+			var/obj/meat_blob/new_blob = expand_blob(B,T)
 			if (new_blob)
 				new_list += new_blob
 				amount_to_expand--
@@ -1106,11 +1132,11 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	else if (amount_to_expand)
 		mass_to_move = amount_to_expand
 
-/datum/meat_blob/proc/expand_blob(var/turf/source, var/turf/target)
-	var/obj/meat_blob/new_blob = new (source)
-	if(target.Enter(new_blob, source, TRUE))//Attempt to move into the tile
+/datum/meat_blob/proc/expand_blob(var/obj/meat_blob/source, var/turf/target)
+	var/obj/meat_blob/new_blob = new (source.loc)
+	if(target.Enter(new_blob, source.loc, TRUE))//Attempt to move into the tile
 		new_blob.Move(target)
-		new_blob.move_blob(get_dir(source,target))
+		new_blob.move_blob(get_dir(source.loc,target))
 		new_blob.blob_datum = src
 		var/total_x = average_x * blob_tiles.len
 		var/total_y = average_y * blob_tiles.len
@@ -1145,8 +1171,8 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	re_center()
 	if (merge)
 		var/atom/movable/overlay/animation = new /atom/movable/overlay(blob.loc)
-		animation.layer -= 0.1
 		animation.appearance = blob.appearance
+		animation.layer -= 1
 		switch(merge)
 			if (NORTH)
 				animate(animation,pixel_y = 32, time = 2, easing = SINE_EASING|EASE_IN)
