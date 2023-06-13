@@ -407,6 +407,9 @@
 	while (next_threshold < health)
 		next_threshold += maxHealth/5
 
+	if (!damage_overlay)
+		damage_overlay = image('icons/turf/bloodrealm.dmi',src,"blank")
+
 	overlays -= damage_overlay
 
 	health += rate
@@ -812,6 +815,11 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 
 //////////////////////////////////////////////////////////////////////////////////////
 
+#define MEATBLOB_IDLE	0
+#define MEATBLOB_ROAM	1
+#define MEATBLOB_FLEE	2
+#define MEATBLOB_DEAD	3
+
 /datum/meat_blob
 	var/list/blob_tiles = list()
 	var/obj/meat_blob/center_blob = null	//there's no "core" but this is an arbitrary tile whose coordinates are fairly close to the center
@@ -844,7 +852,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	var/mode_change_threshold = 0
 	var/list/integrity_check = list()
 
-	var/state = "idle"//TODO: Replace with defines
+	var/state = MEATBLOB_IDLE
 
 /obj/meat_blob
 	name = "meat blob"
@@ -853,7 +861,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	icon_state = "blob"
 	anchored = 1
 	density = 1
-	layer = BLOB_BASE_LAYER
+	layer = BLOB_SHIELD_LAYER
 	plane = BLOB_PLANE
 
 	health = 100
@@ -873,6 +881,37 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	var/list/available_directions = list()
 	var/list/connection_directions = list()
 
+	var/list/possible_wounds = list("blood_1","blood_2","blood_3","blood_4","blood_5")
+	var/list/acquired_wounds = list()
+	var/image/damage_overlay = null
+
+	var/retracting = FALSE
+
+/mob/living/simple_animal/meat_blob_chunk
+	name = "meat blob chunk"
+	desc = "The remains of a meat blob, waiting to be butchered"
+	icon = 'icons/mob/meatblob.dmi'
+	icon_state = "blob_corpse"
+	icon_living = "blob_corpse"
+	icon_dead = "blob_corpse"
+	meat_type = /obj/item/weapon/reagent_containers/food/snacks/meat/meatblob
+	size = SIZE_BIG
+	plane = OBJ_PLANE
+	layer = BELOW_OBJ_LAYER
+	stop_automated_movement = TRUE//not like it should matter but anyway
+
+/mob/living/simple_animal/meat_blob_chunk/New(turf/loc)
+	..()
+	death()
+
+/mob/living/simple_animal/meat_blob_chunk/Life()
+	death()
+
+/obj/item/weapon/reagent_containers/food/snacks/meat/meatblob
+	name = "meat blob meat"
+	desc = "Yep, that's meat."
+	icon_state = "meatblob"
+
 /obj/meat_blob/New(turf/loc)
 	..()
 	created_when = world.time
@@ -881,6 +920,11 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	if (blob_datum)
 		blob_datum.remove_blob(src)
 	blob_datum = null
+
+	if (!retracting)
+		rip_connections()
+		for (var/obj/meat_blob/B in range(loc,1))
+			B.is_necessary()//updating surrounding blob sprites
 	..()
 
 /obj/meat_blob/proc/set_target_score()
@@ -923,6 +967,8 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 //If it alternates between finding/not-finding 3 or more times, that means this blob would split the group of blob tiles in two, so the blob shouldn't try to retract those
 //We also take this opportunity to note down which of those tiles have connected blobs so we can update our icon_state. There are 256 possible combinations from XXXXXXXX to OOOOOOOO
 /obj/meat_blob/proc/is_necessary()
+	if (!blob_datum)
+		return
 	var/connections = ""
 	var/static/list/clockwise_coords = list(
 		list(-1,1),
@@ -974,16 +1020,21 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	first_blob.blob_datum = src
 	average_x = first_blob.x
 	average_y = first_blob.y
+	/*
 	spawn()
 		expand_blob_list(list(first_blob), initial_size)
 		re_center()
 		for (var/blob in blob_tiles)
 			var/obj/meat_blob/B = blob
 			B.is_necessary()//updates sprites
-		set_target(spawnpoint)
+	*/
+	mass_to_move = initial_size
+	set_target(spawnpoint)
 
 /datum/meat_blob/proc/custom_process()
 	set waitfor = FALSE
+	if (state == MEATBLOB_DEAD)
+		return
 	if (target_tile)
 		tally_scores()
 		if (mass_to_move)
@@ -1014,6 +1065,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 						var/retraction = pick(retracting.connection_directions)
 						if (retraction)
 							var/turf/T = retracting.loc
+							retracting.retracting = TRUE
 							remove_blob(retracting,retraction)
 							qdel(retracting)
 							for (var/obj/meat_blob/B in range(T,1))
@@ -1027,6 +1079,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 					var/retraction = pick(retracting.connection_directions)
 					if (retraction)
 						var/turf/T = retracting.loc
+						retracting.retracting = TRUE
 						remove_blob(retracting,retraction)
 						qdel(retracting)
 						for (var/obj/meat_blob/B in range(T,1))
@@ -1160,6 +1213,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 		return null
 
 /obj/meat_blob/proc/move_blob(var/direction)
+	layer = BLOB_BASE_LAYER
 	switch(direction)
 		if (NORTH)
 			pixel_y = -32
@@ -1170,8 +1224,107 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 		if (WEST)
 			pixel_x = 32
 	animate(src,pixel_x = 0, pixel_y = 0, time = 2, easing = SINE_EASING|EASE_OUT)
+	spawn(1)
+		layer = BLOB_SHIELD_LAYER
+
+/obj/meat_blob/proc/die_out()
+	animate(src, color = list(0.6,0.2,0.2,0,0.2,0.6,0.2,0,0.2,0.2,0.6,0,0,0,0,1,0,0,0,0), time = 50)
+
+/obj/meat_blob/take_damage(var/damage = 0,var/mob/user,var/hitsound = get_sfx("machete_hit"))
+	if (!damage)
+		return
+
+	if (!damage_overlay)
+		damage_overlay = image('icons/turf/bloodrealm.dmi',src,"blank")
+		damage_overlay.appearance_flags = RESET_COLOR
+
+	if(hitsound)
+		playsound(src, hitsound, 20, 1)
+
+	var/next_threshold = maxHealth
+	while (next_threshold > health)
+		next_threshold -= maxHealth/5
+
+	overlays -= damage_overlay
+
+	health -= damage
+
+	if (health <= 0)
+		new /mob/living/simple_animal/meat_blob_chunk(loc)
+		blood_splatter(loc,null,TRUE)
+		qdel(src)
+	else
+		while (health < next_threshold && possible_wounds.len)
+			var/new_wound = pick(possible_wounds)
+			possible_wounds -= new_wound
+			acquired_wounds += new_wound
+			damage_overlay.overlays += new_wound
+			next_threshold -= maxHealth/5
+		overlays += damage_overlay
+
+/obj/meat_blob/proc/rip_connections()
+	playsound(src, "sound/effects/blobsplat.ogg", 50, 1)
+	for(var/direction in connection_directions)
+		var/obj/meat_blob/connected = locate(/obj/meat_blob/) in get_step(loc,direction)
+		if (connected)
+			var/opposite = GetOppositeDir(direction)
+			if (connected.connection_directions & opposite)
+				connected.connection_directions -= opposite
+				if (!connected.blob_datum)
+					var/image/I = image('icons/turf/bloodrealm.dmi',connected,"blood_border_[opposite]")
+					connected.overlays += I
+		var/offset_x = 0
+		var/offset_y = 0
+		switch(direction)
+			if (NORTH)
+				offset_y = 16
+			if (SOUTH)
+				offset_y = -16
+			if (EAST)
+				offset_x = 16
+			if (WEST)
+				offset_x = -16
+		anim(target = loc, a_icon = 'icons/turf/bloodrealm.dmi', flick_anim = "blob_rip", lay = layer+1, offX = offset_x, offY = offset_y, plane = src.plane)
+
+/obj/meat_blob/proc/healing(var/rate)
+	if (health == maxHealth)
+		return
+
+	var/next_threshold = 0
+	while (next_threshold < health)
+		next_threshold += maxHealth/5
+
+	if (!damage_overlay)
+		damage_overlay = image('icons/turf/bloodrealm.dmi',src,"blank")
+		damage_overlay.appearance_flags = RESET_COLOR
+
+	overlays -= damage_overlay
+
+	health += rate
+
+	while (health > next_threshold && acquired_wounds.len)
+		var/new_wound = pick(acquired_wounds)
+		acquired_wounds -= new_wound
+		possible_wounds += new_wound
+		damage_overlay.overlays -= new_wound
+		next_threshold += maxHealth/5
+
+	if (health >= maxHealth)
+		health = maxHealth
+		return
+
+	overlays += damage_overlay
 
 /datum/meat_blob/proc/remove_blob(var/obj/meat_blob/blob,var/merge)
+	if (blob == center_blob)//killing the center tile = sudden death
+		state = MEATBLOB_DEAD
+		for(var/bleb in blob_tiles)
+			var/obj/meat_blob/B = bleb
+			B.blob_datum = null
+			B.die_out()
+			blob_tiles -= bleb
+		qdel(src)
+		return
 	blob.blob_datum = null
 	var/total_x = average_x * blob_tiles.len
 	var/total_y = average_y * blob_tiles.len
@@ -1179,7 +1332,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	average_x = (total_x - blob.x) / blob_tiles.len
 	average_y = (total_y - blob.y) / blob_tiles.len
 	re_center()
-	if (merge)
+	if (merge)//the blob is merely retracting into the mass
 		var/atom/movable/overlay/animation = new /atom/movable/overlay(blob.loc)
 		animation.appearance = blob.appearance
 		animation.layer -= 1
@@ -1194,3 +1347,91 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 				animate(animation,pixel_x = 32, time = 2, easing = SINE_EASING|EASE_IN)
 		spawn(2)
 			qdel(animation)
+	else//the blob got deleted by something, let's verify if we're still in one piece
+		integrity_check = list(center_blob)
+		core_integrity(list(center_blob),null)
+		if (integrity_check.len < blob_tiles.len )
+			var/list/ripped_blobs = list()
+			ripped_blobs = blob_tiles - integrity_check
+			for (var/ripped_blob in ripped_blobs)
+				var/obj/meat_blob/B = ripped_blob
+				B.die_out()
+				B.blob_datum = null
+				blob_tiles -= B
+
+//hit by held items
+/obj/meat_blob/attackby(var/obj/item/weapon/W, var/mob/living/user)
+	user.delayNextAttack(8)
+	var/dam = W.force
+	if(W.sharpness_flags & SHARP_BLADE)
+		dam *= 1.2
+	if(dam)
+		user.do_attack_animation(src, W)
+		user.visible_message("<span class='danger'>\The [user] [pick(W.attack_verb)] \the [src] with \the [W].</span>")
+	take_damage(dam,user)
+	..()
+
+//explosions
+/obj/meat_blob/ex_act(severity)
+	switch(severity)
+		if(1)
+			take_damage(rand(200, 300),null, 0)
+		if(2)
+			take_damage(rand(50, 150),null, 0)
+		if(3)
+			take_damage(rand(5, 50),null, 0)
+
+//hit by bullets
+/obj/meat_blob/bullet_act(var/obj/item/projectile/Proj)
+	if(!Proj)
+		return
+	take_damage(Proj.damage, Proj.firer)
+	return ..()
+
+//hit by thrown items
+/obj/meat_blob/hitby(var/atom/movable/AM,var/speed = 5)
+	if(isitem(AM))
+		var/obj/item/I = AM
+		take_damage(I.throwforce*speed/5)
+
+//slashed by simple_animals
+/obj/meat_blob/attack_animal(var/mob/living/simple_animal/user)
+	user.delayNextAttack(8)
+	user.do_attack_animation(src, user)
+	take_damage(user.get_unarmed_damage(src),user, user.get_unarmed_hit_sound())
+
+//slashed (touched?) by humans
+/obj/meat_blob/attack_hand(var/mob/living/carbon/human/user)
+	if (user.a_intent == I_HURT)
+		user.delayNextAttack(8)
+		user.do_attack_animation(src, user)
+		var/datum/species/S = user.get_organ_species(user.get_active_hand_organ())
+		user.visible_message("<span class='danger'>\The [user] [S.attack_verb] \the [src].</span>")
+		take_damage(user.get_unarmed_damage(src),user, user.get_unarmed_hit_sound())
+
+//slashed (touched?) by monkeys
+/obj/meat_blob/attack_paw(var/mob/living/carbon/monkey/user)
+	if (user.a_intent == I_HURT)
+		if(user.wear_mask?.is_muzzle)
+			to_chat(user, "<span class='notice'>You can't do this with \the [user.wear_mask] on!</span>")
+			return
+		user.delayNextAttack(8)
+		user.do_attack_animation(src, user)
+		take_damage(user.get_unarmed_damage(src),user, user.get_unarmed_hit_sound())
+
+//slashed by aliums
+/obj/meat_blob/attack_alien(var/mob/living/carbon/alien/humanoid/user)
+	if(istype(user, /mob/living/carbon/alien/larva))
+		return
+	user.delayNextAttack(8)
+	user.do_attack_animation(src, user)
+	var/alienverb = pick(list("slam", "rip", "claw"))
+	user.visible_message("<span class='warning'>[user] [alienverb]s \the [src].</span>", \
+						 "<span class='warning'>You [alienverb] \the [src].</span>", \
+						 "You hear ripping flesh.")
+	take_damage(rand(15,30),user)
+
+#undef MEATBLOB_IDLE
+#undef MEATBLOB_ROAM
+#undef MEATBLOB_FLEE
+#undef MEATBLOB_DEAD
