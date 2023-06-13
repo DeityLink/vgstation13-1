@@ -912,9 +912,19 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 		else
 			available_directions += direction
 
+//This proc loops through all 8 surrounding turfs in a clockwise fashion to check if it contains a meatblob tile from the same parent datum
+/*
+		1  2  3
+
+		8 src 4
+
+	    7  6  5
+*/
+//If it alternates between finding/not-finding 3 or more times, that means this blob would split the group of blob tiles in two, so the blob shouldn't try to retract those
+//We also take this opportunity to note down which of those tiles have connected blobs so we can update our icon_state. There are 256 possible combinations from XXXXXXXX to OOOOOOOO
 /obj/meat_blob/proc/is_necessary()
 	var/connections = ""
-	var/list/clockwise = list(
+	var/static/list/clockwise_coords = list(
 		list(-1,1),
 		list(0,1),
 		list(1,1),
@@ -926,7 +936,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 		)
 	var/toggle_count = -1
 	var/toggle_status = -1
-	for (var/list/coord in clockwise)
+	for (var/list/coord in clockwise_coords)
 		var/nearby_blob = locate(/obj/meat_blob) in locate(x+coord[1],y+coord[2],z)
 		if (nearby_blob && (nearby_blob in blob_datum.blob_tiles))
 			connections += "O"
