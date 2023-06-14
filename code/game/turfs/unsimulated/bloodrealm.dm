@@ -851,6 +851,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	var/stuck_critical = 10
 	var/mode_change_threshold = 0
 	var/list/integrity_check = list()
+	var/verify_integrity = FALSE
 
 	var/state = MEATBLOB_IDLE
 
@@ -894,7 +895,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	icon_state = "blob_corpse"
 	icon_living = "blob_corpse"
 	icon_dead = "blob_corpse"
-	meat_type = /obj/item/weapon/reagent_containers/food/snacks/meat/meatblob
+	meat_type = /obj/item/weapon/reagent_containers/food/snacks/meat/animal/meatblob
 	size = SIZE_BIG
 	plane = OBJ_PLANE
 	layer = BELOW_OBJ_LAYER
@@ -907,7 +908,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 /mob/living/simple_animal/meat_blob_chunk/Life()
 	death()
 
-/obj/item/weapon/reagent_containers/food/snacks/meat/meatblob
+/obj/item/weapon/reagent_containers/food/snacks/meat/animal/meatblob
 	name = "meat blob meat"
 	desc = "Yep, that's meat."
 	icon_state = "meatblob"
@@ -1008,6 +1009,11 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 /obj/meat_blob/blocks_doors()
 	return TRUE
 
+/obj/meat_blob/forceMove(atom/destination, step_x = 0, step_y = 0, no_tp = FALSE, harderforce = FALSE, glide_size_override = 0)
+	..()
+	if (blob_datum)
+		blob_datum.verify_integrity = TRUE
+
 /datum/meat_blob/proc/instantiate(var/turf/spawnpoint)
 	if (!spawnpoint)
 		qdel(src)
@@ -1029,15 +1035,38 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 			B.is_necessary()//updates sprites
 	*/
 	mass_to_move = initial_size
+	center_blob = first_blob
 	set_target(spawnpoint)
 
 /datum/meat_blob/proc/custom_process()
 	set waitfor = FALSE
 	if (state == MEATBLOB_DEAD)
 		return
+	if (verify_integrity)//checked when at least some parts of the blob got forceMoved. running some checks to ensure the blob keeps working properly
+		verify_integrity = FALSE
+		integrity_check = list(center_blob)
+		core_integrity(list(center_blob),null)
+		if (integrity_check.len < blob_tiles.len )
+			var/list/ripped_blobs = list()
+			ripped_blobs = blob_tiles - integrity_check
+			for (var/ripped_blob in ripped_blobs)//might happen for instance if part of the blob was on a shuttle that left
+				var/obj/meat_blob/B = ripped_blob
+				B.die_out()
+				B.blob_datum = null
+				blob_tiles -= B
+		blobZ = center_blob.z
+		var/total_x = 0
+		var/total_y = 0
+		for (var/bleb in blob_tiles)
+			var/obj/meat_blob/B = bleb
+			total_x += B.x
+			total_y += B.y
+		average_x = total_x / blob_tiles.len
+		average_y = total_y / blob_tiles.len
+		set_target(center_blob.loc)
 	if (target_tile)
 		tally_scores()
-		if (mass_to_move)
+		if (mass_to_move)//We have mass, lets expand
 			if (stuck_count >= mode_change_threshold)//if we're having some trouble to move, let's try thinning ourselves a bit
 				target_modifier = 2
 				side_modifier = 2
@@ -1054,9 +1083,9 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 							B.is_necessary()//updating sprite
 						mass_to_move--
 						set_target(target_tile)//updating target distance and direction
-		else
-			var/unshackle_attempt = 0
-			if ((stuck_count >= stuck_critical) && (necessary_count >= 8))//For there to be an actual shackle to cut there should be at least 8 "necessary" tiles
+		else//We're out of mass, let's retract
+			var/retracting_attempt = 0
+			if ((stuck_count >= stuck_critical) && (necessary_count >= 7))//For there to be an actual shackle to cut there should be at least 7 "necessary" tiles
 				var/obj/meat_blob/retracting = pick(low_scorers_necessary)
 				integrity_check = list(center_blob)
 				core_integrity(list(center_blob),retracting)
@@ -1072,8 +1101,8 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 								B.is_necessary()//updating sprite
 							mass_to_move++
 							set_target(target_tile)//updating target distance and direction
-							unshackle_attempt = 1
-			if (!unshackle_attempt && low_scorers?.len)
+							retracting_attempt = 1
+			if (!retracting_attempt && low_scorers?.len)
 				var/obj/meat_blob/retracting = pick(low_scorers)
 				if (retracting.connection_directions?.len)
 					var/retraction = pick(retracting.connection_directions)
@@ -1086,6 +1115,10 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 							B.is_necessary()//updating sprite
 						mass_to_move++
 						set_target(target_tile)//updating target distance and direction
+						retracting_attempt = 1
+			if (!retracting_attempt)
+				re_center()//building up stuck_count
+
 
 
 		//tally_scores()//again for debug purposes
