@@ -834,7 +834,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	var/blobZ = 1
 
 	var/target_modifier = 1
-	var/group_modifier = 2
+	var/group_modifier = 1.5
 	var/block_modifier = -1
 	var/side_modifier = 1
 
@@ -849,11 +849,12 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 
 	var/stuck_count = 0
 	var/stuck_critical = 10
-	var/mode_change_threshold = 0
 	var/list/integrity_check = list()
 	var/verify_integrity = FALSE
 
 	var/state = MEATBLOB_IDLE
+
+	var/image/center_image = null
 
 /obj/meat_blob
 	name = "meat blob"
@@ -900,6 +901,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	plane = OBJ_PLANE
 	layer = BELOW_OBJ_LAYER
 	stop_automated_movement = TRUE//not like it should matter but anyway
+	iscorpse = 1//no stat tracking
 
 /mob/living/simple_animal/meat_blob_chunk/New(turf/loc)
 	..()
@@ -1021,19 +1023,12 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	spawn()
 		custom_process()
 	blobZ = spawnpoint.z
+	center_image = image('icons/mob/meatblob.dmi',"center")
 	var/obj/meat_blob/first_blob = new (spawnpoint)
 	blob_tiles += first_blob
 	first_blob.blob_datum = src
 	average_x = first_blob.x
 	average_y = first_blob.y
-	/*
-	spawn()
-		expand_blob_list(list(first_blob), initial_size)
-		re_center()
-		for (var/blob in blob_tiles)
-			var/obj/meat_blob/B = blob
-			B.is_necessary()//updates sprites
-	*/
 	mass_to_move = initial_size
 	center_blob = first_blob
 	set_target(spawnpoint)
@@ -1067,12 +1062,6 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	if (target_tile)
 		tally_scores()
 		if (mass_to_move)//We have mass, lets expand
-			if (stuck_count >= mode_change_threshold)//if we're having some trouble to move, let's try thinning ourselves a bit
-				target_modifier = 2
-				side_modifier = 2
-			else
-				target_modifier = 1
-				side_modifier = 1
 			if (high_scorers?.len)
 				var/obj/meat_blob/expanding = pick(high_scorers)
 				if (expanding.available_directions?.len)
@@ -1094,11 +1083,16 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 						var/retraction = pick(retracting.connection_directions)
 						if (retraction)
 							var/turf/T = retracting.loc
+							var/obj/meat_blob/merger = locate(/obj/meat_blob) in get_step(T,retraction)
 							retracting.retracting = TRUE
 							remove_blob(retracting,retraction)
 							qdel(retracting)
 							for (var/obj/meat_blob/B in range(T,1))
-								B.is_necessary()//updating sprite
+								if (B == merger)
+									spawn(2)
+										B.is_necessary()
+								else
+									B.is_necessary()//updating sprite
 							mass_to_move++
 							set_target(target_tile)//updating target distance and direction
 							retracting_attempt = 1
@@ -1108,11 +1102,16 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 					var/retraction = pick(retracting.connection_directions)
 					if (retraction)
 						var/turf/T = retracting.loc
+						var/obj/meat_blob/merger = locate(/obj/meat_blob) in get_step(T,retraction)
 						retracting.retracting = TRUE
 						remove_blob(retracting,retraction)
 						qdel(retracting)
 						for (var/obj/meat_blob/B in range(T,1))
-							B.is_necessary()//updating sprite
+							if (B == merger)
+								spawn(2)
+									B.is_necessary()
+							else
+								B.is_necessary()//updating sprite
 						mass_to_move++
 						set_target(target_tile)//updating target distance and direction
 						retracting_attempt = 1
@@ -1142,9 +1141,9 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 			closest_total_diff = total_diff
 			most_centered = B
 	if (center_blob)
-		center_blob.overlays -= "center"
+		center_blob.overlays -= center_image
 	center_blob = most_centered
-	center_blob.overlays += "center"
+	center_blob.overlays += center_image
 	if (((previous_center == center_blob)||(preprevious_center == center_blob)) && (target_dist > 2))//if the center hasn't moved in a while and we're nowhere near the target, we might be shackled
 		stuck_count++
 	else
@@ -1206,33 +1205,15 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 			else if (B.score == low_score_critical)
 				low_scorers_necessary += B
 
-/datum/meat_blob/proc/expand_blob_list(var/list/blob_list, var/amount_to_expand = 0)
-	var/list/new_list = list()
-	for(var/blob in blob_list)
-		var/obj/meat_blob/B = blob
-		if (amount_to_expand <= 0)
-			return
-		var/list/cardinal_tiles = list()
-		for (var/direction in cardinal)
-			cardinal_tiles += get_step(B.loc,direction)
-		for (var/turf/T in cardinal_tiles)
-			if (amount_to_expand <= 0)
-				return
-			var/obj/meat_blob/new_blob = expand_blob(B,T)
-			if (new_blob)
-				new_list += new_blob
-				amount_to_expand--
-				sleep(2)
-	if (new_list.len > 0)
-		expand_blob_list(new_list, amount_to_expand)
-	else if (amount_to_expand)
-		mass_to_move = amount_to_expand
-
+//Creating a new blob tile
 /datum/meat_blob/proc/expand_blob(var/obj/meat_blob/source, var/turf/target)
 	var/obj/meat_blob/new_blob = new (source.loc)
-	if(target.Enter(new_blob, source.loc, TRUE))//Attempt to move into the tile
+	//Attempt to move into the tile
+	if(target.Enter(new_blob, source.loc, TRUE))
 		new_blob.Move(target)
 		new_blob.move_blob(get_dir(source.loc,target))
+
+		//updating the parent datum, moving the center around, etc
 		new_blob.blob_datum = src
 		var/total_x = average_x * blob_tiles.len
 		var/total_y = average_y * blob_tiles.len
@@ -1240,11 +1221,31 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 		average_x = (total_x + new_blob.x) / blob_tiles.len
 		average_y = (total_y + new_blob.y) / blob_tiles.len
 		re_center()
+
+		if (source.health < source.maxHealth)
+			//moving the source's damage to the new blob
+			new_blob.damage_overlay = image('icons/turf/bloodrealm.dmi',src,"blank")
+			new_blob.damage_overlay.appearance_flags = RESET_COLOR
+			new_blob.possible_wounds = source.possible_wounds.Copy()
+			new_blob.acquired_wounds = source.acquired_wounds.Copy()
+			for (var/wound in new_blob.acquired_wounds)
+				new_blob.damage_overlay.overlays += wound
+			new_blob.overlays += new_blob.damage_overlay
+			new_blob.health = source.health
+
+			//the source blob is now healed of all damage
+			source.health = source.maxHealth
+			source.overlays -= source.damage_overlay
+			source.damage_overlay.overlays.len = 0
+			source.possible_wounds = list("blood_1","blood_2","blood_3","blood_4","blood_5")
+			source.acquired_wounds = list()
+
 		return new_blob
 	else
 		qdel(new_blob)
 		return null
 
+//Visually animates the blob expanding from the mass
 /obj/meat_blob/proc/move_blob(var/direction)
 	layer = BLOB_BASE_LAYER
 	switch(direction)
@@ -1271,8 +1272,8 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 		damage_overlay = image('icons/turf/bloodrealm.dmi',src,"blank")
 		damage_overlay.appearance_flags = RESET_COLOR
 
-	if(hitsound)
-		playsound(src, hitsound, 20, 1)
+	if(loc && hitsound && (hitsound != "merge"))
+		playsound(loc, hitsound, 20, 1)
 
 	var/next_threshold = maxHealth
 	while (next_threshold > health)
@@ -1296,7 +1297,8 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 		overlays += damage_overlay
 
 /obj/meat_blob/proc/rip_connections()
-	playsound(src, "sound/effects/blobsplat.ogg", 50, 1)
+	if (loc)
+		playsound(loc, "sound/effects/blobsplat.ogg", 50, 1)
 	for(var/direction in connection_directions)
 		var/obj/meat_blob/connected = locate(/obj/meat_blob/) in get_step(loc,direction)
 		if (connected)
@@ -1378,8 +1380,21 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 				animate(animation,pixel_x = -32, time = 2, easing = SINE_EASING|EASE_IN)
 			if (EAST)
 				animate(animation,pixel_x = 32, time = 2, easing = SINE_EASING|EASE_IN)
+
+		//if we have some damage, we gotta transfer it
+		if (blob.health < blob.maxHealth)
+			var/obj/meat_blob/merger = locate(/obj/meat_blob/) in get_step(blob.loc,merge)
+			//if the blob we're merging into is more healthy, than the one retracting, we set its health to the retracting blob's
+			if (merger.health > blob.health)
+				merger.take_damage(merger.health - blob.health,null,"merge")
+			//otherwise, the blob takes damage corresponding to the health lost by the retracting blob
+			else if (merger.health < blob.health)
+				var/blob_health_percent = blob.health * 100 / blob.maxHealth
+				var/merger_new_health = max(merger.health * blob_health_percent / 100,1)
+				merger.take_damage(merger.health - merger_new_health,null,"merge")
 		spawn(2)
 			qdel(animation)
+
 	else//the blob got deleted by something, let's verify if we're still in one piece
 		integrity_check = list(center_blob)
 		core_integrity(list(center_blob),null)
@@ -1463,6 +1478,42 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 						 "<span class='warning'>You [alienverb] \the [src].</span>", \
 						 "You hear ripping flesh.")
 	take_damage(rand(15,30),user)
+
+//beams (mostly copied from theblob.dm)
+/obj/meat_blob/beam_connect(var/obj/effect/beam/B)
+	..()
+	last_beamchecks["\ref[B]"]=world.time+1
+	//we don't deal damage right away because the blob might not be fully initalized
+	if(!(src in processing_objects))
+		processing_objects.Add(src)
+
+/obj/meat_blob/beam_disconnect(var/obj/effect/beam/B)
+	..()
+	last_beamchecks.Remove("\ref[B]")
+	if(beams.len == 0)
+		processing_objects.Remove(src)
+
+/obj/meat_blob/apply_beam_damage(var/obj/effect/beam/B)
+	var/lastcheck=last_beamchecks["\ref[B]"]
+
+	// Standard damage formula / 2
+	var/damage = ((world.time - lastcheck)/10)  * (B.get_damage() / 2)
+
+	// Actually apply damage
+	take_damage(damage, null, "merge")
+
+	// Update check time.
+	last_beamchecks["\ref[B]"]=world.time
+
+/obj/meat_blob/handle_beams()
+	for(var/obj/effect/beam/B in beams)
+		apply_beam_damage(B)
+
+/obj/meat_blob/process()
+	handle_beams()
+
+/obj/meat_blob/can_mech_drill()
+	return TRUE
 
 #undef MEATBLOB_IDLE
 #undef MEATBLOB_ROAM
