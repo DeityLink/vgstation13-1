@@ -815,10 +815,10 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-#define MEATBLOB_IDLE	0
-#define MEATBLOB_ROAM	1
-#define MEATBLOB_FLEE	2
-#define MEATBLOB_DEAD	3
+#define MEATBLOB_IDLE	0//blob expands as much as it can and just stays immobile
+#define MEATBLOB_ROAM	1//blob tries to move towards a chosen target and goes idle once it reaches it
+#define MEATBLOB_FLEE	2//blob tries to move away from harm
+#define MEATBLOB_DEAD	3//blob datum is now undergoing deletion
 
 /datum/meat_blob
 	var/list/blob_tiles = list()
@@ -845,7 +845,11 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 
 	var/timestopped = 0//TODO
 
-	var/update_speed = 5//lower = faster, don't set below 1
+	var/update_speed = 5//lower = faster, don't go below 1
+
+	var/bleed_time_check = 0
+	var/bleed_delay = 3 SECONDS//how much time between attempts at making our blob drip blood, or heal its parts.
+	var/heal_rate = 5
 
 	var/stuck_count = 0
 	var/stuck_critical = 10
@@ -853,6 +857,12 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	var/verify_integrity = FALSE
 
 	var/state = MEATBLOB_IDLE
+	var/time_spent = 0//how long have we been in the current state (in terms of processing loops)
+	var/rest_duration = 10//how long should we stay idle before roaming somewhere else
+	var/max_roam_duration = 15//failsafe should we target a turf that we cannot actually get close to
+	var/damage_stack = 0//how many times did we get attacked since we last relaxed
+	var/time_to_recover = 20//how much time does it take after taking damage to return to relax
+	var/turf/wrong_loc = null//we just retracted from there, if trying to expand there again while roaming, increase time spent
 
 	var/image/center_image = null
 
@@ -1034,21 +1044,37 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	set_target(spawnpoint)
 
 /datum/meat_blob/proc/custom_process()
-	set waitfor = FALSE
+	set waitfor = FALSE//so the proc doesn't stop looping after a while
+
+	//We're dying, no more processing ever again
 	if (state == MEATBLOB_DEAD)
 		return
-	if (verify_integrity)//checked when at least some parts of the blob got forceMoved. running some checks to ensure the blob keeps working properly
+
+	//Bleeding & Healing
+	if (world.time > (bleed_time_check + bleed_delay))
+		bleed_time_check = world.time
+		for (var/blob in blob_tiles)
+			var/obj/meat_blob/B = blob
+			if (B.health < B.maxHealth)
+				if (prob(100*(B.maxHealth - B.health)/B.maxHealth))
+					blood_splatter(B.loc,null,FALSE)
+				if (state == MEATBLOB_IDLE)
+					B.healing(heal_rate)
+
+	//Part(s) of us got forceMoved? we should probably verify if we're still in one piece
+	if (verify_integrity)
 		verify_integrity = FALSE
 		integrity_check = list(center_blob)
 		core_integrity(list(center_blob),null)
-		if (integrity_check.len < blob_tiles.len )
+		if (integrity_check.len < blob_tiles.len )//looks like we're not, could be due to a shuttle moving or something else unexpected
 			var/list/ripped_blobs = list()
 			ripped_blobs = blob_tiles - integrity_check
-			for (var/ripped_blob in ripped_blobs)//might happen for instance if part of the blob was on a shuttle that left
+			for (var/ripped_blob in ripped_blobs)
 				var/obj/meat_blob/B = ripped_blob
-				B.die_out()
+				B.die_out()//the parts of us that are no longer connected to the center will die out
 				B.blob_datum = null
 				blob_tiles -= B
+		//now let's recalculate the blob's vars so the thing can move properly again
 		blobZ = center_blob.z
 		var/total_x = 0
 		var/total_y = 0
@@ -1059,6 +1085,45 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 		average_x = total_x / blob_tiles.len
 		average_y = total_y / blob_tiles.len
 		set_target(center_blob.loc)
+
+	//Movement
+	time_spent++
+	switch(state)
+		if (MEATBLOB_IDLE)
+			update_speed = 5
+			if (time_spent >= rest_duration)//we've rested enough, let's now move toward a random non-dense turf
+				state = MEATBLOB_ROAM
+				time_spent = 0
+				var/turf/T = get_turf(pick(blob_tiles))
+				var/list/potential_dests = list()
+				for(var/turf/U in dview(world.view, T, INVISIBILITY_MAXIMUM))
+					if (!U.density)
+						potential_dests.Add(U)
+				set_target(pick(potential_dests))
+		if (MEATBLOB_ROAM)
+			update_speed = 5
+			if ((target_dist < 2) || (time_spent >= max_roam_duration))//we've reached or destination or won't be able to reach it, let's rest a moment
+				state = MEATBLOB_IDLE
+				time_spent = 0
+				set_target(center_blob.loc)
+		if (MEATBLOB_FLEE)
+			var/actual_time_to_recover = time_to_recover * (5/update_speed)
+			if (time_spent >= actual_time_to_recover)
+				state = MEATBLOB_IDLE
+				time_spent = 0
+				set_target(center_blob.loc)
+			switch(damage_stack)
+				if (0 to 2)
+					update_speed = 5
+				if (3 to 9)
+					update_speed = 4
+				if (10 to 19)
+					update_speed = 3
+				if (20 to 29)
+					update_speed = 2
+				if (30 to INFINITY)
+					update_speed = 1
+
 	if (target_tile)
 		tally_scores()
 		if (mass_to_move)//We have mass, lets expand
@@ -1072,7 +1137,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 							B.is_necessary()//updating sprite
 						mass_to_move--
 						set_target(target_tile)//updating target distance and direction
-		else//We're out of mass, let's retract
+		else if (state != MEATBLOB_IDLE)//We're out of mass and we want to move, let's retract parts of us that are away from where we want to go
 			var/retracting_attempt = 0
 			if ((stuck_count >= stuck_critical) && (necessary_count >= 7))//For there to be an actual shackle to cut there should be at least 7 "necessary" tiles
 				var/obj/meat_blob/retracting = pick(low_scorers_necessary)
@@ -1211,7 +1276,17 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	//Attempt to move into the tile
 	if(target.Enter(new_blob, source.loc, TRUE))
 		new_blob.Move(target)
-		new_blob.move_blob(get_dir(source.loc,target))
+		var/movement_dir = get_dir(source.loc,target)
+		new_blob.move_blob(movement_dir)
+		if ((target == wrong_loc) && (state == MEATBLOB_ROAM))//if we're moving in place while roaming...stop it, that looks dumb
+			time_spent += 10
+		if (state == MEATBLOB_FLEE)//if we're running away from harm, let's try and bump doors open
+			var/obj/machinery/door/airlock/D = locate(/obj/machinery/door/airlock) in get_step(new_blob.loc, movement_dir)
+			if (D)
+				D.set_up_access()
+				if (can_access(list(),D.req_access,D.req_one_access))
+					spawn()
+						D.open()
 
 		//updating the parent datum, moving the center around, etc
 		new_blob.blob_datum = src
@@ -1264,9 +1339,34 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 /obj/meat_blob/proc/die_out()
 	animate(src, color = list(0.6,0.2,0.2,0,0.2,0.6,0.2,0,0.2,0.2,0.6,0,0,0,0,1,0,0,0,0), time = 50)
 
+/datum/meat_blob/proc/attacked(var/obj/meat_blob/victim,var/just_target_update = FALSE)
+	if (state == MEATBLOB_DEAD)
+		return
+	if (state != MEATBLOB_FLEE)
+		time_spent = 0
+		damage_stack = 0
+		state = MEATBLOB_FLEE
+
+	if (just_target_update || ((time_spent > 0) || (damage_stack == 0)))
+		var/dist_mod = 1
+		var/damage_dist = abs(abs(center_blob.x - victim.x) + abs(center_blob.y - victim.y))
+		if (damage_dist < 2)
+			dist_mod = 3
+		else if (damage_dist < 4)
+			dist_mod = 2
+		var/target_x = dist_mod * (center_blob.x - victim.x) + center_blob.x
+		var/target_y = dist_mod * (center_blob.y - victim.y) + center_blob.y
+		set_target(locate(target_x,target_y,blobZ))
+	if (!just_target_update)
+		damage_stack++
+		time_spent = 0
+
 /obj/meat_blob/take_damage(var/damage = 0,var/mob/user,var/hitsound = get_sfx("machete_hit"))
 	if (!damage)
 		return
+
+	if (blob_datum)
+		blob_datum.attacked(src,(hitsound == "merge"))
 
 	if (!damage_overlay)
 		damage_overlay = image('icons/turf/bloodrealm.dmi',src,"blank")
@@ -1368,6 +1468,10 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	average_y = (total_y - blob.y) / blob_tiles.len
 	re_center()
 	if (merge)//the blob is merely retracting into the mass
+		wrong_loc = blob.loc
+		if (blob.health < blob.maxHealth)
+			if (prob(100*(blob.maxHealth - blob.health)/blob.maxHealth))
+				blood_splatter(blob.loc,null,FALSE)
 		var/atom/movable/overlay/animation = new /atom/movable/overlay(blob.loc)
 		animation.appearance = blob.appearance
 		animation.layer -= 1
