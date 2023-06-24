@@ -861,7 +861,7 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 	var/rest_duration = 10//how long should we stay idle before roaming somewhere else
 	var/max_roam_duration = 15//failsafe should we target a turf that we cannot actually get close to
 	var/damage_stack = 0//how many times did we get attacked since we last relaxed
-	var/time_to_recover = 20//how much time does it take after taking damage to return to relax
+	var/time_to_recover = 10//how much time does it take after taking damage to return to relax
 	var/turf/wrong_loc = null//we just retracted from there, if trying to expand there again while roaming, increase time spent
 
 	var/image/center_image = null
@@ -1109,9 +1109,22 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 		if (MEATBLOB_FLEE)
 			var/actual_time_to_recover = time_to_recover * (5/update_speed)
 			if (time_spent >= actual_time_to_recover)
-				state = MEATBLOB_IDLE
-				time_spent = 0
-				set_target(center_blob.loc)
+				if (update_speed < 5)
+					switch(update_speed)
+						if (4)
+							damage_stack = 0
+						if (3)
+							damage_stack = 3
+						if (2)
+							damage_stack = 10
+						if (1)
+							damage_stack = 20
+					update_speed++
+					time_spent = 0
+				else
+					state = MEATBLOB_IDLE
+					time_spent = 0
+					set_target(center_blob.loc)
 			switch(damage_stack)
 				if (0 to 2)
 					update_speed = 5
@@ -1539,6 +1552,11 @@ var/list/bloodturf_masks = list("center","north","south","east","west","northeas
 		return
 	take_damage(Proj.damage, Proj.firer)
 	return ..()
+
+//hit by .... blob?
+/obj/meat_blob/blob_act()
+	take_damage(30,40,null, 0)
+	playsound(loc, 'sound/effects/blobattack.ogg',50,1)
 
 //hit by thrown items
 /obj/meat_blob/hitby(var/atom/movable/AM,var/speed = 5)
