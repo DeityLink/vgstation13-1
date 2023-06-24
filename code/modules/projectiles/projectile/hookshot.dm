@@ -4,6 +4,7 @@
 	icon_state = "hookshot"
 	damage = 0
 	nodamage = 1
+	projectile_speed = 1
 	var/length = 1
 	grillepasschance = 0
 	var/obj/effect/overlay/hookchain/last_link = null
@@ -30,6 +31,7 @@
 		bumped = 0
 
 		if(sleeptime)
+			sleeptime = projectile_speed
 			var/obj/item/weapon/gun/hookshot/hookshot = shot_from
 			var/obj/effect/overlay/hookchain/HC = hookshot.links["[length]"]
 			if(!HC)//failsafe to prevent a game-crashing bug tied to missing links.

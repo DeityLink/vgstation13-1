@@ -1,4 +1,13 @@
 
+/*
+
+/datum/meat_blob
+/obj/meat_blob
+/mob/living/simple_animal/meat_blob_chunk
+/obj/item/weapon/reagent_containers/food/snacks/meat/animal/meatblob
+
+*/
+
 #define MEATBLOB_IDLE	0//blob expands as much as it can and just stays immobile
 #define MEATBLOB_ROAM	1//blob tries to move towards a chosen target and goes idle once it reaches it
 #define MEATBLOB_FLEE	2//blob tries to move away from harm
@@ -455,8 +464,7 @@
 #undef MEATBLOB_DEAD
 
 
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //This is an individual "tile" of the meatblob
 /obj/meat_blob
@@ -574,10 +582,6 @@
 				toggle_count++
 	icon_state = connections
 	return (toggle_count >= 3)
-
-/obj/meat_blob/attack_ghost(var/mob/user)//DEBUG, Don't forget to remove, idiot
-	if (blob_datum)
-		blob_datum.set_target(user.loc)
 
 /obj/meat_blob/blocks_doors()
 	return TRUE
