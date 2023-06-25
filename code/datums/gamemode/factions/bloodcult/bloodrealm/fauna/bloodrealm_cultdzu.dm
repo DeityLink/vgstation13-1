@@ -5,6 +5,11 @@
 
 */
 
+//Cult space vines that need blood to expand
+//They get blood by entangling humans that pass through them
+//Fires hookshots at non-cultists to quickly trap them in
+//Sucks blood continually until the victim dies
+//Sucks blood faster if it needs to heal itself, or slower if the target is in crit/dying.
 
 /obj/cultdzu
 	name = "bloodsucker tangle"
