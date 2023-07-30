@@ -85,7 +85,6 @@
 	maxlength = 9
 	chaintype = /obj/effect/overlay/hookchain/cultdzu
 	hooktype = /obj/item/projectile/hookshot/cultdzu
-	var/debug = FALSE
 
 /obj/item/weapon/gun/hookshot/cultdzu/clockwerk_chain(var/length)
 	rewind_chain()
@@ -100,8 +99,6 @@
 	return 0
 
 /obj/item/weapon/gun/hookshot/cultdzu/hooked_something()
-	if (debug)
-		return
 	spawn(5)
 		if(check_tether())
 			if(istype(chain_datum.extremity_B,/mob/living/carbon))
