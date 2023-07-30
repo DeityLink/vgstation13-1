@@ -54,7 +54,7 @@
 			HC.icon_state = "hookshot_new"//blank icon_state since at this point the projectile itself is the head
 
 			if(length >= hookshot.maxlength)
-				HC.icon_state = "[icon_name]_pixel"
+				HC.icon_state = "[initial(icon_name)]_pixel"
 				spawn()
 					if (!hookshot.clockwerk)
 						hookshot.rewind_chain()
@@ -90,16 +90,19 @@
 	spawn()
 		if(!can_tether)
 			..(A)
+			last_link.icon_state = "[initial(icon_name)]_pixel"
 			hookshot.rewind_chain()
 			bullet_die()
 			return
 		if(held_item_check(A))
 			return
 		if(isturf(A))					//if we hit a wall or an anchored atom, we pull ourselves to it
+			last_link.icon_state = "[initial(icon_name)]_pixel"
 			hookshot.clockwerk_chain(length)
 		else if(istype(A,/atom/movable))
 			var/atom/movable/AM = A
 			if(AM.anchored)
+				last_link.icon_state = "[initial(icon_name)]_pixel"
 				hookshot.clockwerk_chain(length)
 			else if(!AM.tether && !firer.tether && !istype(AM,/obj/effect/))	//if we hit something that we can pull, let's tether ourselves to it
 
@@ -114,12 +117,14 @@
 				chain_datum.hookshot = hookshot
 				chain_datum.extremity_A = firer
 				chain_datum.extremity_B = AM
-				var/max_chains = length-1
+				var/max_chains = length
+				var/turf/prev_chain = null
 				for(var/i = 1; i < max_chains; i++)		//first we create tether links on every turf that has one of the projectile's chain parts.
 					var/obj/effect/overlay/hookchain/HC = hookshot.links["[i]"]
-					if(!HC.loc || (HC.loc == hookshot))
+					if(!HC.loc || (HC.loc == hookshot) || (prev_chain == HC.loc))
 						max_chains = i
 						break
+					prev_chain = HC.loc
 					var/obj/effect/overlay/chain/C = new chain_overlay_path(HC.loc)
 					C.chain_datum = chain_datum
 					chain_datum.links["[i]"] = C
@@ -147,8 +152,10 @@
 					log_attack("<font color='red'>[key_name(firer)] hooked [key_name(L)] with a [type]</font>")
 					L.attack_log += "\[[time_stamp()]\] <b>[key_name(firer)]</b> hooked <b>[key_name(L)]</b> with a <b>[type]</b>"
 					firer.attack_log += "\[[time_stamp()]\] <b>[key_name(firer)]</b> hooked <b>[key_name(L)]</b> with a <b>[type]</b>"
-
+				hookshot.hooked_something()
 				hookshot.cancel_chain()					//then we remove the chain laid by the projectile
+				bullet_die()
+				return
 			else
 				hookshot.rewind_chain()
 		else

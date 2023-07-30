@@ -161,7 +161,7 @@
 			return 0
 
 	var/can_pull_tether = 0
-	if(tether)
+	if(tether && !tether_pull)
 		if(tether.attempt_to_follow(src,NewLoc))
 			can_pull_tether = 1
 		else

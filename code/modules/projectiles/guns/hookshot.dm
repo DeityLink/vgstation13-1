@@ -144,6 +144,9 @@
 				return 1
 	return 0
 
+/obj/item/weapon/gun/hookshot/proc/hooked_something()
+	return
+
 /obj/item/weapon/gun/hookshot/proc/rewind_chain()//brings the links back toward the player
 	if(rewinding)
 		return
@@ -219,6 +222,12 @@
 		sleep(1)
 	clockwerk = 0
 	update_icon()
+
+/obj/item/weapon/gun/hookshot/proc/finished_rewind(var/atom/A, var/atom/movable/AM)
+	if(istype(A,/mob/living))
+		var/mob/living/L = A
+		if(!(istype(AM, /obj/item) && chain_datum.pick_up_item(L, AM)))
+			AM.CtrlClick(L)
 
 //this datum contains all the data about a tether. It's extremities, which hookshot spawned it, and the list of all of its links.
 /datum/chain
@@ -300,10 +309,7 @@
 					extremity_B = null
 					C1.extremity_B = null
 
-				if(istype(extremity_A,/mob/living))
-					var/mob/living/L = extremity_A
-					if(!(istype(C2, /obj/item) && pick_up_item(L, C2)))
-						C2.CtrlClick(L)
+				hookshot.finished_rewind(extremity_A,C2)
 		C1.rewinding = 1
 		qdel(C1)
 		sleep(1)

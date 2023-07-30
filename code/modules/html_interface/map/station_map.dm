@@ -37,9 +37,9 @@
 	extraMiniMaps |= HOLOMAP_EXTRA_CULTMAP
 	extraMiniMaps[HOLOMAP_EXTRA_CULTMAP] = canvas
 
-	var/icon/blank = icon('icons/480x480.dmi', "blank")
+	var/icon/bloodmap = icon('icons/480x480.dmi', "blank")
 	extraMiniMaps |= HOLOMAP_EXTRA_BLOODMAP
-	extraMiniMaps[HOLOMAP_EXTRA_BLOODMAP] = blank
+	extraMiniMaps[HOLOMAP_EXTRA_BLOODMAP] = bloodmap
 	//-------------Bhangmap--------
 	var/list/allowed_bhang_zlevels = list(
 		map.zMainStation,
