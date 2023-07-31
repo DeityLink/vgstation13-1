@@ -104,7 +104,7 @@
 			if(AM.anchored)
 				last_link.icon_state = "[initial(icon_name)]_pixel"
 				hookshot.clockwerk_chain(length)
-			else if(!AM.tether && !firer.tether && !istype(AM,/obj/effect/))	//if we hit something that we can pull, let's tether ourselves to it
+			else if(!AM.tether && !firer.tether && !istype(AM,/obj/effect/) && hookshot.can_hook(AM))	//if we hit something that we can pull, let's tether ourselves to it
 
 				if(length <= 2)		//unless we hit it at melee range, then let's just start pulling it
 					AM.CtrlClick(firer)

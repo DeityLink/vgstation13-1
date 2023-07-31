@@ -144,6 +144,9 @@
 				return 1
 	return 0
 
+/obj/item/weapon/gun/hookshot/proc/can_hook()
+	return TRUE
+
 /obj/item/weapon/gun/hookshot/proc/hooked_something()
 	return
 
