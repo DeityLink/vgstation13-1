@@ -38,7 +38,7 @@
 	health = 10
 	maxHealth = 100
 
-	maxtemp = 350
+	var/maxtemp = 350
 
 	var/obj/item/weapon/gun/hookshot/cultdzu/grabber = null
 	var/grab_delay = 2 SECONDS
@@ -88,7 +88,7 @@
 /obj/cultdzu/proc/start_pulling(var/atom/movable/AM)
 	if (Adjacent(AM))
 		entrap_atom(AM)
-
+/*
 /obj/cultdzu/proc/special_cooldown()
 	return world.time >= last_special + 3 SECONDS
 
@@ -100,16 +100,16 @@
 	if(istype(M, /mob/living/carbon/human))
 		do_thorns(M, 25) //this is the chance !! PER NON-PROTECTED LIMB !!
 		do_sting(M, 30)
-
 /obj/cultdzu/proc/is_mature()
 	return (health >= (maxHealth/2) && age > mature_time)
-
+*/
+/*
 /obj/cultdzu/attack_hand(var/mob/user)
 	manual_unbuckle(user)
 
 /obj/cultdzu/attack_paw(var/mob/user)
 	manual_unbuckle(user)
-
+*/
 
 /obj/cultdzu/lock_atom(var/mob/living/M)
 	. = ..()
@@ -119,7 +119,7 @@
 	if(!istype(M))
 		return
 
-	M.register_event(/event/resist, src, src::manual_unbuckle())
+	//M.register_event(/event/resist, src, src::manual_unbuckle())
 
 	last_special = world.time
 
@@ -131,7 +131,7 @@
 	if(!istype(M))
 		return
 
-	M.unregister_event(/event/resist, src, src::manual_unbuckle())
+	//M.unregister_event(/event/resist, src, src::manual_unbuckle())
 
 /obj/cultdzu/proc/entrap_atom(var/atom/movable/victim)
 	if(!victim || victim.locked_to || is_locking(/datum/locking_category/cultdzu))
@@ -150,7 +150,7 @@
 	var/damage = L.run_armor_absorb(atk_zone, atk_flag, atk_dam)
 	L.apply_damage(damage, atk_flag, atk_zone, absorb, TRUE, used_weapon = grabber)
 	L.regenerate_icons()
-
+/*
 #define NEIGHBOR_REFRESH_TIME 100
 
 /obj/cultdzu/proc/get_cardinal_neighbors()
@@ -272,7 +272,7 @@
 		processing_objects.Add(src)
 
 #undef NEIGHBOR_REFRESH_TIME
-
+*/
 
 
 
@@ -332,11 +332,11 @@
 	if (istype(L, /mob/living/carbon/slime))
 		skin = "metal cover"
 
-	else (istype(L, /mob/living/simple_animal))
+	else if (istype(L, /mob/living/simple_animal))
 		var/mob/living/simple_animal/SA = L
 		if (SA.blooded)
 			return TRUE
-	else (istype(L, /mob/living/silicon))
+	else if (istype(L, /mob/living/silicon))
 		skin = "metal cover"
 
 
