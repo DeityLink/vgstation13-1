@@ -280,6 +280,12 @@
 /datum/reagent/proc/handle_special_behavior(var/obj/item/weapon/reagent_containers/food/drinks/drinkingglass/D) //rip steve
 	return
 
+/datum/reagent/proc/handle_data_mix(var/list/added_data=null, var/added_volume, var/mob/admin)
+	data = added_data
+
+/datum/reagent/proc/handle_data_copy(var/list/added_data=null, var/added_volume, var/mob/admin)
+	data = added_data
+
 /datum/reagent/piccolyn
 	name = "Piccolyn"
 	id = PICCOLYN
@@ -479,6 +485,7 @@
 	glass_desc = "Are you sure this is tomato juice?"
 	mug_name = "mug of tomato juice"
 	mug_desc = "Are you sure this is tomato juice?"
+	flags = CHEMFLAG_PIGMENT
 
 	data = list(
 		"viruses" = null,
@@ -491,6 +498,22 @@
 		"immunity" = null,
 		"occult" = null,
 		)
+
+/datum/reagent/blood/handle_data_mix(var/list/added_data=null, var/added_volume, var/mob/admin)
+	//to do: add better ways for blood colors to interact with each other //moved from Chemistry-Holder.dm
+	//right now we don't support blood mixing or something similar at all.
+	if(added_data && added_data["virus2"])
+		if (!data["virus2"])
+			data["virus2"] = list()
+		data["virus2"] |= virus_copylist(added_data["virus2"])
+
+/datum/reagent/blood/handle_data_copy(var/list/added_data=null, var/added_volume, var/mob/admin)
+	if (added_data)
+		data = added_data.Copy()
+		if(added_data["virus2"])
+			data["virus2"] |= virus_copylist(added_data["virus2"])
+		if(added_data["blood_colour"])
+			color = added_data["blood_colour"]
 
 /datum/reagent/blood/handle_special_behavior(var/obj/item/weapon/reagent_containers/food/drinks/drinkingglass/D)
 	var/totally_not_blood = "Tomato Juice"
@@ -2469,6 +2492,7 @@
 	color = "#A5F0EE" //rgb: 165, 240, 238
 	density = 0.76
 	specheatcap = 60.17
+	var/clean_level = CLEANLINESS_SPACECLEANER
 
 /datum/reagent/space_cleaner/reaction_obj(var/obj/O, var/volume)
 
@@ -2476,14 +2500,8 @@
 		return 1
 
 	O.clean_blood()
-	if(istype(O, /obj/effect/rune))
-		var/obj/effect/rune/R = O
-		if (!R.activated)
-			qdel(O)
-	else if(istype(O, /obj/effect/decal/cleanable))
-		qdel(O)
-	else if(O.color)
-		O.color = ""
+	O.clean_act(clean_level)
+
 	..()
 
 /datum/reagent/space_cleaner/reaction_turf(var/turf/simulated/T, var/volume)
@@ -2534,6 +2552,7 @@
 	color = "#FBFCFF" //rgb: 251, 252, 255
 	density = 6.84
 	specheatcap = 90.35
+	clean_level = CLEANLINESS_BLEACH
 
 /datum/reagent/space_cleaner/bleach/reaction_turf(var/turf/simulated/T, var/volume)
 
@@ -2547,11 +2566,6 @@
 		I.decontaminate()
 
 	T.color = ""
-
-/datum/reagent/space_cleaner/bleach/reaction_obj(obj/O, var/volume)
-	if(O)
-		O.color = ""
-	..()
 
 /datum/reagent/space_cleaner/bleach/on_mob_life(var/mob/living/M)
 
@@ -4002,6 +4016,16 @@ var/procizine_tolerance = 0
 		"antigen" = list(),
 		)
 
+/datum/reagent/vaccine/handle_data_mix(var/list/added_data=null, var/added_volume, var/mob/admin)
+	if (added_data)
+		data["antigen"] |= added_data["antigen"]
+
+/datum/reagent/vaccine/handle_data_copy(var/list/added_data=null, var/added_volume, var/mob/admin)
+	if (added_data)
+		data = added_data.Copy()
+	else
+		data = list("antigen" = list())
+
 /datum/reagent/vaccine/on_mob_life(var/mob/living/M)
 	if(..())
 		return 1
@@ -4754,6 +4778,7 @@ var/procizine_tolerance = 0
 	reagent_state = REAGENT_STATE_LIQUID
 	nutriment_factor = 4 * REAGENTS_METABOLISM
 	color = "#FAF0E6" //rgb: 51, 102, 0
+	flags = CHEMFLAG_PIGMENT
 
 /datum/reagent/zamspices
 	name = "Zam Spices"

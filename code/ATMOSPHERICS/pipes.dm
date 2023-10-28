@@ -107,6 +107,10 @@
 
 	..()
 
+/obj/machinery/atmospherics/pipe/clean_act(var/cleanliness)
+	if (cleanliness >= CLEANLINESS_BLEACH)
+		color = ""
+
 /obj/machinery/atmospherics/pipe/simple
 	icon = 'icons/obj/pipes.dmi'
 	icon_state = "intact"
@@ -930,27 +934,6 @@
 /obj/machinery/atmospherics/pipe/attackby(var/obj/item/weapon/W as obj, var/mob/user as mob)
 	if(istype(W, /obj/item/device/rcd/rpd) || istype(W, /obj/item/device/pipe_painter))
 		return // Coloring pipes.
-
-	if(istype(W, /obj/item/weapon/reagent_containers/glass/paint/red))
-		src.color = PIPE_COLOR_RED
-		to_chat(user, "<span class='notice'>You paint the pipe red.</span>")
-		update_icon()
-		return 1
-	if(istype(W, /obj/item/weapon/reagent_containers/glass/paint/blue))
-		src.color = PIPE_COLOR_BLUE
-		to_chat(user, "<span class='notice'>You paint the pipe blue.</span>")
-		update_icon()
-		return 1
-	if(istype(W, /obj/item/weapon/reagent_containers/glass/paint/green))
-		src.color = PIPE_COLOR_GREEN
-		to_chat(user, "<span class='notice'>You paint the pipe green.</span>")
-		update_icon()
-		return 1
-	if(istype(W, /obj/item/weapon/reagent_containers/glass/paint/yellow))
-		src.color = PIPE_COLOR_ORANGE
-		to_chat(user, "<span class='notice'>You paint the pipe yellow.</span>")
-		update_icon()
-		return 1
 
 	if(istype(W, /obj/item/pipe_meter))
 		var/obj/item/pipe_meter/meter = W

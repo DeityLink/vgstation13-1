@@ -160,14 +160,21 @@
 	icon_state = "toolbox_paint"
 	item_state = "toolbox_paint"
 	attack_verb = list("daubs", "decorates", "slathers")
-	items_to_spawn = list(
-	/obj/item/weapon/reagent_containers/glass/paint/red,
-	/obj/item/weapon/reagent_containers/glass/paint/green,
-	/obj/item/weapon/reagent_containers/glass/paint/blue,
-	/obj/item/weapon/reagent_containers/glass/paint/yellow,
-	/obj/item/weapon/reagent_containers/glass/paint/purple,
-	/obj/item/weapon/reagent_containers/glass/paint/cyan,
-	/obj/item/weapon/reagent_containers/glass/paint/black,
-	/obj/item/weapon/reagent_containers/glass/paint/white,
-	/obj/item/weapon/reagent_containers/glass/paint/remover
-	)
+	items_to_spawn = list()
+
+/obj/item/weapon/storage/toolbox/paint/New()
+	..()
+	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#D52127")
+	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#F36621")
+	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#F6851E")
+	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#FBB40F")
+	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#FCED23")
+	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#8CC640")
+	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#07B151")
+	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#2FBBB3")
+	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#2357BC")
+	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#4C489B")
+	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#733B97")
+	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#AF3A94")
+	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#333333")
+	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#FFFFFF")

@@ -613,7 +613,7 @@ var/global/objects_thrown_when_explode = FALSE
 					else
 						return CANNOT_EQUIP
 
-				
+
 
 				return CAN_EQUIP
 			if(slot_back)
