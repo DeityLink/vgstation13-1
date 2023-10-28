@@ -1440,7 +1440,6 @@ var/global/list/damage_icon_parts = list()
 		O.color = I.color
 		O.pixel_x = -1*(check_dimensions.Width() - WORLD_ICON_SIZE)/2
 		O.pixel_y = -1*(check_dimensions.Height() - WORLD_ICON_SIZE)/2
-		O.layer = O.layer
 
 		var/list/offsets = get_item_offset_by_index(index)
 

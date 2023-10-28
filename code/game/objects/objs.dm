@@ -947,3 +947,7 @@ a {
 
 /obj/get_heat_conductivity() //So keeping something in a closet can have an insulating effect.
 	return 0.5
+
+/obj/proc/clean_act(var/cleanliness)//1 = water, 2 = space cleaner, 3 = bleach/paint thinner
+	if (cleanliness >= CLEANLINESS_SPACECLEANER)
+		color = ""

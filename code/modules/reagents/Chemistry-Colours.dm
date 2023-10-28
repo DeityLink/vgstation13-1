@@ -25,9 +25,9 @@
 		if(isnull(color))
 			color = reagent.color
 		else if(length(color) >= length(reagent_color))
-			color = BlendRGB(color, reagent_color, vol_temp/vol_counter)
+			color = BlendRYB(reagent_color, color, vol_temp/vol_counter)
 		else
-			color = BlendRGB(reagent_color, color, vol_temp/vol_counter)
+			color = BlendRYB(color, reagent_color, vol_temp/vol_counter)
 
 	return color
 

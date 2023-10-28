@@ -260,3 +260,7 @@ var/list/infected_cleanables = list()
 		var/turf/T = get_turf(src)
 		if(T && (T.z == map.zMainStation))
 			legacy_cult.bloody_floors -= T
+
+/obj/effect/decal/cleanable/clean_act(var/cleanliness)
+	if (cleanliness >= CLEANLINESS_SPACECLEANER)
+		qdel(src)
