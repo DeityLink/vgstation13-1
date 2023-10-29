@@ -27,6 +27,7 @@
 
 	// Paint brush stuff
 	var/paint_color = null
+	var/nano_paint = FALSE
 
 /obj/item/weapon/painting_brush/update_icon()
 	..()
@@ -48,10 +49,16 @@
 		if (cleaner_percent >= PAINT_CLEANER_THRESHOLD)
 			// Clean up that brush
 			paint_color = null
+			nano_paint = FALSE
 			to_chat(user, "<span class='notice'>You clean \the [name] in \the [target.name].</span>")
 		else
-			// Take the reagent mix's color
-			var/list/paint_color_rgb = rgb2num(mix_color_from_reagents(target.reagents.reagent_list))
+			// Take the pigment mix's color
+			var/paint_rgb = mix_color_from_reagents(target.reagents.reagent_list, TRUE)
+			if (!paint_rgb)
+				to_chat(user, "<span class='notice'>Your [name] fails to grab any pigment from \the [target.name].</span>")
+				return
+			var/list/paint_color_rgb = rgb2num(paint_rgb)
 			paint_color = rgb(paint_color_rgb[1], paint_color_rgb[2], paint_color_rgb[3], mix_alpha_from_reagents(target.reagents.reagent_list))
+			nano_paint = target.reagents.has_reagent(NANOPAINT)
 			to_chat(user, "<span class='notice'>You dip \the [name] in \the [target.name].</span>")
 		update_icon()

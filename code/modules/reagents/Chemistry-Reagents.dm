@@ -286,6 +286,12 @@
 /datum/reagent/proc/handle_data_copy(var/list/added_data=null, var/added_volume, var/mob/admin)
 	data = added_data
 
+/datum/reagent/proc/handle_additional_data(var/list/additional_data=null)//used by xenoarch
+	return
+
+/datum/reagent/proc/special_behaviour()//used by nano-paints. called on all reagents in a container after another agent was added.
+	return
+
 /datum/reagent/piccolyn
 	name = "Piccolyn"
 	id = PICCOLYN

@@ -2207,6 +2207,7 @@
 #include "code\modules\organs\internal\lungs\lung.dm"
 #include "code\modules\organs\internal\lungs\lung_gasses.dm"
 #include "code\modules\overlays\mobs.dm"
+#include "code\modules\painting\colors.dm"
 #include "code\modules\painting\easel.dm"
 #include "code\modules\painting\paint.dm"
 #include "code\modules\painting\painting_brush.dm"

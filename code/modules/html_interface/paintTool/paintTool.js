@@ -71,6 +71,9 @@ var ctx;
 var width;
 var height;
 var bitmap;
+var nanomap;
+
+var nanopaint = false;
 
 //Keep track of how scaled up the canvas is vs the actual bitmap
 var scaleX = 20;
@@ -108,6 +111,8 @@ function initPaint(initData) {
 	canvas.width = width * scaleX;
 	canvas.height = height * scaleY;
 	bitmap = initData.bitmap;
+	nanomap = initData.nanomap;
+	nanopaint = initData.nanopaint;
 
 	minPaintStrength = initData.minPaintStrength;
 	maxPaintStrength = initData.maxPaintStrength;
@@ -117,6 +122,7 @@ function initPaint(initData) {
 	if (bitmap.length != width * height) {
 		while (bitmap.length < width * height) {
 			bitmap.push("#ffffff");
+			nanomap.push("#000000");
 		}
 	}
 
@@ -134,6 +140,10 @@ function initPaint(initData) {
  */
 function setPaintColor(color) {
 	paint_color = color;
+}
+
+function setNanoPaint(nano) {
+	nanopaint = nano;
 }
 
 function getPaintColor() {
@@ -217,7 +227,14 @@ function pixelDraw(x, y, rgba, alpha) {
 	rgba = blendFunction(rgba, orgba, alpha);
 
 	//Save result into bitmap
-	bitmap[pixel] = rgbaToHex(rgba);
+	let pixelhex = rgbaToHex(rgba);
+
+	bitmap[pixel] = pixelhex;
+
+	if (nanopaint)
+		nanomap[pixel] = pixelhex;
+	else
+		nanomap[pixel] = rgbaToHex(blendFunction(hexToRgba("#000000"), hexToRgba(nanomap[pixel]), alpha));
 }
 
 

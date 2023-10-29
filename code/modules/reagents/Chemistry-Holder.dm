@@ -476,20 +476,20 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 			return NO_REACTION_UNMET_TEMP_COND
 
 		var/multiplier = min(multipliers) * multiplier_override
-		var/preserved_data = null
+		var/list/preserved_data = null
 		for(var/B in C.required_reagents)
 			req_reag_amt = C.required_reagents[B]
 			if(islist(B))
 				var/list/L = B
 				for(var/D in L)
 					if(amount_cache[D] >= req_reag_amt)
-						if(!preserved_data)
-							preserved_data = get_data(D)
+						if(!(B in preserved_data))
+							preserved_data[B] = get_data(D)
 						remove_reagent(D, (multiplier * req_reag_amt), safety = 1)
 						break
 			else
-				if(!preserved_data)
-					preserved_data = get_data(B)
+				if(!(B in preserved_data))
+					preserved_data[B] = get_data(B)
 				remove_reagent(B, (multiplier * req_reag_amt), safety = 1)
 
 		chem_temp += C.reaction_temp_change
@@ -498,9 +498,7 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		if(C.result)
 			feedback_add_details("chemical_reaction","[C.result][created_volume]")
 			multiplier = max(multiplier, 1) //this shouldnt happen ...
-			add_reagent(C.result, created_volume, null, chem_temp)
-			if (preserved_data)
-				set_data(C.result, preserved_data)
+			add_reagent(C.result, created_volume, null, chem_temp, additional_data = preserved_data)
 
 			//add secondary products
 			for(var/S in C.secondary_results)
@@ -671,7 +669,7 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		warning("[usr] tried to equalize the temperature of a thermally-massless mixture.")
 		return T0C+20 //Sanity but this shouldn't happen.
 
-/datum/reagents/proc/add_reagent(var/reagent, var/amount, var/list/data=null, var/reagtemp = T0C+20, var/mob/admin)
+/datum/reagents/proc/add_reagent(var/reagent, var/amount, var/list/data=null, var/reagtemp = T0C+20, var/mob/admin, var/list/additional_data=null)
 	if(!my_atom)
 		return 0
 	if(!amount)
@@ -688,6 +686,8 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 			chem_temp = get_equalized_temperature(chem_temp, get_thermal_mass(), reagtemp, amount * R.density * R.specheatcap * CC_PER_U)
 
 			R.handle_data_mix(data, amount, admin)
+			if (additional_data)
+				R.handle_additional_data(additional_data)
 			R.volume += amount
 			update_total()
 			my_atom.on_reagent_change()
@@ -706,12 +706,15 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		reagent_list += R
 		R.holder = src
 		R.handle_data_copy(data, amount, admin)
+		if (additional_data)
+			R.handle_additional_data(additional_data)
 		R.volume = amount
 
 		R.on_introduced()
 
 		update_total()
 		my_atom.on_reagent_change()
+		handle_special_behaviours()
 		handle_reactions()
 		return 0
 	else
@@ -720,6 +723,10 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 	handle_reactions()
 
 	return 1
+
+/datum/reagents/proc/handle_special_behaviours()
+	for (var/datum/reagent/R in reagent_list)
+		R.special_behaviour()
 
 /datum/reagents/proc/remove_reagent(var/reagent, var/amount, var/safety)//Added a safety check for the trans_id_to
 
@@ -902,12 +909,6 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		if(D.id == reagent_id)
 //						to_chat(world, "proffering a data-carrying reagent ([reagent_id])")
 			return D.data
-
-/datum/reagents/proc/set_data(var/reagent_id, var/new_data)
-	for(var/datum/reagent/D in reagent_list)
-		if(D.id == reagent_id)
-//						to_chat(world, "reagent data set ([reagent_id])")
-			D.data = new_data
 
 /datum/reagents/Destroy()
 	for(var/datum/reagent/reagent in reagent_list)
