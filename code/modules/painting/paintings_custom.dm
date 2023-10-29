@@ -29,6 +29,8 @@
 	var/frame_icon_state = "frame"
 	var/show_on_scoreboard = TRUE
 
+	var/image/nanomap
+
 	starting_materials = list(MAT_WOOD = 2 * CC_PER_SHEET_WOOD)
 
 /obj/structure/painting/custom/New()
@@ -71,7 +73,7 @@
 
 				// Reagent mix is opaque enough to paint the canvas, do so
 				else
-					painting_data.bucket_fill(mix_color_from_reagents(container.reagents.reagent_list))
+					painting_data.bucket_fill(mix_color_from_reagents(container.reagents.reagent_list), container.reagents.has_reagent(NANOPAINT))
 				container.reagents.remove_any(5)
 				update_painting(TRUE)
 
@@ -158,6 +160,7 @@
 
 /obj/structure/painting/custom/update_painting(render)
 	blank = painting_data.is_blank()
+	overlays.len = 0
 	if (!blank)
 		name = (painting_data.title ? ("\proper[painting_data.title]") : "untitled artwork") + (painting_data.author ? ", by [painting_data.author]" : "")
 		desc = painting_data.description ? "A small plaque reads: \"<span class='info'>[painting_data.description]\"</span>" : "A painting... But what could it mean?"
@@ -165,12 +168,15 @@
 			desc += "A tag on this artwork indicates that it's a replica reproduced from Nanotrasen's databanks."
 		if (render)
 			icon = painting_data.render_on(icon(base_icon, base_icon_state))
+			nanomap = painting_data.render_nanomap(icon(base_icon, "[base_icon_state]-nano"))
+			nanomap.blend_mode = BLEND_ADD
+		nanomap.plane = relative_plane(ABOVE_LIGHTING_PLANE)
+		overlays += nanomap
 	else
 		name = base_name
 		desc = base_desc
 		icon = icon(base_icon, base_icon_state)
 
-	overlays.Cut()
 	if (framed)
 		overlays += icon(frame_icon, frame_icon_state)
 
@@ -271,7 +277,7 @@
 
 				// Reagent mix is opaque enough to paint the canvas, do so
 				else
-					painting_data.bucket_fill(mix_color_from_reagents(container.reagents.reagent_list))
+					painting_data.bucket_fill(mix_color_from_reagents(container.reagents.reagent_list), container.reagents.has_reagent(NANOPAINT))
 					container.reagents.remove_any(5)
 				update_painting(TRUE)
 			return TRUE

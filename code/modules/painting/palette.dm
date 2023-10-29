@@ -71,6 +71,7 @@ interactions:
 	// Paint stuff
 	var/tagindex = 0
 	var/list/stored_colours = list()
+	var/list/nanopaint_indexes = list()
 
 /obj/item/weapon/palette/attack_self(mob/user)
 	. = ..()
@@ -81,6 +82,7 @@ interactions:
 	var/datum/painting_utensil/p = new(user, W)
 	if (p.base_color)
 		stored_colours["[++tagindex]"] = p.base_color
+		nanopaint_indexes["[tagindex]"] = p.nano_paint
 		to_chat(user, "<span class='notice'>You add a new color to \the [src].</span>")
 
 /obj/item/weapon/palette/ui_interact(mob/user, ui_key, datum/nanoui/ui, force_open)
@@ -113,6 +115,7 @@ interactions:
 	if (href_list["colour"])
 		var/colour_tag = href_list["colour"]
 		var/colour = stored_colours[href_list["colour"]]
+		var/nanopaint = nanopaint_indexes[href_list["colour"]]
 		if (!colour)
 			return
 		var/mob/living/L = usr
@@ -130,6 +133,7 @@ interactions:
 			if ("apply")
 				if (!PB.paint_color)
 					PB.paint_color = colour
+					PB.nano_paint = nanopaint
 					to_chat(usr, "<span class='notice'>You apply the color to \the [PB].</span>")
 				else
 					to_chat(usr, "<span class='notice'>You start mixing colours...</span>")
@@ -141,12 +145,17 @@ interactions:
 					var/blend_rgb = rgb(blend[1], blend[2], blend[3], blend[4], "COLORSPACE_RGB")
 					stored_colours[colour_tag] = blend_rgb
 					PB.paint_color = blend_rgb
+					if (nanopaint || PB.nano_paint)
+						PB.nano_paint = TRUE
+						nanopaint_indexes[colour_tag] = TRUE
 				PB.update_icon()
 			if ("duplicate")
 				stored_colours["[++tagindex]"] += colour
+				nanopaint_indexes["[tagindex]"] = nanopaint
 				return
 			if ("delete")
 				stored_colours -= colour_tag
+				nanopaint_indexes -= colour_tag
 				return
 
 	else if (href_list["wash_pencil"])

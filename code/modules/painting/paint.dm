@@ -5,10 +5,11 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 
 /obj/item/weapon/reagent_containers/glass/paint
 	name = "paint bucket"
-	desc = "A bucket containing paint."
+	desc = "A bucket for storing acrylic paint."
 	icon = 'icons/obj/painting_items.dmi'
 	icon_state = "paint_bucket"
-	item_state = "paintcan"
+	item_state = "paint_bucket"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/arts_n_crafts.dmi', "right_hand" = 'icons/mob/in-hand/right/arts_n_crafts.dmi')
 	starting_materials = list(MAT_IRON = 200)
 	w_type = RECYK_METAL
 	w_class = W_CLASS_MEDIUM
@@ -19,6 +20,8 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	flags = FPRINT | OPENCONTAINER
 	var/icon/spots
 	var/last_pigments = ""
+	var/name_base = "paint bucket"
+	var/icon_lid = "paint_cover"
 
 /obj/item/weapon/reagent_containers/glass/paint/New()
 	..()
@@ -35,7 +38,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	if(!flag || user.stat)
 		return ..()
 
-	if(istype(target) && reagents.total_volume > 5)
+	if(istype(target) && reagents.total_volume >= 5)
 		for(var/mob/O in viewers(user))
 			O.show_message("<span class='warning'>\The [target] has been splashed with something by [user]!</span>", 1)
 		spawn(5)
@@ -81,6 +84,15 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 		var/image/I = image(icon, src, "paint_pigments")
 		I.color = last_pigments
 		overlays += I
+		//dynamic in-hand overlay
+		var/image/paintleft = image(inhand_states["left_hand"], src, "paint_pigments")
+		var/image/paintright = image(inhand_states["right_hand"], src, "paint_pigments")
+		paintleft.color = last_pigments
+		paintright.color = last_pigments
+		dynamic_overlay["[HAND_LAYER]-[GRASP_LEFT_HAND]"] = paintleft
+		dynamic_overlay["[HAND_LAYER]-[GRASP_RIGHT_HAND]"] = paintright
+	else
+		dynamic_overlay = list()
 
 	if (reagents && reagents.total_volume)
 		var/image/I = image(icon, src, "paint_inside")
@@ -88,31 +100,22 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 		I.alpha = mix_alpha_from_reagents(reagents.reagent_list)
 		overlays += I
 
-	if (flags & OPENCONTAINER)
-		overlays += "paint_cover"
-	/*
-	var/image/balleft = image('icons/mob/in-hand/left/toys.dmi', src, "[icon_state]")
-	var/image/balleftshine = image('icons/mob/in-hand/left/toys.dmi', src, "[icon_state]_shine")
-	var/image/balright = image('icons/mob/in-hand/right/toys.dmi', src, "[icon_state]")
-	var/image/balrightshine = image('icons/mob/in-hand/right/toys.dmi', src, "[icon_state]_shine")
-	balleftshine.appearance_flags = RESET_COLOR
-	balrightshine.appearance_flags = RESET_COLOR
-	balleft.color = col
-	balright.color = col
-	balleft.overlays += balleftshine
-	balright.overlays += balrightshine
-	dynamic_overlay["[HAND_LAYER]-[GRASP_LEFT_HAND]"] = balleft
-	dynamic_overlay["[HAND_LAYER]-[GRASP_RIGHT_HAND]"] = balright
-	*/
+	if (!(flags & OPENCONTAINER))
+		overlays += icon_lid
+
+	if(ismob(loc))
+		var/mob/M = loc
+		M.update_inv_hands()
 
 
 /obj/item/weapon/reagent_containers/glass/paint/on_reagent_change()
 	var/new_pigments = mix_color_from_reagents(reagents.reagent_list, TRUE)
 	if (new_pigments)
-		last_pigments = new_pigments
-		name = "paint bucket ([get_paint_name(new_pigments)])"
+		if (last_pigments != new_pigments)
+			name = "[name_base] ([get_paint_name(new_pigments)])"
+			last_pigments = new_pigments
 	else
-		name = "paint bucket"
+		name = name_base
 	update_icon()
 
 /obj/item/weapon/reagent_containers/glass/paint/clean_act(var/cleanliness)
@@ -124,39 +127,107 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	on_reagent_change()
 
 /obj/item/weapon/reagent_containers/glass/paint/proc/add_spots(var/spots_to_add = 1, var/color_override)
+	if (!(flags & OPENCONTAINER))
+		return
 	if (!spots)
 		spots = icon('icons/obj/painting_items.dmi',"paint_spots")
 	var/spot_color = color_override
 	if (!spot_color)
 		spot_color = mix_color_from_reagents(reagents.reagent_list, TRUE)
-	for (var/i = 1 to spots_to_add)
-		var/icon/I = icon('icons/obj/painting_items.dmi', "paint_spots[rand(1,4)]")
-		I.Blend(spot_color, ICON_MULTIPLY)
-		spots.Blend(I, ICON_OVERLAY)
-	update_icon()
+	if (spot_color)
+		for (var/i = 1 to spots_to_add)
+			var/icon/I = icon('icons/obj/painting_items.dmi', "paint_spots[rand(1,4)]")
+			I.Blend(spot_color, ICON_MULTIPLY)
+			spots.Blend(I, ICON_OVERLAY)
+		update_icon()
 
 /obj/item/weapon/reagent_containers/glass/paint/proc/get_paint_name(var/paint_name)
-	var/list/known_paints = colors_acrylic_primary | colors_acrylic_secondary | colors_acrylic_tertiary | colors_acrylic_blackwhite | colors_acrylic_special | colors_nano_rgb
-	if (paint_name in known_paints)
-		return known_paints[paint_name]
+	if (paint_name in colors_all)
+		return colors_all[paint_name]
 	else
 		return "[paint_name]"
 
+
 //-------------------------------------------------------------------------------------------------
 
+/obj/item/weapon/reagent_containers/glass/paint/metal
+	name = "metal bucket"
+	desc = "Can be used to store and carry reagents."
+	name_base = "metal bucket"
+
+//-------------------------------------------------------------------------------------------------
+
+//Acrylic Paints
 /obj/item/weapon/reagent_containers/glass/paint/filled
 	last_pigments = "#FFFFFF"
 	var/paint_color	= "#FFFFFF"
-	var/paint_type	= ACRYLIC
 
-/obj/item/weapon/reagent_containers/glass/paint/filled/New(turf/loc, var/p_type, var/p_color)
+/obj/item/weapon/reagent_containers/glass/paint/filled/New(turf/loc, var/p_color)
 	..()
-	if (p_type)
-		paint_type = p_type
 	if (p_color)
 		paint_color = p_color
-	reagents.add_reagent(paint_type, volume, list("color" = paint_color))
-	update_icon()
+	reagents.add_reagent(ACRYLIC, volume, list("color" = paint_color))
+
+/obj/item/weapon/reagent_containers/glass/paint/filled/red
+	paint_color	= "#D52127"
+/obj/item/weapon/reagent_containers/glass/paint/filled/yellow
+	paint_color	= "#FCED23"
+/obj/item/weapon/reagent_containers/glass/paint/filled/blue
+	paint_color	= "#2357BC"
+/obj/item/weapon/reagent_containers/glass/paint/filled/orange
+	paint_color	= "#F6851E"
+/obj/item/weapon/reagent_containers/glass/paint/filled/green
+	paint_color	= "#07B151"
+/obj/item/weapon/reagent_containers/glass/paint/filled/violet
+	paint_color	= "#733B97"
+/obj/item/weapon/reagent_containers/glass/paint/filled/vermilion
+	paint_color	= "#F36621"
+/obj/item/weapon/reagent_containers/glass/paint/filled/amber
+	paint_color	= "#FBB40F"
+/obj/item/weapon/reagent_containers/glass/paint/filled/magenta
+	paint_color	= "#AF3A94"
+/obj/item/weapon/reagent_containers/glass/paint/filled/indigo
+	paint_color	= "#4C489B"
+/obj/item/weapon/reagent_containers/glass/paint/filled/turquoise
+	paint_color	= "#2FBBB3"
+/obj/item/weapon/reagent_containers/glass/paint/filled/chartreuse
+	paint_color	= "#8CC640"
+/obj/item/weapon/reagent_containers/glass/paint/filled/black
+	paint_color	= "#333333"
+/obj/item/weapon/reagent_containers/glass/paint/filled/white
+	paint_color	= "#FFFFFF"
+/obj/item/weapon/reagent_containers/glass/paint/filled/vantablack
+	paint_color	= "#000000"
+
+/obj/item/weapon/reagent_containers/glass/paint/filled/random/New(turf/loc, var/p_color)
+	paint_color = pick(colors_all)
+	..(loc, paint_color)
+
+//Nano Paints
+/obj/item/weapon/reagent_containers/glass/paint/rgb
+	name = "nano-paint bucket"
+	desc = "A bucket for storing paint composed of luminous nanomachines."
+	icon_state = "nano_bucket"
+	item_state = "nano_bucket"
+	name_base = "nano-paint bucket"
+	icon_lid = "nano_cover"
+
+/obj/item/weapon/reagent_containers/glass/paint/rgb/filled
+	last_pigments = "#FFFFFF"
+	var/paint_color	= "#FFFFFF"
+
+/obj/item/weapon/reagent_containers/glass/paint/rgb/filled/New(turf/loc, var/p_color)
+	..()
+	if (p_color)
+		paint_color = p_color
+	reagents.add_reagent(NANOPAINT, volume, list("color" = paint_color))
+
+/obj/item/weapon/reagent_containers/glass/paint/rgb/filled//red
+	paint_color	= "#FF0000"
+/obj/item/weapon/reagent_containers/glass/paint/rgb/filled/green
+	paint_color	= "#00FF00"
+/obj/item/weapon/reagent_containers/glass/paint/rgb/filled/blue
+	paint_color	= "#0000FF"
 
 
 /////////////////////////////////////////  REAGENTS  ////////////////////////////////////////////////
@@ -231,7 +302,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 		added_color = input(admin,"Paint Color","Choose a Paint Color","#FFFFFF") as color
 	else if (added_data)
 		added_color = added_data["color"]
-	data["color"] = BlendRGB(base_color, added_color, added_volume / (added_volume+volume))
+	data["color"] = AddRGB(base_color, added_color, added_volume / volume)
 	color = data["color"]
 
 /datum/reagent/paint/nanopaint/handle_data_copy(var/list/added_data=null, var/added_volume, var/mob/admin)
@@ -242,7 +313,19 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 		data["color"] = input(admin,"Paint Color","Choose a Paint Color","#FFFFFF") as color
 		color = data["color"]
 
-/datum/reagent/paint/on_mob_life(var/mob/living/M)
+/datum/reagent/paint/nanopaint/special_behaviour()
+	//turning acrylic into more nano-paint while also mixing their colours
+	for (var/datum/reagent/R in holder.reagent_list)
+		if ((R.id == ACRYLIC) || (R.id == FLAXOIL))
+			var/added_volume = R.volume
+			var/added_color = R.data["color"]
+			data["color"] = AddRGB(added_color, data["color"], volume / added_volume)
+			color = data["color"]
+			holder.del_reagent(R.id)
+			volume += added_volume
+			holder.my_atom.on_reagent_change()
+
+/datum/reagent/paint/nanopaint/on_mob_life(var/mob/living/M)
 	if(..())
 		return 1
 	M.adjustToxLoss(0.2)//nano paint is even more toxic yo
@@ -295,36 +378,3 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 		return 0
 
 #undef PAINT_CLEANER_AGENT_MULTIPLIER
-
-
-var/list/colors_acrylic_primary = list(
-	"#D52127" = "Red",
-	"#FCED23" = "Yellow",
-	"#2357BC" = "Blue",
-)
-var/list/colors_acrylic_secondary = list(
-	"#F6851E" = "Orange",
-	"#07B151" = "Green",
-	"#733B97" = "Violet",
-)
-var/list/colors_acrylic_tertiary = list(
-	"#F36621" = "Vermilion",
-	"#FBB40F" = "Amber",
-	"#AF3A94" = "Magenta",
-	"#4C489B" = "Indigo",
-	"#2FBBB3" = "Turquoise",
-	"#8CC640" = "Chartreuse",
-)
-var/list/colors_acrylic_blackwhite = list(
-	"#333333" = "Black",
-	"#FFFFFF" = "White",
-)
-var/list/colors_acrylic_special = list(
-	"#000000" = "Blackest Black",
-	"#ED1871" = "Pinkest Pink",
-)
-var/list/colors_nano_rgb = list(
-	"#FF0000" = "Red",
-	"#00FF00" = "Green",
-	"#0000FF" = "Blue",
-)

@@ -443,6 +443,7 @@ const MAX_DESCRIPTION_LENGTH = 1024;
 
 function submitData() {
 	var content = "bitmap=" + encodeURIComponent(bitmap) + ";";
+	content += "nanomap=" + encodeURIComponent(nanomap) + ";";
 	content += "author=" + encodeURIComponent(document.getElementById("author").value.slice(0, MAX_AUTHOR_LENGTH)) + ";";
 	content += "title=" + encodeURIComponent(document.getElementById("title").value.slice(0, MAX_TITLE_LENGTH)) + ";";
 	content += "description=" + encodeURIComponent(document.getElementById("description").value.slice(0, MAX_DESCRIPTION_LENGTH));

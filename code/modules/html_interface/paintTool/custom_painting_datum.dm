@@ -14,6 +14,7 @@
 	var/max_strength = 1
 	var/list/palette = list() // List of colors that will be made available while painting
 	var/base_color
+	var/nano_paint = FALSE
 
 /datum/painting_utensil/New(mob/user, obj/item/held_item)
 	if (!user) // Special case
@@ -71,6 +72,7 @@
 			if (!(b.paint_color in palette))
 				palette += b.paint_color
 			base_color = b.paint_color
+			nano_paint = b.nano_paint
 
 	// Normalize palette colors
 	for (var/i = 1; i < palette.len; i++)
@@ -109,6 +111,9 @@
 	var/list/bitmap = list()
 	var/bitmap_width = 14
 	var/bitmap_height = 14
+
+	// Secondary luminous bitmap for when working with nano-paint
+	var/list/nanomap = list()
 
 	// Color that shows up on creation or after cleaning
 	var/base_color = "#ffffff"
@@ -158,16 +163,25 @@
 	copy.title = title
 	copy.description = description
 	copy.bitmap = bitmap.Copy()
+	copy.nanomap = nanomap.Copy()
 	return copy
 
 /datum/custom_painting/proc/set_parent(parent)
 	src.parent = parent
 	mp_handler.set_parent(parent)
 
-/datum/custom_painting/proc/bucket_fill(var/color)
+/datum/custom_painting/proc/bucket_fill(var/color,var/nanopaint=FALSE)
 	bitmap = list()
-	for (var/i = 0, i < bitmap_height * bitmap_width, i++)
-		bitmap += color
+	nanomap = list()
+	if (nanopaint)
+		for (var/i = 0, i < bitmap_height * bitmap_width, i++)
+			bitmap += color
+			nanomap += color
+	else
+		for (var/i = 0, i < bitmap_height * bitmap_width, i++)
+			bitmap += color
+			nanomap += "#000000"
+
 
 /datum/custom_painting/proc/blank_contents()
 	bucket_fill(base_color)
@@ -211,8 +225,10 @@
 		"width" = bitmap_width,
 		"height" = bitmap_height,
 		"bitmap" = bitmap,
+		"nanomap" = nanomap,
+		"nanopaint" = p.nano_paint,
 		"minPaintStrength" = p.min_strength,
-		"maxPaintStrength" = p.max_strength
+		"maxPaintStrength" = p.max_strength,
 	))
 
 	var/canvas_init_inputs = json_encode(list(
@@ -262,6 +278,9 @@
 		bitmap = splittext(url_decode(href_list["bitmap"]), ",")
 		for (var/i = 1; i <= bitmap.len; i++)
 			bitmap[i] = sanitize_hexcolor(bitmap[i])
+		nanomap = splittext(url_decode(href_list["nanomap"]), ",")
+		for (var/i = 1; i <= nanomap.len; i++)
+			nanomap[i] = sanitize_hexcolor(nanomap[i])
 
 		//Save and sanitize author, title and description
 		author = copytext(sanitize(url_decode(href_list["author"])), 1, MAX_NAME_LEN)
@@ -291,6 +310,21 @@
 
 	return ico
 
+/datum/custom_painting/proc/render_nanomap(icon/ico, offset_x = src.offset_x, offset_y = src.offset_y)
+	var/x
+	var/y
+	for (var/pixel = 0; pixel < nanomap.len; pixel++)
+		x = pixel % bitmap_width
+		y = (pixel - x)/bitmap_width
+
+		//for DrawBox, (x:1,y:1) is the lower left corner. On bitmap, (x:0,y:0) is the upper left
+		x = 1 + offset_x + x
+		y = offset_y + bitmap_height - y
+
+		ico.DrawBox(nanomap[pixel + 1], x, y)
+
+	return image(ico)
+
 // -- export/import stuff
 // -- don't we have a serializer for this? :thinking:
 
@@ -301,7 +335,8 @@
 		painting.offset_x,
 		painting.offset_y,
 		painting.base_color,
-		painting.bitmap
+		painting.bitmap,
+		painting.nanomap,
 	)
 	return json_encode(L)
 
@@ -310,6 +345,9 @@
 	var/datum/custom_painting/painting = new(null, L[1], L[2], L[3], L[4], L[5]) // no parents
 	var/list/bitmap_to_copy = L[6]
 	painting.bitmap = bitmap_to_copy.Copy()
+	if (L.len > 6)
+		var/list/nanomap_to_copy = L[7]
+		painting.nanomap = nanomap_to_copy.Copy()
 	painting.title = title
 	painting.author = author
 	painting.description = description

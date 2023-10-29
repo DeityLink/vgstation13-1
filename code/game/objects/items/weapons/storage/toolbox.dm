@@ -160,7 +160,7 @@
 	icon_state = "toolbox_paint"
 	item_state = "toolbox_paint"
 	attack_verb = list("daubs", "decorates", "slathers")
-	items_to_spawn = list()
+	max_combined_w_class = 42
 
 /obj/item/weapon/storage/toolbox/paint/New()
 	..()
