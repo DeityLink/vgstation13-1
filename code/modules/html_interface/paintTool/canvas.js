@@ -365,15 +365,16 @@ function initCanvas(paintInitData, canvasInitData) {
 
 	var paletteButtonPanel = document.getElementById("palette_buttons");
 	var palette = canvasInitData.palette;
+	var nano_palette = canvasInitData.nano_palette;
 	while (paletteButtonPanel.childElementCount > 0) {
 		paletteButtonPanel.removeChild(paletteButtonPanel.firstChild);
 	}
 	
 	for (color in palette) {
 		paletteButtonPanel.innerHTML +=
-			'<div class="paletteColor" onclick="setColor(\'' + palette[color] + '\');" style="background-image:' +  generateColorPaletteBackgroundStyle(palette[color]) + '; background-image:' +  generateColorPaletteBackgroundStyle(palette[color], true) + '"></div>\n';
+			'<div class="paletteColor" onclick="setColor(\'' + palette[color] + '\',\'' + nano_palette[color] + '\');" style="background-image:' +  generateColorPaletteBackgroundStyle(palette[color]) + '; background-image:' +  generateColorPaletteBackgroundStyle(palette[color], true) + '; border:3px solid ' + nano_palette[color] + '"></div>\n';
 	}
-	setColor(palette[0]);
+	setColor(palette[0],nano_palette[0]);
 
 	//no errors initializing canvas stuff thus far, hide the error message
 	document.getElementById("canvas-error").style.display = "none";
@@ -397,8 +398,12 @@ function generateColorPaletteBackgroundStyle (color, ieMode) {
 	}
 }
 
-function setColor(color){
+function setColor(color,nano){
 	setPaintColor(color);
+	if (nano == "#FFFFFF")
+		setNanoPaint(1);
+	else
+		setNanoPaint(0);
 	updateSelectedColorDisplay(color, getOpacity())
 }
 

@@ -190,7 +190,15 @@ function hexToRgba(hex) {
  * hex string (eg: #AA88FFAA).
  * If the alpha component is FF, it will be omitted on the hex
  */
-function rgbaToHex(rgba) {
+function rgbaToHex(rgba_raw) {
+	
+	let rgba = {
+	r: rgba_raw.r, 
+	g: rgba_raw.g,
+	b: rgba_raw.b,
+	a: rgba_raw.a,
+	}
+
 	for (k in rgba) {
 		//Convert to hex value
 		rgba[k] = Math.round(rgba[k]).toString(16);
@@ -218,23 +226,36 @@ var blendFunction = colorRybBlend;
 function pixelDraw(x, y, rgba, alpha) {
 	//Figure out the pixel index off the x and y
 	let pixel = y * width + x;
+	let painthex = rgba
 
 	//Convert to numeric values
 	rgba = hexToRgba(rgba);
 	let orgba = hexToRgba(bitmap[pixel]);
 
+	//In case we're using nano paint, let's keep track of the colour we're using
+	let paint = rgba;
+	let nanorba = hexToRgba(nanomap[pixel]);
+
 	//Mix both color values
-	rgba = blendFunction(rgba, orgba, alpha);
+	if (nanopaint)
+		rgba = colorScreenBlend(rgba, orgba, alpha);
+	else
+		rgba = blendFunction(rgba, orgba, alpha);
 
 	//Save result into bitmap
-	let pixelhex = rgbaToHex(rgba);
+	bitmap[pixel] = rgbaToHex(rgba);
 
-	bitmap[pixel] = pixelhex;
-
-	if (nanopaint)
-		nanomap[pixel] = pixelhex;
-	else
+	//If we're painting with nano paint, we draw on the nanomap as well
+	if (nanopaint) {
+		paint = colorScreenBlend(paint, nanorba, alpha);//Nano-Paint is additive
+		if ((painthex == "#FFFFFF") || (painthex == "#ffffff"))
+			nanomap[pixel] = "#FEFEFE";//workaround because Byond
+		else
+			nanomap[pixel] = rgbaToHex(paint);
+	} else {
+	//Otherwise, we erase the nanomap (by drawing on it in black)
 		nanomap[pixel] = rgbaToHex(blendFunction(hexToRgba("#000000"), hexToRgba(nanomap[pixel]), alpha));
+	}
 }
 
 

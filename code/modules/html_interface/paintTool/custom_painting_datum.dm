@@ -13,6 +13,7 @@
 	var/min_strength = 0
 	var/max_strength = 1
 	var/list/palette = list() // List of colors that will be made available while painting
+	var/list/nano_palette = list()
 	var/base_color
 	var/nano_paint = FALSE
 
@@ -62,6 +63,7 @@
 		for (var/obj/item/weapon/palette/pal in user.held_items)
 			for (var/c in pal.stored_colours)
 				palette += pal.stored_colours[c]
+				nano_palette += (pal.nanopaint_indexes[c] ? "#FFFFFF" : "#161616")
 
 		var/obj/item/weapon/painting_brush/b = held_item
 		if (b.paint_color)
@@ -71,6 +73,7 @@
 			//  so make sure we're not adding it again to the list
 			if (!(b.paint_color in palette))
 				palette += b.paint_color
+				nano_palette += (b.nano_paint ? "#FFFFFF" : "#161616")
 			base_color = b.paint_color
 			nano_paint = b.nano_paint
 
@@ -91,7 +94,9 @@
 	dupe.max_strength = src.max_strength
 	dupe.min_strength = src.min_strength
 	dupe.palette = src.palette
+	dupe.nano_palette = src.nano_palette
 	dupe.base_color = src.base_color
+	dupe.nano_paint = src.nano_paint
 	dupe.tag = "\ref[dupe]"
 	return dupe
 
@@ -176,6 +181,8 @@
 	if (nanopaint)
 		for (var/i = 0, i < bitmap_height * bitmap_width, i++)
 			bitmap += color
+			if (uppertext(color) == "#FFFFFF")
+				color = "#FEFEFE"//workaround because white nano paint doesn't glow up for some reason
 			nanomap += color
 	else
 		for (var/i = 0, i < bitmap_height * bitmap_width, i++)
@@ -192,6 +199,9 @@
 
 	for (var/b in bitmap)
 		if (b != base_color)
+			return FALSE
+	for (var/b in nanomap)
+		if (b != "#000000")
 			return FALSE
 
 	return TRUE
@@ -234,6 +244,7 @@
 	var/canvas_init_inputs = json_encode(list(
 		"src" = "\ref[parent]",
 		"palette" = p.palette, //list("#000000", "#ffffff", "#ff0000", "#ffff00", "#00ff00", "#00ffff", "#0000ff", "#ff00ff"),
+		"nano_palette" = p.nano_palette,
 		"title" = title,
 		"author" = author,
 		"description" = description

@@ -96,6 +96,7 @@ interactions:
 		C_data["tag"] = C_tag
 		var/colour = rgb2num(stored_colours[C_tag]) // Shaving off the alpha channel
 		C_data["base_color"] = rgb(colour[1], colour[2], colour[3])
+		C_data["nano_paint"] = (nanopaint_indexes[C_tag] ? "#FFFFFF" : "#161616")
 		paint_colours += list(C_data)
 	data["paint_colours"] = paint_colours
 	ui = nanomanager.try_update_ui(user, src, ui_key, ui, data, force_open)
@@ -141,13 +142,17 @@ interactions:
 					strengh = clamp(strengh, 0, 1)
 					var/colour_pencil = rgb2num(PB.paint_color)
 					var/colour_palette = rgb2num(colour)
-					var/blend = colorRybBlend(colour_pencil, colour_palette, strengh)
-					var/blend_rgb = rgb(blend[1], blend[2], blend[3], blend[4], "COLORSPACE_RGB")
-					stored_colours[colour_tag] = blend_rgb
-					PB.paint_color = blend_rgb
 					if (nanopaint || PB.nano_paint)
+						var/blend_rgb = AddRGB(colour, PB.paint_color, strengh)
+						stored_colours[colour_tag] = blend_rgb
+						PB.paint_color = blend_rgb
 						PB.nano_paint = TRUE
 						nanopaint_indexes[colour_tag] = TRUE
+					else
+						var/blend = colorRybBlend(colour_pencil, colour_palette, strengh)
+						var/blend_rgb = rgb(blend[1], blend[2], blend[3], blend[4], "COLORSPACE_RGB")
+						stored_colours[colour_tag] = blend_rgb
+						PB.paint_color = blend_rgb
 				PB.update_icon()
 			if ("duplicate")
 				stored_colours["[++tagindex]"] += colour

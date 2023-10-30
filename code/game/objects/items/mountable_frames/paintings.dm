@@ -210,6 +210,7 @@ var/global/list/available_paintings = list(
 	icon_state = "blank_old"
 	autoignition_temperature = AUTOIGNITION_WOOD
 	anchored = 1
+	luminosity = 2
 
 /obj/structure/painting/New()
 	..()

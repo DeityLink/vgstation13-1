@@ -1688,3 +1688,22 @@ Game Mode config tags:
 		sleep(30)
 		for(var/turf/Q in .)
 			Q.color = null
+
+/proc/combine_blood_types(var/type_A="O-", var/type_B="O-")
+	var/combined_types = "[type_A][type_B]"
+	var/has_A = findtext(combined_types,"A")
+	var/has_B = findtext(combined_types,"B")
+	var/has_Rh = findtext(combined_types,"+")
+	var/result_type = ""
+	if (has_A)
+		result_type += "A"
+	if (has_B)
+		result_type += "B"
+	if (result_type == "")
+		result_type += "O"
+	if (has_Rh)
+		result_type += "+"
+	else
+		result_type += "-"
+	return result_type
+

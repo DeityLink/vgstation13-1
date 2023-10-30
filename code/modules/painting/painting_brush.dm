@@ -72,3 +72,8 @@
 			the_turf.advanced_graffiti = advanced_graffiti
 		the_turf.advanced_graffiti.interact(user, p)
 		return
+
+/obj/item/weapon/painting_brush/clean_act(var/cleanliness)
+	paint_color = null
+	nano_paint = FALSE
+	update_icon()
