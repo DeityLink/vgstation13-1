@@ -62,3 +62,8 @@
 			nano_paint = target.reagents.has_reagent(NANOPAINT)
 			to_chat(user, "<span class='notice'>You dip \the [name] in \the [target.name].</span>")
 		update_icon()
+
+/obj/item/weapon/painting_brush/clean_act(var/cleanliness)
+	paint_color = null
+	nano_paint = FALSE
+	update_icon()

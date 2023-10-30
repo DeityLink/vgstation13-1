@@ -170,7 +170,7 @@
 			icon = painting_data.render_on(icon(base_icon, base_icon_state))
 			nanomap = painting_data.render_nanomap(icon(base_icon, "[base_icon_state]-nano"))
 			nanomap.blend_mode = BLEND_ADD
-		nanomap.plane = relative_plane(ABOVE_LIGHTING_PLANE)
+		nanomap.plane = ABOVE_LIGHTING_PLANE
 		overlays += nanomap
 	else
 		name = base_name
@@ -193,6 +193,7 @@
 	// Painting info
 	P.set_painting_data(painting_data.Copy())
 	P.rendered_icon = icon
+	P.rendered_nanomap = nanomap
 	P.base_name = base_name
 	P.base_desc = base_desc
 	P.base_icon = base_icon
@@ -233,6 +234,7 @@
 	var/frame_icon = 'icons/obj/painting_items.dmi'
 	var/frame_icon_state = "frame"
 	var/rendered_icon
+	var/image/rendered_nanomap
 
 	// Where to render the custom painting. Make sure it matches the structure icon state!
 	var/painting_height = 14
@@ -354,6 +356,7 @@
 		desc = painting_data.description ? "A small plaque reads: \"<span class='info'>[painting_data.description]\"</span>" : "A painting... But what could it mean?"
 		if (render)
 			rendered_icon = painting_data.render_on(icon(base_icon, base_icon_state))
+			rendered_nanomap = painting_data.render_nanomap(icon(base_icon, "[base_icon_state]-nano"))
 	else
 		name = base_name
 		desc = base_desc
@@ -369,6 +372,7 @@
 	// Painting info
 	P.set_painting_data(painting_data.Copy())
 	P.icon = rendered_icon ? rendered_icon : icon(base_icon, base_icon_state)
+	P.nanomap = rendered_nanomap ? rendered_nanomap : image('icons/effects/32x32.dmi',P,"black")
 	P.icon_state = base_icon_state
 	P.base_name = base_name
 	P.base_desc = base_desc

@@ -690,8 +690,8 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 				R.handle_additional_data(additional_data)
 			R.volume += amount
 			update_total()
+			handle_special_behaviours()
 			my_atom.on_reagent_change()
-
 			handle_reactions()
 			return 0
 
@@ -713,8 +713,8 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		R.on_introduced()
 
 		update_total()
-		my_atom.on_reagent_change()
 		handle_special_behaviours()
+		my_atom.on_reagent_change()
 		handle_reactions()
 		return 0
 	else

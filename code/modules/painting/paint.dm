@@ -142,10 +142,11 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 		update_icon()
 
 /obj/item/weapon/reagent_containers/glass/paint/proc/get_paint_name(var/paint_name)
-	if (paint_name in colors_all)
-		return colors_all[paint_name]
+	var/upper_name = uppertext(paint_name)
+	if (upper_name in colors_all)
+		return colors_all[upper_name]
 	else
-		return "[paint_name]"
+		return "[upper_name]"
 
 
 //-------------------------------------------------------------------------------------------------
@@ -196,8 +197,6 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	paint_color	= "#333333"
 /obj/item/weapon/reagent_containers/glass/paint/filled/white
 	paint_color	= "#FFFFFF"
-/obj/item/weapon/reagent_containers/glass/paint/filled/vantablack
-	paint_color	= "#000000"
 
 /obj/item/weapon/reagent_containers/glass/paint/filled/random/New(turf/loc, var/p_color)
 	paint_color = pick(colors_all)
@@ -222,12 +221,14 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 		paint_color = p_color
 	reagents.add_reagent(NANOPAINT, volume, list("color" = paint_color))
 
-/obj/item/weapon/reagent_containers/glass/paint/rgb/filled//red
+/obj/item/weapon/reagent_containers/glass/paint/rgb/filled/red
 	paint_color	= "#FF0000"
 /obj/item/weapon/reagent_containers/glass/paint/rgb/filled/green
 	paint_color	= "#00FF00"
 /obj/item/weapon/reagent_containers/glass/paint/rgb/filled/blue
 	paint_color	= "#0000FF"
+/obj/item/weapon/reagent_containers/glass/paint/rgb/filled/vantablack
+	paint_color	= "#000000"
 
 
 /////////////////////////////////////////  REAGENTS  ////////////////////////////////////////////////
@@ -235,8 +236,8 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 /*
 	/datum/reagent/paint 			= Acrylic Paint
 	/datum/reagent/paint/nanopaint	= Nano Paint
+	/datum/reagent/paint/flaxoil	= Flax Oil
 	/datum/reagent/paint_remover	= Acetone
-	/datum/reagent/flaxoil			= Flax Oil
 */
 
 /datum/reagent/paint
@@ -252,6 +253,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 		"color" = "#FFFFFF",
 		)
 
+//Mixing Acrylic paints together blends them together using the RYB color space
 /datum/reagent/paint/handle_data_mix(var/list/added_data=null, var/added_volume, var/mob/admin)
 	var/base_color = data["color"]
 	var/added_color = base_color
@@ -295,6 +297,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	id = NANOPAINT
 	description = "A paint with unaturally bright properties."
 
+//Mixing Nano-paints together adds them together using the RGB color space
 /datum/reagent/paint/nanopaint/handle_data_mix(var/list/added_data=null, var/added_volume, var/mob/admin)
 	var/base_color = data["color"]
 	var/added_color = base_color
@@ -323,12 +326,73 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 			color = data["color"]
 			holder.del_reagent(R.id)
 			volume += added_volume
-			holder.my_atom.on_reagent_change()
 
 /datum/reagent/paint/nanopaint/on_mob_life(var/mob/living/M)
 	if(..())
 		return 1
 	M.adjustToxLoss(0.2)//nano paint is even more toxic yo
+
+//----------------------------------------------------------------------------------------------------
+
+/datum/reagent/flaxoil
+	name = "Flax Oil"
+	id = FLAXOIL
+	description = "An oil used in painting. Copies the coloration and opacity of reagents it is mixed with."
+	color = "#303030"
+	alpha = 100
+	reagent_state = REAGENT_STATE_LIQUID
+	nutriment_factor = 2 * REAGENTS_METABOLISM
+	density = 1.808
+	specheatcap = 0.85
+	flags = CHEMFLAG_PIGMENT
+	data = list(
+		"color" = "#303030",
+		"alpha" = 100,
+		)
+
+/datum/reagent/flaxoil/handle_data_mix(var/list/added_data=null, var/added_volume, var/mob/admin)
+	var/base_color = data["color"]
+	var/base_alpha = data["alpha"]
+	var/added_color = base_color
+	var/added_alpha = base_alpha
+	if (added_data)
+		added_color = added_data["color"]
+		added_alpha = added_data["alpha"]
+	data["color"] = BlendRYB(added_color, base_color, added_volume / (added_volume+volume))
+	color = data["color"]
+	data["alpha"] = ((base_alpha * volume) + (added_alpha * added_volume)) / (added_volume+volume)
+	alpha = data["alpha"]
+
+/datum/reagent/flaxoil/handle_data_copy(var/list/added_data=null, var/added_volume, var/mob/admin)
+	if (added_data)
+		data["color"] = added_data["color"]
+		color = data["color"]
+		data["alpha"] = added_data["alpha"]
+		alpha = data["alpha"]
+
+/datum/reagent/flaxoil/special_behaviour()
+	var/list/other_reagents = holder.reagent_list - src
+	if (other_reagents.len <= 0)
+		return
+	var/target_color = mix_color_from_reagents(other_reagents)
+	var/target_alpha = mix_alpha_from_reagents(other_reagents)
+	data["color"] = BlendRYB(data["color"], target_color, 0.5)
+	color = data["color"]
+	data["alpha"] = (data["alpha"] + target_alpha) / 2
+	alpha = data["alpha"]
+
+/datum/reagent/flaxoil/reaction_turf(var/turf/T, var/volume)
+	if(!istype(T) || istype(T, /turf/space))
+		return
+	var/ind = "[initial(T.icon)][color]"
+	if(!cached_icons[ind])
+		var/icon/overlay = new/icon(initial(T.icon))
+		overlay.Blend(color,ICON_MULTIPLY)
+		overlay.SetIntensity(1.4)
+		T.icon = overlay
+		cached_icons[ind] = T.icon
+	else
+		T.icon = cached_icons[ind]
 
 //----------------------------------------------------------------------------------------------------
 
@@ -351,17 +415,13 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 		if (R.flags & CHEMFLAG_PIGMENT)
 			M.reagents.remove_reagent(R.id, 2)
 
-
-//----------------------------------------------------------------------------------------------------
-
-/datum/reagent/flaxoil
-	name = "Flax Oil"
-	id = FLAXOIL
-	description = "An oil used to create paints. Copies the coloration of surrounding reagents."
-	reagent_state = REAGENT_STATE_LIQUID
-	color = "#303030"
-	alpha = 100
-	flags = CHEMFLAG_PIGMENT
+	if (tick < 50)
+		if(prob(5))
+			H.emote(pick("stare", "giggle"), null, null, TRUE)
+	else
+		if(prob(5))
+			M.emote(pick("twitch","drool","moan"), null, null, TRUE)
+		M.adjustBrainLoss(1)
 
 //----------------------------------------------------------------------------------------------------
 
@@ -372,7 +432,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	if(container.reagents)
 		var/cleaner_volume = container.reagents.get_reagent_amount(WATER)
 		cleaner_volume += container.reagents.get_reagent_amount(CLEANER) * PAINT_CLEANER_AGENT_MULTIPLIER
-		cleaner_volume += container.reagents.get_reagent_amount("paint_remover") * PAINT_CLEANER_AGENT_MULTIPLIER
+		cleaner_volume += container.reagents.get_reagent_amount(ACETONE) * PAINT_CLEANER_AGENT_MULTIPLIER
 		return min(cleaner_volume > 0 ? cleaner_volume / container.reagents.total_volume : 0, 1)
 	else
 		return 0

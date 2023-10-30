@@ -535,6 +535,10 @@ its easier to just keep the beam vertical.
 /atom/proc/shuttle_act(var/datum/shuttle/S)
 	return
 
+/atom/proc/clean_act(var/cleanliness)//1 = water, 2 = space cleaner, 3 = bleach/paint thinner
+	if (cleanliness >= CLEANLINESS_SPACECLEANER)
+		color = ""
+
 //Called on every object in a shuttle which rotates
 /atom/proc/map_element_rotate(var/angle)
 	change_dir(turn(src.dir, -angle))

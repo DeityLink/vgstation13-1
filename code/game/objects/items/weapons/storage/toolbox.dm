@@ -161,20 +161,19 @@
 	item_state = "toolbox_paint"
 	attack_verb = list("daubs", "decorates", "slathers")
 	max_combined_w_class = 42
-
-/obj/item/weapon/storage/toolbox/paint/New()
-	..()
-	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#D52127")
-	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#F36621")
-	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#F6851E")
-	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#FBB40F")
-	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#FCED23")
-	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#8CC640")
-	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#07B151")
-	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#2FBBB3")
-	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#2357BC")
-	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#4C489B")
-	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#733B97")
-	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#AF3A94")
-	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#333333")
-	new /obj/item/weapon/reagent_containers/glass/paint/filled(src,ACRYLIC,"#FFFFFF")
+	items_to_spawn = list(
+		/obj/item/weapon/reagent_containers/glass/paint/filled/red,
+		/obj/item/weapon/reagent_containers/glass/paint/filled/vermilion,
+		/obj/item/weapon/reagent_containers/glass/paint/filled/orange,
+		/obj/item/weapon/reagent_containers/glass/paint/filled/amber,
+		/obj/item/weapon/reagent_containers/glass/paint/filled/yellow,
+		/obj/item/weapon/reagent_containers/glass/paint/filled/chartreuse,
+		/obj/item/weapon/reagent_containers/glass/paint/filled/green,
+		/obj/item/weapon/reagent_containers/glass/paint/filled/turquoise,
+		/obj/item/weapon/reagent_containers/glass/paint/filled/blue,
+		/obj/item/weapon/reagent_containers/glass/paint/filled/indigo,
+		/obj/item/weapon/reagent_containers/glass/paint/filled/violet,
+		/obj/item/weapon/reagent_containers/glass/paint/filled/magenta,
+		/obj/item/weapon/reagent_containers/glass/paint/filled/black,
+		/obj/item/weapon/reagent_containers/glass/paint/filled/white,
+	)

@@ -507,11 +507,17 @@
 
 /datum/reagent/blood/handle_data_mix(var/list/added_data=null, var/added_volume, var/mob/admin)
 	//to do: add better ways for blood colors to interact with each other //moved from Chemistry-Holder.dm
-	//right now we don't support blood mixing or something similar at all.
-	if(added_data && added_data["virus2"])
-		if (!data["virus2"])
-			data["virus2"] = list()
-		data["virus2"] |= virus_copylist(added_data["virus2"])
+	//right now we don't support blood mixing or something similar at all.//update, we now at least support color mixing
+	if(added_data)
+		if(added_data["virus2"])
+			if (!data["virus2"])
+				data["virus2"] = list()
+			data["virus2"] |= virus_copylist(added_data["virus2"])
+		if (added_data["blood_type"])
+			data["blood_type"] = combine_blood_types(data["blood_type"], added_data["blood_type"])
+		if (added_data["blood_color"])
+			data["blood_color"] = BlendRYB(added_data["blood_color"], data["blood_color"], added_volume / (added_volume+volume))
+			color = data["blood_colour"]
 
 /datum/reagent/blood/handle_data_copy(var/list/added_data=null, var/added_volume, var/mob/admin)
 	if (added_data)
@@ -519,7 +525,8 @@
 		if(added_data["virus2"])
 			data["virus2"] |= virus_copylist(added_data["virus2"])
 		if(added_data["blood_colour"])
-			color = added_data["blood_colour"]
+			data["blood_color"] = added_data["blood_colour"]
+			color = data["blood_colour"]
 
 /datum/reagent/blood/handle_special_behavior(var/obj/item/weapon/reagent_containers/food/drinks/drinkingglass/D)
 	var/totally_not_blood = "Tomato Juice"
