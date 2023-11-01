@@ -73,6 +73,8 @@
 
 	var/mute_time = 0
 
+	var/image/paint_overlay = null
+
 /turf/examine(mob/user)
 	..()
 	if(bullet_marks)
@@ -723,3 +725,9 @@
 	if (!PathNodes)
 		PathNodes = list()
 	PathNodes["[id]"] = PN
+
+/turf/clean_act(var/cleanliness)//1 = water, 2 = space cleaner, 3 = bleach/paint thinner
+	if (cleanliness >= CLEANLINESS_SPACECLEANER)
+		color = ""
+	if (cleanliness >= CLEANLINESS_BLEACH)
+		remove_paint_overlay()

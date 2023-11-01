@@ -9826,6 +9826,10 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	var/list/random_color_list = list("#00aedb","#a200ff","#f47835","#d41243","#d11141","#00b159","#00aedb","#f37735","#ffc425","#008744","#0057e7","#d62d20","#ffa700")
 
 
+/datum/reagent/colorful_reagent/special_behaviour()
+	color = pick(random_color_list)
+
+
 /datum/reagent/colorful_reagent/on_mob_life(mob/living/M)
 	if(M && isliving(M))
 		M.color = pick(random_color_list)
@@ -9843,7 +9847,7 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 
 /datum/reagent/colorful_reagent/reaction_turf(turf/T, reac_volume)
 	if(T)
-		T.color = pick(random_color_list)
+		T.apply_paint_overlay(pick(random_color_list))
 	..()
 
 /datum/reagent/degeneratecalcium
