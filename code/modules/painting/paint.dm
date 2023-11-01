@@ -194,7 +194,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 /obj/item/weapon/reagent_containers/glass/paint/filled/chartreuse
 	paint_color	= "#8CC640"
 /obj/item/weapon/reagent_containers/glass/paint/filled/black
-	paint_color	= "#333333"
+	paint_color	= "#111111"
 /obj/item/weapon/reagent_containers/glass/paint/filled/white
 	paint_color	= "#FFFFFF"
 
@@ -278,17 +278,8 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	M.adjustToxLoss(0.3)//paint is toxic yo
 
 /datum/reagent/paint/reaction_turf(var/turf/T, var/volume)
-	if(!istype(T) || istype(T, /turf/space))
-		return
-	var/ind = "[initial(T.icon)][color]"
-	if(!cached_icons[ind])
-		var/icon/overlay = new/icon(initial(T.icon))
-		overlay.Blend(color,ICON_MULTIPLY)
-		overlay.SetIntensity(1.4)
-		T.icon = overlay
-		cached_icons[ind] = T.icon
-	else
-		T.icon = cached_icons[ind]
+	if(isfloor(T))//maybe walls later
+		T.apply_paint_overlay(data["color"])
 
 //----------------------------------------------------------------------------------------------------
 
@@ -382,17 +373,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	alpha = data["alpha"]
 
 /datum/reagent/flaxoil/reaction_turf(var/turf/T, var/volume)
-	if(!istype(T) || istype(T, /turf/space))
-		return
-	var/ind = "[initial(T.icon)][color]"
-	if(!cached_icons[ind])
-		var/icon/overlay = new/icon(initial(T.icon))
-		overlay.Blend(color,ICON_MULTIPLY)
-		overlay.SetIntensity(1.4)
-		T.icon = overlay
-		cached_icons[ind] = T.icon
-	else
-		T.icon = cached_icons[ind]
+	T.apply_paint_overlay(data["color"],data["alpha"])
 
 //----------------------------------------------------------------------------------------------------
 
@@ -417,7 +398,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 
 	if (tick < 50)
 		if(prob(5))
-			H.emote(pick("stare", "giggle"), null, null, TRUE)
+			M.emote(pick("stare", "giggle"), null, null, TRUE)
 	else
 		if(prob(5))
 			M.emote(pick("twitch","drool","moan"), null, null, TRUE)
