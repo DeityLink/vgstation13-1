@@ -204,7 +204,7 @@ var/list/infected_cleanables = list()
 		if(!S.blood_DNA)
 			S.blood_DNA = list()
 
-		var/newcolor = (S.blood_color && S.blood_DNA.len) ? BlendRGB(S.blood_color, basecolor, 0.5) : basecolor
+		var/newcolor = (S.blood_color && S.blood_DNA.len) ? BlendRYB(S.blood_color, basecolor, 0.5) : basecolor
 		S.blood_overlay.color = newcolor
 		S.overlays += S.blood_overlay
 		S.blood_color = newcolor
@@ -223,7 +223,7 @@ var/list/infected_cleanables = list()
 		else
 			perp.feet_blood_DNA |= blood_DNA.Copy()
 
-		perp.feet_blood_color = (perp.feet_blood_color && perp.feet_blood_DNA.len) ? BlendRGB(perp.feet_blood_color, basecolor, 0.5) : basecolor
+		perp.feet_blood_color = (perp.feet_blood_color && perp.feet_blood_DNA.len) ? BlendRYB(perp.feet_blood_color, basecolor, 0.5) : basecolor
 
 	amount--
 

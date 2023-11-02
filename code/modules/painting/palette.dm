@@ -84,6 +84,7 @@ interactions:
 		stored_colours["[++tagindex]"] = p.base_color
 		nanopaint_indexes["[tagindex]"] = p.nano_paint
 		to_chat(user, "<span class='notice'>You add a new color to \the [src].</span>")
+		update_icon()
 
 /obj/item/weapon/palette/ui_interact(mob/user, ui_key, datum/nanoui/ui, force_open)
 	. = ..()
@@ -109,6 +110,17 @@ interactions:
 		ui.set_initial_data(data)
 		// Auto update every Master Controller tick.
 		ui.set_auto_update(1)
+
+/obj/item/weapon/palette/update_icon()
+	overlays.len = 0
+	var/i = 1
+	for (var/C_tag in stored_colours)
+		var/image/I = image(icon, src, "palette-color[i]")
+		I.color = stored_colours[C_tag]
+		overlays += I
+		i++
+		if (i > 6)
+			break
 
 /obj/item/weapon/palette/Topic(href, href_list)
 	if (..())
@@ -157,11 +169,9 @@ interactions:
 			if ("duplicate")
 				stored_colours["[++tagindex]"] += colour
 				nanopaint_indexes["[tagindex]"] = nanopaint
-				return
 			if ("delete")
 				stored_colours -= colour_tag
 				nanopaint_indexes -= colour_tag
-				return
 
 	else if (href_list["wash_pencil"])
 		var/mob/living/carbon/C = usr
@@ -176,7 +186,7 @@ interactions:
 					var/obj/item/weapon/painting_brush/PB = O
 					PB.paint_color = null
 					PB.update_icon()
-					return
+	update_icon()
 
 
 // DM-side procs of the palette colour mixing.
