@@ -623,6 +623,7 @@ var/global/maxStackDepth = 10
 /obj/item/clothing/shoes/clean_blood()
 	. = ..()
 	track_blood = 0
+	blood_color = null
 
 /obj/item/clothing/shoes/proc/togglemagpulse(var/mob/user = usr, var/override = FALSE)
 	if(!override)

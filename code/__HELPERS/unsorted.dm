@@ -1706,4 +1706,3 @@ Game Mode config tags:
 	else
 		result_type += "-"
 	return result_type
-

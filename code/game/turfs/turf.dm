@@ -73,7 +73,7 @@
 
 	var/mute_time = 0
 
-	var/image/paint_overlay = null
+	var/datum/paint_overlay/paint_overlay = null
 
 /turf/examine(mob/user)
 	..()
@@ -143,6 +143,8 @@
 			if(Obj.flags & PROXMOVE)
 				spawn( 0 )
 					Obj.HasProximity(A, 1)
+	if (ishuman(A) && paint_overlay)
+		paint_overlay.add_paint_to_feet(A)
 	// THIS IS NOW TRANSIT STUFF
 	if ((!(A) || src != A.loc))
 		return

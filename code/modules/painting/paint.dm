@@ -103,9 +103,6 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	if (!(flags & OPENCONTAINER))
 		overlays += icon_lid
 
-	if(ismob(loc))
-		var/mob/M = loc
-		M.update_inv_hands()
 
 
 /obj/item/weapon/reagent_containers/glass/paint/on_reagent_change()

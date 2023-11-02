@@ -194,10 +194,8 @@ var/list/paint_overlay_override = list(
 	"tatami-yellow-halfmat" = "tatami-green-halfmat",
 )
 
-/turf/proc/apply_paint_overlay(var/_color="#FFFFFF",var/_alpha=255)
-	overlays -= paint_overlay
+/turf/proc/get_paint_state()
 	var/paint_icon_state = icon_state
-
 	switch (icon)
 		if ('icons/turf/nfloors.dmi')
 			paint_icon_state = "floor"
@@ -206,15 +204,134 @@ var/list/paint_overlay_override = list(
 				paint_icon_state = "floor-shuttle1"
 			else
 				paint_icon_state = "floor-shuttle2"
+		if ('icons/turf/snow.dmi')
+			if (icon_state == "plating")
+				paint_icon_state = "plating-snow"
 		else
 			if (paint_icon_state in paint_overlay_override)
 				paint_icon_state = paint_overlay_override[paint_icon_state]
+	return paint_icon_state
 
-	paint_overlay = image('icons/turf/paint_overlays.dmi',src,paint_icon_state)
-	paint_overlay.layer = PAINT_LAYER
-	paint_overlay.color = _color
-	paint_overlay.alpha = _alpha
-	overlays += paint_overlay
+/turf/proc/apply_paint_overlay(var/_color="#FFFFFF",var/_alpha=255)
+	if (!paint_overlay)
+		paint_overlay=new(src)
+	paint_overlay.apply(_color,_alpha)
+
+/turf/proc/apply_paint_stroke(var/_color="#FFFFFF",var/_alpha=255,var/_dir=SOUTH)
+	if (!paint_overlay)
+		paint_overlay=new(src)
+	paint_overlay.add_border_stroke(_color,_alpha,_dir)
 
 /turf/proc/remove_paint_overlay()
-	overlays -= paint_overlay
+	if (paint_overlay)
+		paint_overlay.remove()
+
+/turf/proc/update_paint_overlay()
+	if (paint_overlay)
+		paint_overlay.update()
+
+/datum/paint_overlay
+	var/turf/my_turf
+	var/image/overlay
+	var/wet_color = "#FFFFFF"
+	var/wet_time = 0//world.time of the last time paint was applied that covers the whole tile AND is opaque enough (200+ alpha)
+	var/wet_duration = 10 SECONDS//relatively fast-drying
+	var/wet_amount = 3//how many steps with wet shoes
+
+/datum/paint_overlay/New(var/turf/_turf)
+	..()
+	my_turf = _turf
+
+/datum/paint_overlay/proc/apply(var/_color="#FFFFFF",var/_alpha=255,var/_mask=null)
+	my_turf.overlays -= overlay
+	if (!overlay)
+		overlay = image('icons/turf/paint_overlays.dmi',my_turf,"no_paint")
+		overlay.layer = PAINT_LAYER
+	if (!_mask && _alpha == 255)
+		overlay.overlays.len = 0//we're applying a full opaque coat of paint so let's get rid of the other overlays
+		for(var/obj/effect/decal/cleanable/blood/tracks/T in my_turf)
+			qdel(T)//and let's remove footprints too
+	if (!_mask)
+		var/image/new_paint_layer = image('icons/turf/paint_overlays.dmi',my_turf,my_turf.get_paint_state(), dir = my_turf.dir)
+		new_paint_layer.color = _color
+		new_paint_layer.alpha = _alpha
+		overlay.overlays += new_paint_layer
+		if (_alpha >= 200)
+			wet_color = _color
+			wet_time = world.time
+	else
+		var/image/terrain = image('icons/turf/paint_overlays.dmi',my_turf,my_turf.get_paint_state(), dir = my_turf.dir)
+		terrain.alpha = _alpha
+		terrain.color = _color
+		terrain.blend_mode = BLEND_INSET_OVERLAY
+		var/image/mask = image('icons/turf/paint_masks.dmi',my_turf, _mask)
+		mask.appearance_flags = KEEP_TOGETHER
+		mask.overlays += terrain
+		overlay.overlays += mask
+	my_turf.overlays += overlay
+
+/datum/paint_overlay/proc/add_border_stroke(var/_color="#FFFFFF",var/_alpha=255,var/_dir=SOUTH,var/_check=0)
+	if (!overlay)
+		overlay = image('icons/turf/paint_overlays.dmi',my_turf,"no_paint")
+		overlay.layer = PAINT_LAYER
+	for (var/_lay in overlay.overlays)
+		var/image/lay = _lay
+		if (lay.icon == 'icons/turf/paint_masks.dmi')
+			if (lay.color == _color && lay.alpha == _alpha)
+				if (lay.icon_state == "border_[_dir]")
+					switch(_check)
+						if (0)
+							add_border_stroke(_color,_alpha,turn(_dir, 90),1)
+							return
+						if (1)
+							add_border_stroke(_color,_alpha,turn(_dir, -90),2)
+							return
+						else
+							apply(_color,_alpha)//4th stroke just covers the entire tile
+							return
+	apply(_color,_alpha,"border_[_dir]")
+
+/datum/paint_overlay/proc/update()
+	if (!overlay)
+		return
+	for (var/_lay in overlay.overlays)
+		var/image/lay = _lay
+		if (lay.icon == 'icons/turf/paint_overlays.dmi')
+			lay.icon_state = my_turf.get_paint_state()
+
+/datum/paint_overlay/proc/remove()
+	my_turf.overlays -= overlay
+	wet_time = 0
+
+/datum/paint_overlay/proc/add_paint_to_feet(var/mob/living/carbon/human/H)
+	if (!overlay || !wet_time || ((world.time - wet_time) > wet_duration))
+		return
+	if(H.shoes)
+		var/obj/item/clothing/shoes/S = H.shoes
+		S.track_blood = max(0, wet_amount, S.track_blood)
+
+		if(!blood_overlays["[S.type][S.icon_state]"])
+			S.set_blood_overlay()
+
+		if(S.blood_overlay != null)
+			S.overlays.Remove(S.blood_overlay)
+		else
+			S.blood_overlay = blood_overlays["[S.type][S.icon_state]"]
+
+		if(!S.blood_DNA)
+			S.blood_DNA = list()
+		S.blood_DNA |= list("wet paint" = "paint")
+
+		var/newcolor = (S.blood_color && S.blood_DNA.len) ? BlendRYB(S.blood_color, wet_color, 0.5) : wet_color
+		S.blood_overlay.color = newcolor
+		S.overlays += S.blood_overlay
+		S.blood_color = newcolor
+
+		H.update_inv_shoes(1)
+
+	else
+		H.track_blood = max(wet_amount, 0, H.track_blood)
+		if(!H.feet_blood_DNA)
+			H.feet_blood_DNA = list()
+		H.feet_blood_DNA |= list("wet paint" = "paint")
+		H.feet_blood_color = (H.feet_blood_color && H.feet_blood_DNA.len) ? BlendRYB(H.feet_blood_color, wet_color, 0.5) : wet_color
