@@ -36,7 +36,7 @@
 	overlays.len = 0
 	if (paint_overlay && paint_overlay.sub_overlays.len > 0)
 		var/image/O = pick(paint_overlay.sub_overlays)
-		var/image/I = image('icons/turf/paint_masks.dmi',src,"tile-paint")
+		var/image/I = image('icons/obj/items.dmi',src,"tile-paint")
 		I.color = O.color
 		overlays += I
 
