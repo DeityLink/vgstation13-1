@@ -732,4 +732,4 @@
 	if (cleanliness >= CLEANLINESS_SPACECLEANER)
 		color = ""
 	if (cleanliness >= CLEANLINESS_BLEACH)
-		remove_paint_overlay()
+		remove_paint_overlay(1)

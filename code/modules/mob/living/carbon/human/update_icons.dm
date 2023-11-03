@@ -954,7 +954,7 @@ var/global/list/damage_icon_parts = list()
 		if(feet_blood_DNA && feet_blood_DNA.len)
 			var/obj/abstract/Overlays/O = obj_overlays[SHOES_LAYER]
 			O.color = null
-			O.alpha = 0
+			O.alpha = 1
 			var/blood_icon_state = "shoeblood"
 			var/onefootedmask
 			if(!has_organ(LIMB_LEFT_FOOT))

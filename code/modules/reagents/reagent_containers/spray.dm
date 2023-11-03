@@ -108,17 +108,31 @@
 			sleep(3)
 
 		qdel(D)
-
+	update_icon()
 	playsound(src, 'sound/effects/spray2.ogg', 50, 1, -6)
 
 //space cleaner
 /obj/item/weapon/reagent_containers/spray/cleaner
 	name = "space cleaner"
 	desc = "BLAM!-brand non-foaming space cleaner!"
+	var/image/content_reagent
 
 /obj/item/weapon/reagent_containers/spray/cleaner/New()
 	..()
 	reagents.add_reagent(CLEANER, 250)
+	content_reagent = image(icon,src,"cleaner-content3")
+	update_icon()
+
+/obj/item/weapon/reagent_containers/spray/cleaner/on_reagent_change()
+	update_icon()
+
+/obj/item/weapon/reagent_containers/spray/cleaner/update_icon()
+	overlays -= content_reagent
+	if (!is_empty())
+		content_reagent.icon_state = "cleaner-content[clamp(round(3*reagents.maximum_volume/reagents.total_volume),1,3)]"
+		content_reagent.color = mix_color_from_reagents(reagents.reagent_list)
+		content_reagent.alpha = mix_alpha_from_reagents(reagents.reagent_list)
+		overlays += content_reagent
 
 //pepperspray
 /obj/item/weapon/reagent_containers/spray/pepper

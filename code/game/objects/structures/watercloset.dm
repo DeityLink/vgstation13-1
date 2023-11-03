@@ -359,6 +359,8 @@
 
 	if(iscarbon(O))
 		var/mob/living/carbon/M = O
+		if(prob(CLEAN_PROB))
+			M.clean_blood()//cleaning feet for humans
 		for(var/obj/item/I in M.held_items)
 			if(prob(CLEAN_PROB))
 				I.clean_blood()
