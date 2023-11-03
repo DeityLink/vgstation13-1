@@ -18,7 +18,7 @@ var/list/colors_acrylic_tertiary = list(
 	"#8CC640" = "Chartreuse",
 )
 var/list/colors_acrylic_blackwhite = list(
-	"#333333" = "Black",
+	"#111111" = "Black",
 	"#FFFFFF" = "White",
 )
 
