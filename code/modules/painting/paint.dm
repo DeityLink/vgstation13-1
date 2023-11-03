@@ -34,16 +34,25 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 /obj/item/weapon/reagent_containers/glass/paint/mop_act(obj/item/weapon/mop/M, mob/user)
 	return 0
 
-/obj/item/weapon/reagent_containers/glass/paint/afterattack(turf/simulated/target, mob/user , flag)
+/obj/item/weapon/reagent_containers/glass/paint/afterattack(var/atom/target, mob/user , flag)
 	if(!flag || user.stat)
 		return ..()
 
-	if(istype(target) && reagents.total_volume >= 5)
-		for(var/mob/O in viewers(user))
-			O.show_message("<span class='warning'>\The [target] has been splashed with something by [user]!</span>", 1)
-		spawn(5)
-			reagents.reaction(target, TOUCH)
-			reagents.remove_any(5)
+	if((flags & OPENCONTAINER) && (istype(target,/turf/simulated)||ismob(target)||isobj(target)) && reagents.total_volume >= 5)
+		var/datum/reagent/R = reagents.get_master_reagent()
+		target.visible_message("<span class='warning'>\The [target] has been splashed with [R.name] by \the [user]!</span>")
+		reagents.reaction(target, TOUCH)
+		reagents.remove_any(5)
+		if (prob(50))
+			add_spots()
+		if (ismob(target)||isobj(target))
+			var/pigment_rgb = mix_color_from_reagents(reagents.reagent_list, TRUE)
+			if (pigment_rgb)
+				var/mix_alpha = mix_alpha_from_reagents(reagents.reagents.reagent_list)
+				var/turf/T = get_turf(target)
+				if (target.loc == T)
+					T.apply_paint_stroke(pigment_rgb, mix_alpha, SOUTH, "splatter")
+					playsound(T, 'sound/effects/slosh.ogg', 25, 1)
 	else
 		return ..()
 
@@ -273,6 +282,10 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	if(..())
 		return 1
 	M.adjustToxLoss(0.3)//paint is toxic yo
+
+/datum/reagent/paint/reaction_obj(var/obj/O, var/reac_volume)
+	if(O)
+		O.color = data["color"]
 
 /datum/reagent/paint/reaction_turf(var/turf/T, var/volume)
 	if(isfloor(T))//maybe walls later

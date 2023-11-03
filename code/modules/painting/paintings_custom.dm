@@ -79,6 +79,24 @@
 
 			return TRUE
 
+	// Covering
+	if (istype(W, /obj/item/weapon/paint_roller))
+		if (protected_by_glass)
+			return FALSE
+
+		var/obj/item/weapon/paint_roller/P = W
+
+		if (!P.paint_color)
+			to_chat(user, "<span class='warning'>There is no paint on your roller.</span>")
+			return
+
+		to_chat(usr, "<span class='warning'>You start covering \the [src] in paint using \the [P].</span>")
+		if (do_after(user, src, 10))
+			painting_data.bucket_fill(P.paint_color, P.nano_paint)
+			update_painting(TRUE)
+
+		return TRUE
+
 	// Cleaning
 	if (istype(W, /obj/item/weapon/soap) && !protected_by_glass)
 		if (protected_by_glass)

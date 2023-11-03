@@ -974,9 +974,9 @@
 	update_inv_gloves()	//handles bloody hands overlays and updating
 	return TRUE //we applied blood to the item
 
-/mob/living/carbon/human/clean_blood(var/clean_feet)
+/mob/living/carbon/human/clean_blood()
 	.=..()
-	if(clean_feet && !shoes && istype(feet_blood_DNA, /list) && feet_blood_DNA.len)
+	if(!shoes && istype(feet_blood_DNA, /list) && feet_blood_DNA.len)
 		feet_blood_color = null
 		feet_blood_DNA.len = 0
 		update_inv_shoes(1)

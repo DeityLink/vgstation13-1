@@ -221,6 +221,9 @@
 	if(pulledby)
 		pulledby.start_pulling(S)
 	S.copy_evidences(src)
+	S.transfer_data_from(src,transfer)
+	update_icon()
+	S.update_icon()
 	use(transfer)
 	S.add(transfer)
 
@@ -247,11 +250,17 @@
 		user.put_in_hands(F)
 		src.add_fingerprint(user)
 		F.add_fingerprint(user)
+		F.transfer_data_from(src,1)
 		use(1)
+		update_icon()
+		F.update_icon()
 		if (src && usr.machine==src)
 			spawn(0) src.interact(usr)
 	else
 		..()
+	return
+
+/obj/item/stack/proc/transfer_data_from(var/obj/item/stack/S, var/amount)
 	return
 
 /obj/item/stack/preattack(atom/target, mob/user, proximity_flag, click_parameters)
@@ -269,6 +278,7 @@
 		else
 			to_transfer = min(S.amount, max_amount-amount)
 		add(to_transfer)
+		transfer_data_from(S,to_transfer)
 		to_chat(user, "You add [to_transfer] [((to_transfer > 1) && S.irregular_plural) ? S.irregular_plural : "[S.singular_name]\s"] to \the [src]. It now contains [amount] [CORRECT_STACK_NAME(src)].")
 		if (S && user.machine==S)
 			spawn(0) interact(user)

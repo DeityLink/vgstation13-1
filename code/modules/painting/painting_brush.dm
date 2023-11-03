@@ -35,6 +35,7 @@
 	// Paint brush stuff
 	var/paint_color = null
 	var/nano_paint = FALSE
+	var/list/blood_data = list("wet paint" = "paint")
 
 /obj/item/weapon/painting_brush/update_icon()
 	..()
@@ -81,6 +82,12 @@
 			paint_color = rgb(paint_color_rgb[1], paint_color_rgb[2], paint_color_rgb[3], mix_alpha_from_reagents(target.reagents.reagent_list))
 			nano_paint = target.reagents.has_reagent(NANOPAINT)
 			to_chat(user, "<span class='notice'>You dip \the [name] in \the [target.name].</span>")
+			var/datum/reagent/B = get_blood(target.reagents)
+			if (B)
+				add_blood_from_data(B.data)
+				blood_data = list(B.data["blood_DNA"] = B.data["blood_type"])
+			else
+				blood_data = list("wet paint" = "paint")
 		update_icon()
 	else if (isfloor(target))
 		paint_doodle(user,target)
@@ -153,7 +160,7 @@
 	W.maptext = {"<span style="color:#FFFFFF;font-size:9pt;font-family:'Bloody';" align="center" valign="top">[message]</span>"}
 	var/invisible = user.invisibility || !user.alpha
 	W.visible_message("<span class='warning'>[invisible ? "An invisible brush" : "\The [user]"] paints something on \the [T]...</span>")
-	W.blood_DNA["wet paint"] = "paint"
+	W.blood_DNA = blood_data.Copy()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -175,6 +182,7 @@
 	var/paint_color = null
 	var/paint_alpha = 255
 	var/nano_paint = FALSE
+	var/list/blood_data = list("wet paint" = "paint")
 
 /obj/item/weapon/paint_roller/clean_act(var/cleanliness)
 	paint_color = null
@@ -204,6 +212,12 @@
 			paint_alpha = mix_alpha
 			nano_paint = target.reagents.has_reagent(NANOPAINT)
 			to_chat(user, "<span class='notice'>You dip \the [name] in \the [target.name].</span>")
+			var/datum/reagent/B = get_blood(target.reagents)
+			if (B)
+				add_blood_from_data(B.data)
+				blood_data = list(B.data["blood_DNA"] = B.data["blood_type"])
+			else
+				blood_data = list("wet paint" = "paint")
 		update_icon()
 	else if (isfloor(target))
 		var/turf/F = target
@@ -214,7 +228,8 @@
 		var/_dir = user.dir
 		if (T != F)
 			_dir = get_dir_cardinal(F,T)
-		F.apply_paint_stroke(paint_color, paint_alpha, _dir)
+		F.apply_paint_stroke(paint_color, paint_alpha, _dir, "border_roller", blood_data)
+		playsound(src, get_sfx("mop"), 5, 1)
 
 /obj/item/weapon/paint_roller/update_icon()
 	..()

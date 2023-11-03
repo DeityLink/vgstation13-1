@@ -225,6 +225,8 @@ var/list/infected_cleanables = list()
 
 		perp.feet_blood_color = (perp.feet_blood_color && perp.feet_blood_DNA.len) ? BlendRYB(perp.feet_blood_color, basecolor, 0.5) : basecolor
 
+		perp.update_inv_shoes(1)
+
 	amount--
 
 
