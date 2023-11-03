@@ -54,6 +54,7 @@
 		dynamic_overlay["[HAND_LAYER]-[GRASP_RIGHT_HAND]"] = paintright
 	else
 		dynamic_overlay = list()
+	update_blood_overlay()
 	if(ismob(loc))
 		var/mob/M = loc
 		M.update_inv_hands()
@@ -247,6 +248,7 @@
 		dynamic_overlay["[HAND_LAYER]-[GRASP_RIGHT_HAND]"] = paintright
 	else
 		dynamic_overlay = list()
+	update_blood_overlay()
 	if(ismob(loc))
 		var/mob/M = loc
 		M.update_inv_hands()
