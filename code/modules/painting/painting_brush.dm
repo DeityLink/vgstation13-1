@@ -184,6 +184,17 @@
 	var/paint_alpha = 255
 	var/nano_paint = FALSE
 	var/list/blood_data = list("wet paint" = "paint")
+	var/stroke_state = "border_roller"
+	var/list/stroke_states = list(
+		"Full Tile (default, takes 3 clicks)" = "border_roller",
+		"Half Tile" = "border_half",
+		"Quarter Tile" = "border_quarter",
+		"Trim" = "border_trim",
+		"Arrow" = "border_arrow",
+		"Concave Corner" = "border_concave",
+		"Convex Corner" = "border_convex",
+		"Square Corner" = "border_corner",
+		)//found in paint_masks.dmi
 
 /obj/item/weapon/paint_roller/clean_act(var/cleanliness)
 	paint_color = null
@@ -229,7 +240,7 @@
 		var/_dir = user.dir
 		if (T != F)
 			_dir = get_dir_cardinal(F,T)
-		F.apply_paint_stroke(paint_color, paint_alpha, _dir, "border_roller", blood_data)
+		F.apply_paint_stroke(paint_color, paint_alpha, _dir, stroke_state, blood_data)
 		playsound(src, get_sfx("mop"), 5, 1)
 
 /obj/item/weapon/paint_roller/update_icon()
@@ -252,3 +263,24 @@
 	if(ismob(loc))
 		var/mob/M = loc
 		M.update_inv_hands()
+
+/obj/item/weapon/paint_roller/AltClick(var/mob/user)
+	if (user.incapacitated() || !Adjacent(user))
+		return
+	var/choices = list()
+	for(var/entry in stroke_states)
+		choices += list(list(entry, stroke_states[entry], null))
+	var/new_mode = show_radial_menu(user,user,choices,'icons/obj/paint_radial.dmi',radius = 42,custom_color = paint_color)
+	if (!new_mode || user.incapacitated() || !Adjacent(user))
+		return
+	stroke_state = stroke_states[new_mode]
+
+/obj/item/weapon/paint_roller/verb/set_painting_mode()
+	set name = "Change painting mode"
+	set category = "Object"
+	set src in range(0)
+	if(usr.incapacitated())
+		return
+	var/new_mode = input("Choose a painting mode","[src]") in stroke_states
+	if (new_mode && !usr.incapacitated() && Adjacent(usr))
+		stroke_state = stroke_states[new_mode]

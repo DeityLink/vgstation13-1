@@ -243,6 +243,7 @@ var/list/paint_overlay_override = list(
 	var/wet_duration = 10 SECONDS//relatively fast-drying
 	var/wet_amount = 3//how many steps with wet shoes
 	var/list/blood_DNA = list("wet paint" = "paint")
+	var/arbitrary_overlay_limit = 32
 
 /datum/paint_overlay/New(var/turf/_turf)
 	..()
@@ -266,6 +267,9 @@ var/list/paint_overlay_override = list(
 	if (!overlay)
 		overlay = image('icons/turf/paint_overlays.dmi',my_turf,"no_paint")
 		overlay.layer = PAINT_LAYER
+	if (sub_overlays.len >= arbitrary_overlay_limit)
+		_mask = null
+		_alpha = 255
 	if (!_mask && _alpha == 255)
 		overlay.overlays.len = 0//we're applying a full opaque coat of paint so let's get rid of the other overlays
 		sub_overlays.len = 0
@@ -296,24 +300,23 @@ var/list/paint_overlay_override = list(
 		blood_DNA["wet paint"] = "paint"
 	my_turf.overlays += overlay
 
-/datum/paint_overlay/proc/add_border_stroke(var/_color="#FFFFFF",var/_alpha=255,var/_dir=SOUTH,var/_check=0,var/stroke_icon = "border_splatter",var/list/_blood_DNA=list())
+/datum/paint_overlay/proc/add_border_stroke(var/_color="#FFFFFF",var/_alpha=255,var/_dir=SOUTH,var/stroke_icon = "border_splatter",var/list/_blood_DNA=list())
 	if (!overlay)
 		overlay = image('icons/turf/paint_overlays.dmi',my_turf,"no_paint")
 		overlay.layer = PAINT_LAYER
-	for (var/image/lay in sub_overlays)
-		if (lay.icon == 'icons/turf/paint_masks.dmi')
-			if ((lay.color ? lay.color : "#ffffff") == copytext(_color,1,8) && lay.alpha == round(_alpha))
-				if (lay.dir == _dir)
-					switch(_check)
-						if (0)
-							add_border_stroke(_color,_alpha,turn(_dir, 90),1,stroke_icon,_blood_DNA)
-							return
-						if (1)
-							add_border_stroke(_color,_alpha,turn(_dir, -180),2,stroke_icon,_blood_DNA)
-							return
-						else
-							apply(_color,_alpha,null,SOUTH,_blood_DNA)//4th stroke just covers the entire tile
-							return
+	if (stroke_icon == "border_roller")//progressively painting over the whole tile
+		if (sub_overlays.len > 0)
+			var/image/lay = sub_overlays[sub_overlays.len]//grabbing the most recent overlay
+			if (lay.icon == 'icons/turf/paint_masks.dmi')
+				if ((lay.color ? lay.color : "#ffffff") == copytext(_color,1,8) && lay.alpha == round(_alpha))//same paint
+					if (lay.dir == _dir)
+						switch(lay.icon_state)
+							if ("border_roller")
+								apply(_color,_alpha,"border_roller_progress",_dir,_blood_DNA)
+								return
+							if ("border_roller_progress")
+								apply(_color,_alpha,null,_dir,_blood_DNA)
+								return
 	apply(_color,_alpha,stroke_icon,_dir,_blood_DNA)
 
 /datum/paint_overlay/proc/update()//updates the paint layers when floors get damaged and such
