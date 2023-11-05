@@ -186,7 +186,7 @@
 			truedir=truedir>>4
 		if (isfloor(loc))
 			var/turf/T = loc
-			var/image/terrain = image('icons/turf/paint_overlays.dmi',src,T.get_paint_state(), dir = T.dir)
+			var/image/terrain = image(T.get_paint_icon(),src,T.get_paint_state(), dir = T.dir)
 			terrain.color = track.basecolor
 			terrain.blend_mode = BLEND_INSET_OVERLAY
 			var/image/tracks = image('icons/effects/fluidtracks.dmi',src, state, dir = truedir)

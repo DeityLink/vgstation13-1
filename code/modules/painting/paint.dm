@@ -52,6 +52,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 				var/turf/T = get_turf(target)
 				if (target.loc == T)
 					T.apply_paint_stroke(pigment_rgb, mix_alpha, SOUTH, "splatter")
+					T.paint_overlay.wet(pigment_rgb,20 SECONDS,2)
 					playsound(T, 'sound/effects/slosh.ogg', 25, 1)
 	else
 		return ..()
@@ -73,7 +74,20 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 		add_spots()
 
 /obj/item/weapon/reagent_containers/glass/paint/throw_at(atom/target, range, speed)
+	..()
 	add_spots(2)
+
+/obj/item/weapon/reagent_containers/glass/paint/throw_impact(var/atom/hit_atom, var/speed, var/mob/user)
+	if (!(flags & OPENCONTAINER))
+		return
+	var/pigment_rgb = mix_color_from_reagents(reagents.reagent_list, TRUE)
+	if (pigment_rgb)
+		var/mix_alpha = mix_alpha_from_reagents(reagents.reagent_list)
+		var/turf/T = get_turf(hit_atom)
+		T.apply_paint_stroke(pigment_rgb, mix_alpha, SOUTH, "splatter")
+		T.paint_overlay.wet(pigment_rgb,20 SECONDS,2)
+		playsound(T, 'sound/effects/slosh.ogg', 25, 1)
+
 
 /obj/item/weapon/reagent_containers/glass/paint/container_splash_sub(var/datum/reagents/reagents, var/atom/target, var/amount, var/mob/user = null)
 	var/spot_color = mix_color_from_reagents(reagents.reagent_list, TRUE)

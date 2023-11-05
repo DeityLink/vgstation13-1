@@ -201,11 +201,6 @@ var/list/paint_overlay_override = list(
 	switch (icon)
 		if ('icons/turf/nfloors.dmi')
 			paint_icon_state = "floor"
-		if ('icons/turf/shuttle.dmi')
-			if (icon_state == "floor3")
-				paint_icon_state = "floor-shuttle1"
-			else
-				paint_icon_state = "floor-shuttle2"
 		if ('icons/turf/snow.dmi')
 			if (icon_state == "plating")
 				paint_icon_state = "plating-snow"
@@ -213,6 +208,17 @@ var/list/paint_overlay_override = list(
 			if (paint_icon_state in paint_overlay_override)
 				paint_icon_state = paint_overlay_override[paint_icon_state]
 	return paint_icon_state
+
+/turf/simulated/floor/shuttle/get_paint_state()
+	if (icon_state == "floor3")
+		return "floor-shuttle1"
+	return "floor-shuttle2"
+
+/turf/simulated/floor/glass/get_paint_state()
+	return "floor"
+
+/turf/proc/get_paint_icon()
+	return 'icons/turf/paint_overlays_floors.dmi'
 
 /turf/proc/apply_paint_overlay(var/_color="#FFFFFF",var/_alpha=255,var/_DNA = list())
 	if (!paint_overlay)
@@ -251,7 +257,7 @@ var/list/paint_overlay_override = list(
 
 /datum/paint_overlay/proc/Copy()
 	var/datum/paint_overlay/copy = new()
-	copy.overlay = image('icons/turf/paint_overlays.dmi',my_turf,"no_paint")
+	copy.overlay = image('icons/turf/paint_overlays_floors.dmi',my_turf,"no_paint")
 	for (var/image/lay in sub_overlays)
 		var/image/I = image(lay)
 		copy.sub_overlays += I
@@ -265,7 +271,7 @@ var/list/paint_overlay_override = list(
 /datum/paint_overlay/proc/apply(var/_color="#FFFFFF",var/_alpha=255,var/_mask=null,var/_mask_dir=SOUTH,var/list/_blood_DNA=list())
 	my_turf.overlays -= overlay
 	if (!overlay)
-		overlay = image('icons/turf/paint_overlays.dmi',my_turf,"no_paint")
+		overlay = image('icons/turf/paint_overlays_floors.dmi',my_turf,"no_paint")
 		overlay.layer = PAINT_LAYER
 	if (sub_overlays.len >= arbitrary_overlay_limit)
 		_mask = null
@@ -277,16 +283,15 @@ var/list/paint_overlay_override = list(
 		for(var/obj/effect/decal/cleanable/blood/tracks/T in my_turf)
 			qdel(T)//and let's remove footprints too
 	if (!_mask)
-		var/image/new_paint_layer = image('icons/turf/paint_overlays.dmi',my_turf,my_turf.get_paint_state(), dir = my_turf.dir)
+		var/image/new_paint_layer = image(my_turf.get_paint_icon(),my_turf,my_turf.get_paint_state(), dir = my_turf.dir)
 		new_paint_layer.color = _color
 		new_paint_layer.alpha = _alpha
 		overlay.overlays += new_paint_layer
 		sub_overlays += new_paint_layer
 		if (_alpha >= 200)
-			wet_color = _color
-			wet_time = world.time
+			wet(_color, 10 SECONDS, 3)
 	else
-		var/image/terrain = image('icons/turf/paint_overlays.dmi',my_turf,my_turf.get_paint_state(), dir = my_turf.dir)
+		var/image/terrain = image(my_turf.get_paint_icon(),my_turf,my_turf.get_paint_state(), dir = my_turf.dir)
 		terrain.blend_mode = BLEND_INSET_OVERLAY
 		var/image/mask = image('icons/turf/paint_masks.dmi',my_turf, _mask, dir = _mask_dir)
 		mask.appearance_flags = KEEP_TOGETHER
@@ -300,9 +305,18 @@ var/list/paint_overlay_override = list(
 		blood_DNA["wet paint"] = "paint"
 	my_turf.overlays += overlay
 
+
+/datum/paint_overlay/proc/wet(var/_color="#FFFFFF",var/_duration=10 SECONDS, var/_amount=3)//amount means how far footprints can go
+	wet_time = world.time
+
+	wet_color = _color
+	wet_duration = _duration
+	wet_amount = _amount
+
+
 /datum/paint_overlay/proc/add_border_stroke(var/_color="#FFFFFF",var/_alpha=255,var/_dir=SOUTH,var/stroke_icon = "border_splatter",var/list/_blood_DNA=list())
 	if (!overlay)
-		overlay = image('icons/turf/paint_overlays.dmi',my_turf,"no_paint")
+		overlay = image('icons/turf/paint_overlays_floors.dmi',my_turf,"no_paint")
 		overlay.layer = PAINT_LAYER
 	if (stroke_icon == "border_roller")//progressively painting over the whole tile
 		if (sub_overlays.len > 0)
@@ -324,14 +338,17 @@ var/list/paint_overlay_override = list(
 		return
 	my_turf.overlays -= overlay
 	overlay.overlays.len = 0
+	var/turf_icon = my_turf.get_paint_icon()
+	var/turf_state = my_turf.get_paint_state()
 	for (var/image/lay in sub_overlays)
-		if (lay.icon == 'icons/turf/paint_overlays.dmi')
-			lay.icon_state = my_turf.get_paint_state()
 		if (lay.icon == 'icons/turf/paint_masks.dmi')
 			lay.overlays.len = 0
-			var/image/I = image('icons/turf/paint_overlays.dmi',my_turf,my_turf.get_paint_state(), dir = my_turf.dir)
+			var/image/I = image(turf_icon,my_turf,turf_state, dir = my_turf.dir)
 			I.blend_mode = BLEND_INSET_OVERLAY
 			lay.overlays += I
+		else
+			lay.icon = turf_icon
+			lay.icon_state = turf_state
 		overlay.overlays += lay
 	my_turf.overlays += overlay
 
