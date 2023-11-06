@@ -1,5 +1,5 @@
 
-var/list/paint_overlay_override = list(
+var/list/paint_overlay_override_floors = list(
 	"white" = "floor",
 	"dark" = "floor",
 	"bar" = "floor",
@@ -194,6 +194,46 @@ var/list/paint_overlay_override = list(
 	"tatami-yellow-halfmat" = "tatami-green-halfmat",
 )
 
+var/list/paint_overlay_override_shuttle_walls = list(
+	"wall2" = "wall1",
+	"diagonalWall2" = "diagonalWall",
+	"diagonalWall3" = "diagonalWall",
+	"pwall" = "wall",
+	"wall3" = "wall",
+	"diagonalWall3S" = "diagonalWallS",
+	)
+
+var/list/paint_overlay_override_walls = list(
+	"supermatter" = "no_paint",
+	"rock(high)" = "rock",
+	"rock(clown)" = "rock",
+	"rock_Uranium" = "rock",
+	"rock_Iron" = "rock",
+	"rock_Gold" = "rock",
+	"rock_Diamond" = "rock",
+	"rock_Silver" = "rock",
+	"rock_Plasma" = "rock",
+	"rock_Clown" = "rock",
+	"rock_Gibtonite" = "rock",
+	"rock_Phazon" = "rock",
+	"rock_Telecrystal" = "rock",
+	"sandstonevault" = "rockvault",
+	"alienvault" = "rockvault",
+	"fakewindows" = "no_paint",
+	"fakewindows2" = "no_paint",
+	"mariahive_Uranium" = "mariahive",
+	"mariahive_Iron" = "mariahive",
+	"mariahive_Gold" = "mariahive",
+	"mariahive_Diamond" = "mariahive",
+	"mariahive_Silver" = "mariahive",
+	"mariahive_Plasma" = "mariahive",
+	"mariahive_Clown" = "mariahive",
+	"mariahive_Phazon" = "mariahive",
+	"mariahive_Telecrystal" = "mariahive",
+	)
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /turf/proc/get_paint_state()
@@ -205,8 +245,8 @@ var/list/paint_overlay_override = list(
 			if (icon_state == "plating")
 				paint_icon_state = "plating-snow"
 		else
-			if (paint_icon_state in paint_overlay_override)
-				paint_icon_state = paint_overlay_override[paint_icon_state]
+			if (paint_icon_state in paint_overlay_override_floors)
+				paint_icon_state = paint_overlay_override_floors[paint_icon_state]
 	return paint_icon_state
 
 /turf/simulated/floor/shuttle/get_paint_state()
@@ -217,8 +257,57 @@ var/list/paint_overlay_override = list(
 /turf/simulated/floor/glass/get_paint_state()
 	return "floor"
 
+/turf/simulated/wall/get_paint_state()
+	var/paint_icon_state = icon_state
+	if (paint_icon_state in paint_overlay_override_walls)
+		paint_icon_state = paint_overlay_override_walls[paint_icon_state]
+	return paint_icon_state
+
+/turf/simulated/wall/mineral/silver/get_paint_state()
+	return replacetext(icon_state,mineral,"diamond")
+
+/turf/simulated/wall/mineral/gold/get_paint_state()
+	return replacetext(icon_state,mineral,"diamond")
+
+/turf/simulated/wall/mineral/iron/get_paint_state()
+	return replacetext(icon_state,mineral,"diamond")
+
+/turf/simulated/wall/mineral/sandstone/get_paint_state()
+	return replacetext(icon_state,mineral,"diamond")
+
+/turf/simulated/wall/mineral/clown/get_paint_state()
+	return replacetext(icon_state,mineral,"diamond")
+
+/turf/simulated/wall/mineral/clockwork/get_paint_state()
+	return "clock"
+
+/turf/unsimulated/wall/get_paint_state()
+	var/paint_icon_state = icon_state
+	if (paint_icon_state in paint_overlay_override_walls)
+		paint_icon_state = paint_overlay_override_walls[paint_icon_state]
+	return paint_icon_state
+
+/turf/simulated/wall/shuttle/get_paint_state()
+	var/paint_icon_state = icon_state
+	if (findtext(icon_state,"bswall"))
+		return copytext(icon_state,2)
+	else if (paint_icon_state in paint_overlay_override_shuttle_walls)
+		paint_icon_state = paint_overlay_override_shuttle_walls[paint_icon_state]
+	return paint_icon_state
+
+
+//------------------------------------------------------
+
 /turf/proc/get_paint_icon()
 	return 'icons/turf/paint_overlays_floors.dmi'
+
+/turf/simulated/wall/get_paint_icon()
+	return 'icons/turf/paint_overlays_walls.dmi'
+
+/turf/unsimulated/wall/get_paint_icon()
+	return 'icons/turf/paint_overlays_walls.dmi'
+
+//------------------------------------------------------
 
 /turf/proc/apply_paint_overlay(var/_color="#FFFFFF",var/_alpha=255,var/_DNA = list())
 	if (!paint_overlay)
@@ -331,6 +420,19 @@ var/list/paint_overlay_override = list(
 							if ("border_roller_progress")
 								apply(_color,_alpha,null,_dir,_blood_DNA)
 								return
+	if (stroke_icon == "wall_side" || stroke_icon == "wall_splatter")//painting around a wall
+		var/sides = 0
+		for (var/direction in cardinal)
+			var/turf/T = get_step(my_turf, direction)
+			if (isfloor(T))
+				sides |= direction
+		for (var/image/lay in sub_overlays)
+			if (lay.icon == 'icons/turf/paint_masks.dmi')
+				if ((lay.color ? lay.color : "#ffffff") == copytext(_color,1,8) && lay.alpha == round(_alpha))//same paint
+					sides -= lay.dir
+		if (sides <= 0 || sides == _dir)
+			apply(_color,_alpha,null,_dir,_blood_DNA)
+			return
 	apply(_color,_alpha,stroke_icon,_dir,_blood_DNA)
 
 /datum/paint_overlay/proc/update()//updates the paint layers when floors get damaged and such

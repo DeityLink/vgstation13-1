@@ -304,6 +304,12 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 /datum/reagent/paint/reaction_turf(var/turf/T, var/volume)
 	if(isfloor(T))//maybe walls later
 		T.apply_paint_overlay(data["color"])
+	if(iswall(T))
+		var/turf/U = get_turf(holder.my_atom)
+		if (T == U)
+			T.apply_paint_overlay(data["color"])//if we're on top somehow, paint the whole tile
+		else
+			T.apply_paint_stroke(data["color"], 255, get_dir_cardinal(T,U), "wall_splatter")
 
 //----------------------------------------------------------------------------------------------------
 

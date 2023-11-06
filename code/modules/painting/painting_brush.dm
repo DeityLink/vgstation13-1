@@ -242,6 +242,17 @@
 			_dir = get_dir_cardinal(F,T)
 		F.apply_paint_stroke(paint_color, paint_alpha, _dir, stroke_state, blood_data)
 		playsound(src, get_sfx("mop"), 5, 1)
+	else if (iswall(target))
+		var/turf/W = target
+		if (!paint_color)
+			to_chat(user, "<span class='warning'>There is no paint on your roller.</span>")
+			return
+		var/turf/T = get_turf(user)
+		var/_dir = user.dir
+		if (T != W)
+			_dir = get_dir_cardinal(W,T)
+		W.apply_paint_stroke(paint_color, paint_alpha, _dir, "wall_side", blood_data)
+		playsound(src, get_sfx("mop"), 5, 1)
 
 /obj/item/weapon/paint_roller/update_icon()
 	..()
