@@ -51,7 +51,7 @@
 	var/addictive = FALSE
 	var/tolerance_increase = null  //for tolerance, if set above 0, will increase each by that amount on tick.
 
-/datum/reagent/proc/reaction_mob(var/mob/living/M, var/method = TOUCH, var/volume, var/list/zone_sels = ALL_LIMBS)
+/datum/reagent/proc/reaction_mob(var/mob/living/M, var/method = TOUCH, var/volume, var/list/zone_sels = ALL_LIMBS, var/list/splashplosion=list())
 	set waitfor = 0
 
 	if(!holder)
@@ -120,7 +120,7 @@
 /datum/reagent/proc/reaction_dropper_obj(var/obj/O, var/volume)
 	reaction_obj(O, volume)
 
-/datum/reagent/proc/reaction_animal(var/mob/living/simple_animal/M, var/method=TOUCH, var/volume)
+/datum/reagent/proc/reaction_animal(var/mob/living/simple_animal/M, var/method=TOUCH, var/volume, var/list/splashplosion=list())
 	set waitfor = 0
 
 	if(!holder)
@@ -133,7 +133,7 @@
 
 	M.reagent_act(self.id, method, volume)
 
-/datum/reagent/proc/reaction_obj(var/obj/O, var/volume)
+/datum/reagent/proc/reaction_obj(var/obj/O, var/volume, var/list/splashplosion=list())
 	set waitfor = 0
 
 	if(!holder)
@@ -143,7 +143,7 @@
 
 	src = null
 
-/datum/reagent/proc/reaction_turf(var/turf/simulated/T, var/volume)
+/datum/reagent/proc/reaction_turf(var/turf/simulated/T, var/volume, var/list/splashplosion=list())
 	set waitfor = 0
 
 	if(!holder)
