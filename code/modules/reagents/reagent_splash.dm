@@ -8,7 +8,7 @@
 	var/turf/epicenter = get_turf(my_atom)
 
 	var/datum/effect/system/steam_spread/steam = new /datum/effect/system/steam_spread()
-	steam.set_up(10, 0, get_turf(src), mix_color_from_reagents(reagent_list))
+	steam.set_up(10, 0, epicenter, mix_color_from_reagents(reagent_list))
 	steam.attach(src)
 	steam.start()
 
@@ -28,7 +28,7 @@
 							R.reaction_animal(AM, TOUCH, volume_per_tile,hit_turfs)
 						else
 							R.reaction_mob(AM, TOUCH, volume_per_tile, ALL_LIMBS,hit_turfs)
-					else if (isobj(AM))
+					else if (isobj(AM) && !istype(AM,/atom/movable/lighting_overlay))
 						R.reaction_obj(AM, volume_per_tile,hit_turfs)
 			R.reaction_turf(T, volume_per_tile,hit_turfs)
 

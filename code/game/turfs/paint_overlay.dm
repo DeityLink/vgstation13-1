@@ -73,7 +73,7 @@ var/list/paint_overlay_override_floors = list(
 	"brownold" = "floor",
 	"browncornerold" = "floor",
 	"brown" = "floor",
-	"browncornerold" = "floor",
+	"browncorner" = "floor",
 	"redyellow" = "floor",
 	"redyellowfull" = "floor",
 	"redblue" = "floor",
@@ -309,15 +309,15 @@ var/list/paint_overlay_override_walls = list(
 
 //------------------------------------------------------
 
-/turf/proc/apply_paint_overlay(var/_color="#FFFFFF",var/_alpha=255,var/_DNA = list())
+/turf/proc/apply_paint_overlay(var/_color="#FFFFFF",var/_alpha=255,var/_DNA = list(),var/_nano_paint=FALSE)
 	if (!paint_overlay)
 		paint_overlay=new(src)
-	paint_overlay.apply(_color,_alpha, _blood_DNA = _DNA)
+	paint_overlay.apply(_color,_alpha, null, SOUTH, _DNA, _nano_paint)
 
-/turf/proc/apply_paint_stroke(var/_color="#FFFFFF",var/_alpha=255,var/_dir=SOUTH,var/_stroke_icon = "border_splatter",var/_DNA = list())
+/turf/proc/apply_paint_stroke(var/_color="#FFFFFF",var/_alpha=255,var/_dir=SOUTH,var/_stroke_icon = "border_splatter",var/_DNA = list(),var/_nano_paint=FALSE)
 	if (!paint_overlay)
 		paint_overlay=new(src)
-	paint_overlay.add_border_stroke(_color,_alpha,_dir, stroke_icon = _stroke_icon, _blood_DNA = _DNA)
+	paint_overlay.add_border_stroke(_color,_alpha,_dir, _stroke_icon, _DNA, _nano_paint)
 
 /turf/proc/remove_paint_overlay(var/erase)
 	if (paint_overlay)
@@ -326,6 +326,7 @@ var/list/paint_overlay_override_walls = list(
 /turf/proc/update_paint_overlay()
 	if (paint_overlay)
 		paint_overlay.update()
+		lighting_overlay.update_overlay()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -338,7 +339,11 @@ var/list/paint_overlay_override_walls = list(
 	var/wet_duration = 10 SECONDS//relatively fast-drying
 	var/wet_amount = 3//how many steps with wet shoes
 	var/list/blood_DNA = list("wet paint" = "paint")
+
 	var/arbitrary_overlay_limit = 32
+
+	var/nano_paint = FALSE
+	var/main_color = "#000000"
 
 /datum/paint_overlay/New(var/turf/_turf)
 	..()
@@ -355,9 +360,12 @@ var/list/paint_overlay_override_walls = list(
 	copy.wet_duration = wet_duration
 	copy.wet_amount = wet_amount
 	copy.blood_DNA = blood_DNA.Copy()
+
+	copy.nano_paint = nano_paint
+	copy.main_color = main_color
 	return copy
 
-/datum/paint_overlay/proc/apply(var/_color="#FFFFFF",var/_alpha=255,var/_mask=null,var/_mask_dir=SOUTH,var/list/_blood_DNA=list())
+/datum/paint_overlay/proc/apply(var/_color="#FFFFFF",var/_alpha=255,var/_mask=null,var/_mask_dir=SOUTH,var/list/_blood_DNA=list(),var/_nano_paint=FALSE)
 	my_turf.overlays -= overlay
 	if (!overlay)
 		overlay = image('icons/turf/paint_overlays_floors.dmi',my_turf,"no_paint")
@@ -372,6 +380,10 @@ var/list/paint_overlay_override_walls = list(
 		for(var/obj/effect/decal/cleanable/blood/tracks/T in my_turf)
 			qdel(T)//and let's remove footprints too
 	if (!_mask)
+		if (_nano_paint || (nano_paint && !_nano_paint))
+			main_color = _color
+			nano_paint = _nano_paint
+			my_turf.lighting_overlay.update_overlay()
 		var/image/new_paint_layer = image(my_turf.get_paint_icon(),my_turf,my_turf.get_paint_state(), dir = my_turf.dir)
 		new_paint_layer.color = _color
 		new_paint_layer.alpha = _alpha
@@ -403,7 +415,7 @@ var/list/paint_overlay_override_walls = list(
 	wet_amount = _amount
 
 
-/datum/paint_overlay/proc/add_border_stroke(var/_color="#FFFFFF",var/_alpha=255,var/_dir=SOUTH,var/stroke_icon = "border_splatter",var/list/_blood_DNA=list())
+/datum/paint_overlay/proc/add_border_stroke(var/_color="#FFFFFF",var/_alpha=255,var/_dir=SOUTH,var/stroke_icon = "border_splatter",var/list/_blood_DNA=list(),var/_nano_paint=FALSE)
 	if (!overlay)
 		overlay = image('icons/turf/paint_overlays_floors.dmi',my_turf,"no_paint")
 		overlay.layer = PAINT_LAYER
@@ -415,10 +427,10 @@ var/list/paint_overlay_override_walls = list(
 					if (lay.dir == _dir)
 						switch(lay.icon_state)
 							if ("border_roller")
-								apply(_color,_alpha,"border_roller_progress",_dir,_blood_DNA)
+								apply(_color,_alpha,"border_roller_progress",_dir,_blood_DNA,_nano_paint)
 								return
 							if ("border_roller_progress")
-								apply(_color,_alpha,null,_dir,_blood_DNA)
+								apply(_color,_alpha,null,_dir,_blood_DNA,_nano_paint)
 								return
 	if (stroke_icon == "wall_side" || stroke_icon == "wall_splatter")//painting around a wall
 		var/sides = 0
@@ -431,9 +443,9 @@ var/list/paint_overlay_override_walls = list(
 				if ((lay.color ? lay.color : "#ffffff") == copytext(_color,1,8) && lay.alpha == round(_alpha))//same paint
 					sides -= lay.dir
 		if (sides <= 0 || sides == _dir)
-			apply(_color,_alpha,null,_dir,_blood_DNA)
+			apply(_color,_alpha,null,_dir,_blood_DNA,_nano_paint)
 			return
-	apply(_color,_alpha,stroke_icon,_dir,_blood_DNA)
+	apply(_color,_alpha,stroke_icon,_dir,_blood_DNA,_nano_paint)
 
 /datum/paint_overlay/proc/update()//updates the paint layers when floors get damaged and such
 	if (!overlay)
@@ -456,6 +468,9 @@ var/list/paint_overlay_override_walls = list(
 
 /datum/paint_overlay/proc/remove(var/erase=0)
 	my_turf.overlays -= overlay
+	if (nano_paint)
+		nano_paint = FALSE
+		my_turf.lighting_overlay.update_overlay()
 	if (erase)
 		sub_overlays.len = 0
 		wet_time = 0

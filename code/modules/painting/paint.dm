@@ -38,7 +38,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	if(!flag || user.stat)
 		return ..()
 
-	if((flags & OPENCONTAINER) && (istype(target,/turf/simulated)||ismob(target)||isobj(target)) && reagents.total_volume >= 5)
+	if((flags & OPENCONTAINER) && (istype(target,/turf/simulated)) && reagents.total_volume >= 5)//||ismob(target)||isobj(target)
 		var/datum/reagent/R = reagents.get_master_reagent()
 		target.visible_message("<span class='warning'>\The [target] has been splashed with [R.name] by \the [user]!</span>")
 		reagents.reaction(target, TOUCH)
@@ -307,27 +307,27 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 
 	var/turf/U = get_turf(holder.my_atom)
 	if(isfloor(T))
-		T.apply_paint_overlay(data["color"])
+		T.apply_paint_overlay(data["color"], 255, list(), id == NANOPAINT)
 		if (splashplosion.len > 0)
 			for (var/direction in cardinal)
 				var/turf/R = get_step(T,direction)
 				if (isfloor(R) && !(R in splashplosion) && T.Adjacent(R))
 					if (get_dir(R,U) & get_dir(R,T))
-						R.apply_paint_stroke(data["color"], 255, get_dir_cardinal(R,T), "border_splatter")
+						R.apply_paint_stroke(data["color"], 255, get_dir_cardinal(R,T), "border_splatter", list(), id == NANOPAINT)
 				else if (iswall(R) && !(R in splashplosion))
 					if (get_dir(R,U) & get_dir(R,T))
-						R.apply_paint_stroke(data["color"], 255, get_dir_cardinal(R,T), "wall_splatter")
+						R.apply_paint_stroke(data["color"], 255, get_dir_cardinal(R,T), "wall_splatter", list(), id == NANOPAINT)
 	else if(iswall(T))
 		if (T == U)
-			T.apply_paint_overlay(data["color"])//if we're on top somehow, paint the whole tile
+			T.apply_paint_overlay(data["color"], 255, list(), id == NANOPAINT)//if we're on top somehow, paint the whole tile
 		else if (splashplosion.len > 0)
 			for (var/direction in cardinal)
 				var/turf/R = get_step(T,direction)
 				if (isfloor(R) && (R in splashplosion))
 					if (get_dir(T,U) & direction)
-						T.apply_paint_stroke(data["color"], 255, get_dir_cardinal(T,R), "wall_splatter")
+						T.apply_paint_stroke(data["color"], 255, get_dir_cardinal(T,R), "wall_splatter", list(), id == NANOPAINT)
 		else
-			T.apply_paint_stroke(data["color"], 255, get_dir_cardinal(T,U), "wall_splatter")
+			T.apply_paint_stroke(data["color"], 255, get_dir_cardinal(T,U), "wall_splatter", list(), id == NANOPAINT)
 
 //----------------------------------------------------------------------------------------------------
 

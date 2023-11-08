@@ -1,5 +1,6 @@
-
-//Basically sends a cheap projectile that moves from a turf A to a turf B. Returns true if it reaches turf B without hitting anything on the way there (other than turf B itself)
+//test_reach(), by Deity Link
+//Basically sends a cheap projectile that moves from a turf A to a turf B in a "straight" line. Returns true if it reaches turf B without hitting anything on the way there (other than turf B itself)
+//Useful for instance to check if an item thrown/projectile fired from a A to B would reach its target
 
 /proc/test_reach(var/turf/origin,var/turf/destination,var/_pass_flags=0)
 	if (!origin || !destination)
@@ -40,6 +41,8 @@
 	pass_flags = _pass_flags
 
 /obj/test_reach/proc/main()
+	//let's do our first movement by carefully going around any adjacent wall if another cardinal direction toward our destination is possible
+	//this fixes a quirk with bresenham paths where it may decide to run into adjacent walls on its first step even when it doesn't make "sense"
 	var/orientation = get_dir(loc,target)
 	if (orientation in diagonal)
 		var/turf/gotta_move = null
@@ -55,6 +58,7 @@
 			starting = loc
 	if (starting == target)
 		return TRUE
+	//init
 	dist_x = abs(target.x - starting.x)
 	dist_y = abs(target.y - starting.y)
 	if (target.x > starting.x)
@@ -72,6 +76,7 @@
 	else
 		error = dist_y/2 - dist_x
 
+	//main loop
 	while(loc && !finished)
 		loop()
 
@@ -86,7 +91,7 @@
 
 		bumped = 0
 
-/obj/test_reach/proc/bresenham_step(var/distA, var/distB, var/dA, var/dB)
+/obj/test_reach/proc/bresenham_step(var/distA, var/distB, var/dA, var/dB)//based on the code I wrote forever ago in projectiles.dm
 	if(max_range < 1)
 		finished = TRUE
 		return

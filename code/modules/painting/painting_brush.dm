@@ -240,7 +240,7 @@
 		var/_dir = user.dir
 		if (T != F)
 			_dir = get_dir_cardinal(F,T)
-		F.apply_paint_stroke(paint_color, paint_alpha, _dir, stroke_state, blood_data)
+		F.apply_paint_stroke(paint_color, paint_alpha, _dir, stroke_state, blood_data, nano_paint)
 		playsound(src, get_sfx("mop"), 5, 1)
 	else if (iswall(target))
 		var/turf/W = target
@@ -251,7 +251,7 @@
 		var/_dir = user.dir
 		if (T != W)
 			_dir = get_dir_cardinal(W,T)
-		W.apply_paint_stroke(paint_color, paint_alpha, _dir, "wall_side", blood_data)
+		W.apply_paint_stroke(paint_color, paint_alpha, _dir, "wall_side", blood_data, nano_paint)
 		playsound(src, get_sfx("mop"), 5, 1)
 
 /obj/item/weapon/paint_roller/update_icon()
