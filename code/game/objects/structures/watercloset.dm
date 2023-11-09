@@ -275,8 +275,7 @@
 	update_icon()
 	if(on)
 		for(var/atom/movable/G in get_turf(src))
-			G.clean_blood()
-			G.clean_act(CLEANLINESS_WATER)
+			G.clean_act(CLEANLINESS_SPACECLEANER)
 
 /obj/machinery/shower/attackby(obj/item/I as obj, mob/user as mob)
 
@@ -364,7 +363,7 @@
 		for(var/obj/item/I in M.held_items)
 			if(prob(CLEAN_PROB))
 				I.clean_blood()
-				I.clean_act(CLEANLINESS_WATER)
+				I.clean_act(CLEANLINESS_SPACECLEANER)
 				M.update_inv_hand(M.is_holding_item(I))
 		if(M.back && prob(CLEAN_PROB))
 			if(M.back.clean_blood())
@@ -426,7 +425,7 @@
 	else
 		if(prob(CLEAN_PROB))
 			O.clean_blood()
-			O.clean_act(CLEANLINESS_WATER)
+			O.clean_act(CLEANLINESS_SPACECLEANER)
 
 	var/turf/turf = get_turf(src)
 	if(prob(CLEAN_PROB))
@@ -618,7 +617,7 @@
 
 		if (do_after(user,src, 40))
 			O.clean_blood()
-			O.clean_act(CLEANLINESS_WATER)
+			O.clean_act(CLEANLINESS_SPACECLEANER)
 			if(O.current_glue_state == GLUE_STATE_TEMP)
 				O.unglue()
 			user.visible_message( \

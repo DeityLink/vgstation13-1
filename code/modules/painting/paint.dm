@@ -18,6 +18,11 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	possible_transfer_amounts = list(10,20,25,30,50,100,150)
 	volume = 150
 	flags = FPRINT | OPENCONTAINER
+	//wearable with the same stats as regular buckets
+	species_fit = list(INSECT_SHAPED)
+	armor = list(melee = 8, bullet = 3, laser = 3, energy = 0, bomb = 1, bio = 1, rad = 0)
+	slot_flags = SLOT_HEAD
+
 	var/icon/spots
 	var/last_pigments = ""
 	var/name_base = "paint bucket"
@@ -36,24 +41,19 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 
 /obj/item/weapon/reagent_containers/glass/paint/afterattack(var/atom/target, mob/user , flag)
 	if(!flag || user.stat)
-		return ..()
+		return
 
-	if((flags & OPENCONTAINER) && (istype(target,/turf/simulated)) && reagents.total_volume >= 5)//||ismob(target)||isobj(target)
+	if (!target.splashable())
+		return
+
+	if((flags & OPENCONTAINER) && reagents.total_volume >= 0 && !isshelf(target) && !is_open_container(target))
 		var/datum/reagent/R = reagents.get_master_reagent()
 		target.visible_message("<span class='warning'>\The [target] has been splashed with [R.name] by \the [user]!</span>")
 		reagents.reaction(target, TOUCH)
-		reagents.remove_any(5)
+		reagents.remove_any(amount_per_transfer_from_this)
+		playsound(target.loc, 'sound/effects/slosh.ogg', 25, 1)
 		if (prob(50))
 			add_spots()
-		if (ismob(target)||isobj(target))
-			var/pigment_rgb = mix_color_from_reagents(reagents.reagent_list, TRUE)
-			if (pigment_rgb)
-				var/mix_alpha = mix_alpha_from_reagents(reagents.reagent_list)
-				var/turf/T = get_turf(target)
-				if (target.loc == T)
-					T.apply_paint_stroke(pigment_rgb, mix_alpha, SOUTH, "splatter")
-					T.paint_overlay.wet(pigment_rgb,20 SECONDS,2)
-					playsound(T, 'sound/effects/slosh.ogg', 25, 1)
 	else
 		return ..()
 
@@ -77,6 +77,22 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	..()
 	add_spots(2)
 
+/obj/item/weapon/reagent_containers/glass/paint/equipped(var/mob/M, var/slot)
+	..()
+	if(slot == slot_head)
+		if(reagents.total_volume)
+			for(var/atom/movable/O in M.loc)
+				reagents.reaction(O, TOUCH)
+			reagents.reaction(M.loc, TOUCH)
+			visible_message("<span class='warning'>The bucket's content spills on \the [M].</span>")
+			reagents.clear_reagents()
+
+/obj/item/weapon/reagent_containers/glass/paint/dissolvable()
+	var/mob/living/carbon/human/H = get_holder_of_type(src,/mob/living/carbon/human)
+	if(H && src == H.head)
+		return 0
+	return ..()
+
 /obj/item/weapon/reagent_containers/glass/paint/throw_impact(var/atom/hit_atom, var/speed, var/mob/user)
 	if (!(flags & OPENCONTAINER))
 		return
@@ -86,6 +102,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 		var/turf/T = get_turf(hit_atom)
 		T.apply_paint_stroke(pigment_rgb, mix_alpha, SOUTH, "splatter")
 		T.paint_overlay.wet(pigment_rgb,20 SECONDS,2)
+		reagents.remove_any(5)
 		playsound(T, 'sound/effects/slosh.ogg', 25, 1)
 
 
@@ -161,7 +178,8 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 			spots.Blend(I, ICON_OVERLAY)
 		update_icon()
 
-/obj/item/weapon/reagent_containers/glass/paint/proc/get_paint_name(var/paint_name)
+/obj/item/weapon/reagent_containers/glass/paint/proc/get_paint_name(var/_paint_name)
+	var/paint_name = copytext(_paint_name,1,8)//removing alpha channel just in case
 	var/upper_name = uppertext(paint_name)
 	if (upper_name in colors_all)
 		return colors_all[upper_name]
@@ -297,9 +315,29 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 		return 1
 	M.adjustToxLoss(0.3)//paint is toxic yo
 
-/datum/reagent/paint/reaction_obj(var/obj/O, var/reac_volume)
-	if(O)
-		O.color = data["color"]
+/datum/reagent/paint/reaction_mob(var/mob/living/M, var/method = TOUCH, var/volume, var/list/zone_sels = ALL_LIMBS)
+	if(..())
+		return 1
+
+	if(ishuman(M))
+		var/blood_data = list(
+			"viruses"		=null,
+			"blood_DNA"		="wet paint",
+			"blood_colour"	= data["color"],
+			"blood_type"	="paint",
+			"resistances"	=null,
+			"trace_chem"	=null,
+			"virus2" 		=list(),
+			"immunity" 		=null,
+			)
+		var/mob/living/carbon/human/H = M
+		H.bloody_body_from_data(copy_blood_data(blood_data),0,src)
+		H.bloody_hands_from_data(copy_blood_data(blood_data),2,src)
+		H.add_blood_to_feet(3, data["color"], list("wet paint" = "paint"))
+		for(var/i = 1 to H.held_items.len)
+			var/obj/item/I = H.held_items[i]
+			if(istype(I))
+				I.add_blood_from_data(blood_data)
 
 /datum/reagent/paint/reaction_turf(var/turf/T, var/volume, var/list/splashplosion=list())
 	if(..())
@@ -420,8 +458,58 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	data["alpha"] = (data["alpha"] + target_alpha) / 2
 	alpha = data["alpha"]
 
-/datum/reagent/flaxoil/reaction_turf(var/turf/T, var/volume)
-	T.apply_paint_overlay(data["color"],data["alpha"])
+
+/datum/reagent/flaxoil/reaction_mob(var/mob/living/M, var/method = TOUCH, var/volume, var/list/zone_sels = ALL_LIMBS)
+	if(..())
+		return 1
+
+	if(ishuman(M))
+		var/blood_data = list(
+			"viruses"		=null,
+			"blood_DNA"		="wet paint",
+			"blood_colour"	= data["color"],
+			"blood_type"	="paint",
+			"resistances"	=null,
+			"trace_chem"	=null,
+			"virus2" 		=list(),
+			"immunity" 		=null,
+			)
+		var/mob/living/carbon/human/H = M
+		H.bloody_body_from_data(copy_blood_data(blood_data),0,src)
+		H.bloody_hands_from_data(copy_blood_data(blood_data),2,src)
+		H.add_blood_to_feet(3, data["color"], list("wet paint" = "paint"))
+		for(var/i = 1 to H.held_items.len)
+			var/obj/item/I = H.held_items[i]
+			if(istype(I))
+				I.add_blood_from_data(blood_data)
+
+/datum/reagent/flaxoil/reaction_turf(var/turf/T, var/volume, var/list/splashplosion=list())
+	if(..())
+		return TRUE
+
+	var/turf/U = get_turf(holder.my_atom)
+	if(isfloor(T))
+		T.apply_paint_overlay(data["color"], data["alpha"], list(), FALSE)
+		if (splashplosion.len > 0)
+			for (var/direction in cardinal)
+				var/turf/R = get_step(T,direction)
+				if (isfloor(R) && !(R in splashplosion) && T.Adjacent(R))
+					if (get_dir(R,U) & get_dir(R,T))
+						R.apply_paint_stroke(data["color"], data["alpha"], get_dir_cardinal(R,T), "border_splatter", list(), FALSE)
+				else if (iswall(R) && !(R in splashplosion))
+					if (get_dir(R,U) & get_dir(R,T))
+						R.apply_paint_stroke(data["color"], data["alpha"], get_dir_cardinal(R,T), "wall_splatter", list(), FALSE)
+	else if(iswall(T))
+		if (T == U)
+			T.apply_paint_overlay(data["color"], data["alpha"], list(), FALSE)//if we're on top somehow, paint the whole tile
+		else if (splashplosion.len > 0)
+			for (var/direction in cardinal)
+				var/turf/R = get_step(T,direction)
+				if (isfloor(R) && (R in splashplosion))
+					if (get_dir(T,U) & direction)
+						T.apply_paint_stroke(data["color"], data["alpha"], get_dir_cardinal(T,R), "wall_splatter", list(), FALSE)
+		else
+			T.apply_paint_stroke(data["color"], data["alpha"], get_dir_cardinal(T,U), "wall_splatter", list(), FALSE)
 
 //----------------------------------------------------------------------------------------------------
 
@@ -434,8 +522,10 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	alpha = 50
 
 /datum/reagent/paint_remover/reaction_turf(var/turf/T, var/volume)
-	if(istype(T) && T.icon != initial(T.icon))
-		T.icon = initial(T.icon)
+	if(..())
+		return TRUE
+
+	T.remove_paint_overlay(TRUE)
 
 /datum/reagent/paint_remover/on_mob_life(var/mob/living/M)
 	if(..())

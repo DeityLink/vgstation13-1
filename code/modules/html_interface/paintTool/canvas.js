@@ -405,6 +405,10 @@ function setColor(color,nano){
 	else
 		setNanoPaint(0);
 	updateSelectedColorDisplay(color, getOpacity())
+
+	var content = "newcolor=" + encodeURIComponent(color) + ";";
+	content += "nanopaint=" + encodeURIComponent(nanopaint);
+	HREFmultipartHandler(src, content);
 }
 
 function updateSelectedColorDisplay (color, alpha) {

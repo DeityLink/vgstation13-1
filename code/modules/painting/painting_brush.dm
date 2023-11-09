@@ -172,14 +172,13 @@
 	icon_state = "paint_roller"
 	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/arts_n_crafts.dmi', "right_hand" = 'icons/mob/in-hand/right/arts_n_crafts.dmi')
 
-	// Materials stuff
 	w_class = W_CLASS_TINY
 	starting_materials = list(MAT_PLASTIC = 50)
 	autoignition_temperature=AUTOIGNITION_PLASTIC
 	w_type = RECYK_PLASTIC
 	siemens_coefficient = 0
 
-	// Paint brush stuff
+	var/paint_amount = 0
 	var/paint_color = null
 	var/paint_alpha = 255
 	var/nano_paint = FALSE

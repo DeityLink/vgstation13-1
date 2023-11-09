@@ -271,6 +271,16 @@
 		mp_handler.Topic(href, href_list)
 		return
 
+	// Change painting brush color
+	else if (href_list["newcolor"])
+		var/mob/user = usr
+		var/obj/item/held_item = user.get_active_hand()
+		if (istype(held_item,/obj/item/weapon/painting_brush))
+			var/obj/item/weapon/painting_brush/PB = held_item
+			PB.paint_color = href_list["newcolor"]
+			PB.nano_paint = text2num(href_list["nanopaint"])
+			PB.update_icon()
+
 	// Save changes
 	else
 		// Make sure the player can actually paint

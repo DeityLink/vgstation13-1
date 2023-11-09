@@ -395,7 +395,7 @@
 			for(var/atom/movable/O in M.loc)
 				reagents.reaction(O, TOUCH)
 			reagents.reaction(M.loc, TOUCH)
-			visible_message("<span class='warning'>The bucket's content spills on [src]</span>")
+			visible_message("<span class='warning'>The bucket's content spills on \the [M].</span>")
 			reagents.clear_reagents()
 
 /obj/item/weapon/reagent_containers/glass/bucket/dissolvable()

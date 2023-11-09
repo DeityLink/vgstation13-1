@@ -808,6 +808,7 @@
 		else if(isslimeperson(H))
 
 			H.adjustToxLoss(rand(1,3))
+	M.clean_act(CLEANLINESS_WATER)
 
 /datum/reagent/water/reaction_turf(var/turf/simulated/T, var/volume)
 
@@ -816,6 +817,8 @@
 
 	if(volume >= 3) //Hardcoded
 		T.wet(800)
+
+	T.clean_act(CLEANLINESS_WATER)
 
 	var/hotspot = (locate(/obj/effect/fire) in T)
 	if(hotspot)
@@ -831,6 +834,8 @@
 
 	if(O.invisibility)
 		O.make_visible(INVISIBLESPRAY)
+
+	O.clean_act(CLEANLINESS_WATER)
 
 	if(istype(O, /obj/item/weapon/reagent_containers/food/snacks/monkeycube))
 		var/obj/item/weapon/reagent_containers/food/snacks/monkeycube/cube = O
@@ -2554,7 +2559,6 @@
 	O.clean_blood()
 	O.clean_act(clean_level)
 
-	..()
 
 /datum/reagent/space_cleaner/reaction_turf(var/turf/simulated/T, var/volume)
 
@@ -2577,7 +2581,7 @@
 			if(isslimeperson(H))
 				H.adjustToxLoss(rand(5, 10)/10)
 
-	T.color = ""
+		T.clean_act(clean_level)
 
 /datum/reagent/space_cleaner/reaction_mob(var/mob/living/M, var/method = TOUCH, var/volume, var/list/zone_sels = ALL_LIMBS)
 
@@ -2594,7 +2598,8 @@
 				H.update_inv_by_slot(C.slot_flags)
 
 		M.clean_blood()
-		M.color = ""
+
+	M.clean_act(clean_level)
 
 /datum/reagent/space_cleaner/bleach
 	name = "Bleach"
@@ -2617,7 +2622,6 @@
 	for(var/obj/item/I in T)
 		I.decontaminate()
 
-	T.color = ""
 
 /datum/reagent/space_cleaner/bleach/on_mob_life(var/mob/living/M)
 
@@ -2648,8 +2652,6 @@
 
 	if(..())
 		return 1
-
-	M.color = ""
 
 	if(method == TOUCH && ((TARGET_EYES in zone_sels) || (LIMB_HEAD in zone_sels)))
 		if(ishuman(M))
@@ -9861,6 +9863,7 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	id = COLORFUL_REAGENT
 	description = "Thoroughly sample the rainbow."
 	reagent_state = REAGENT_STATE_LIQUID
+	flags = CHEMFLAG_PIGMENT
 	color = "#C8A5DC"
 	var/list/random_color_list = list("#00aedb","#a200ff","#f47835","#d41243","#d11141","#00b159","#00aedb","#f37735","#ffc425","#008744","#0057e7","#d62d20","#ffa700")
 

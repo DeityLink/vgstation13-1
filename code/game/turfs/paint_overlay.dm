@@ -338,7 +338,7 @@ var/list/paint_overlay_override_walls = list(
 	var/wet_time = 0//world.time of the last time paint was applied that covers the whole tile AND is opaque enough (200+ alpha)
 	var/wet_duration = 10 SECONDS//relatively fast-drying
 	var/wet_amount = 3//how many steps with wet shoes
-	var/list/blood_DNA = list("wet paint" = "paint")
+	var/list/blood_DNA = list()
 
 	var/arbitrary_overlay_limit = 32
 
