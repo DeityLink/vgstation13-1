@@ -59,7 +59,8 @@ interactions:
 	name = "palette"
 	icon = 'icons/obj/painting_items.dmi'
 	icon_state = "palette"
-	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/misc_tools.dmi', "right_hand" = 'icons/mob/in-hand/right/misc_tools.dmi')
+	item_state = "palette"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/arts_n_crafts.dmi', "right_hand" = 'icons/mob/in-hand/right/arts_n_crafts.dmi')
 
 	// Materials stuff
 	w_class = W_CLASS_SMALL
@@ -113,14 +114,30 @@ interactions:
 
 /obj/item/weapon/palette/update_icon()
 	overlays.len = 0
-	var/i = 1
+	var/i = 0
+	var/image/paintleft = image(inhand_states["left_hand"], src, "palette-color")
+	var/image/paintright = image(inhand_states["right_hand"], src, "palette-color")
 	for (var/C_tag in stored_colours)
-		var/image/I = image(icon, src, "palette-color[i]")
+		var/image/I = image(icon, src, "palette-color[(i % 12)+1]")
 		I.color = stored_colours[C_tag]
 		overlays += I
+
+		//dynamic in-hand overlay
+		var/image/paintcolorleft = image(inhand_states["left_hand"], src, "palette-color[(i % 4)+1]")
+		var/image/paintcolorright = image(inhand_states["right_hand"], src, "palette-color[(i % 4)+1]")
+		paintcolorleft.color = stored_colours[C_tag]
+		paintcolorright.color = stored_colours[C_tag]
+		paintleft.overlays += paintcolorleft
+		paintright.overlays += paintcolorright
+
 		i++
-		if (i > 6)
-			break
+
+	dynamic_overlay["[HAND_LAYER]-[GRASP_LEFT_HAND]"] = paintleft
+	dynamic_overlay["[HAND_LAYER]-[GRASP_RIGHT_HAND]"] = paintright
+
+	if(ismob(loc))
+		var/mob/M = loc
+		M.update_inv_hands()
 
 /obj/item/weapon/palette/Topic(href, href_list)
 	if (..())

@@ -392,11 +392,8 @@
 	..()
 	if(slot == slot_head)
 		if(reagents.total_volume)
-			for(var/atom/movable/O in M.loc)
-				reagents.reaction(O, TOUCH)
-			reagents.reaction(M.loc, TOUCH)
+			reagents.splashplosion(0)//splashing ourselves and everything on our tile with
 			visible_message("<span class='warning'>The bucket's content spills on \the [M].</span>")
-			reagents.clear_reagents()
 
 /obj/item/weapon/reagent_containers/glass/bucket/dissolvable()
 	var/mob/living/carbon/human/H = get_holder_of_type(src,/mob/living/carbon/human)

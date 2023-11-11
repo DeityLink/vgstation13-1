@@ -195,6 +195,8 @@
 		desc = base_desc
 		icon = icon(base_icon, base_icon_state)
 
+	luminosity = 2 * painting_data.has_nano_paint
+
 	if (framed)
 		overlays += icon(frame_icon, frame_icon_state)
 

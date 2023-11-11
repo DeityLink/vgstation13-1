@@ -74,6 +74,7 @@ var bitmap;
 var nanomap;
 
 var nanopaint = false;
+var polarized = false;
 
 //Keep track of how scaled up the canvas is vs the actual bitmap
 var scaleX = 20;
@@ -113,6 +114,7 @@ function initPaint(initData) {
 	bitmap = initData.bitmap;
 	nanomap = initData.nanomap;
 	nanopaint = initData.nanopaint;
+	polarized = initData.polarized;
 
 	minPaintStrength = initData.minPaintStrength;
 	maxPaintStrength = initData.maxPaintStrength;
@@ -509,7 +511,11 @@ function display_bitmap() {
 			var pixel = (y * width + x);
 
 			//Grab the pixel's color
-			var color = hexToRgba(bitmap[pixel]);
+			var color;
+			if (polarized)
+				color = hexToRgba(nanomap[pixel]);
+			else
+				color = hexToRgba(bitmap[pixel]);
 			var alpha = color.a/255.0;
 			ctx.globalAlpha = alpha;
 			color.a = 255;

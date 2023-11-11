@@ -16,6 +16,7 @@
 	var/list/nano_palette = list()
 	var/base_color
 	var/nano_paint = FALSE
+	var/polarized = FALSE
 
 /datum/painting_utensil/New(mob/user, obj/item/held_item)
 	if (!user) // Special case
@@ -77,6 +78,17 @@
 			base_color = b.paint_color
 			nano_paint = b.nano_paint
 
+	// Wearing polarized glasses
+	polarized = FALSE
+	if (ishuman(user))
+		var/mob/living/carbon/human/H = user
+		if (istype(H.glasses, /obj/item/clothing/glasses/sunglasses/polarized))
+			polarized = TRUE
+	else if (ismonkey(user))
+		var/mob/living/carbon/monkey/M = user
+		if (istype(M.glasses, /obj/item/clothing/glasses/sunglasses/polarized))
+			polarized = TRUE
+
 	// Normalize palette colors
 	for (var/i = 1; i < palette.len; i++)
 		palette[i] = lowertext(palette[i])
@@ -119,6 +131,7 @@
 
 	// Secondary luminous bitmap for when working with nano-paint
 	var/list/nanomap = list()
+	var/has_nano_paint = FALSE
 
 	// Color that shows up on creation or after cleaning
 	var/base_color = "#ffffff"
@@ -237,6 +250,7 @@
 		"bitmap" = bitmap,
 		"nanomap" = nanomap,
 		"nanopaint" = p.nano_paint,
+		"polarized" = p.polarized,
 		"minPaintStrength" = p.min_strength,
 		"maxPaintStrength" = p.max_strength,
 	))
@@ -334,6 +348,7 @@
 /datum/custom_painting/proc/render_nanomap(icon/ico, offset_x = src.offset_x, offset_y = src.offset_y)
 	var/x
 	var/y
+	has_nano_paint = FALSE
 	for (var/pixel = 0; pixel < nanomap.len; pixel++)
 		x = pixel % bitmap_width
 		y = (pixel - x)/bitmap_width
@@ -343,6 +358,9 @@
 		y = offset_y + bitmap_height - y
 
 		ico.DrawBox(nanomap[pixel + 1], x, y)
+
+		if (nanomap[pixel + 1] != "#000000")
+			has_nano_paint = TRUE
 
 	return image(ico)
 

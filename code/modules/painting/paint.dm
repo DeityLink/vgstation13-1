@@ -81,11 +81,8 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	..()
 	if(slot == slot_head)
 		if(reagents.total_volume)
-			for(var/atom/movable/O in M.loc)
-				reagents.reaction(O, TOUCH)
-			reagents.reaction(M.loc, TOUCH)
+			reagents.splashplosion(0)//splashing ourselves and everything on our tile with
 			visible_message("<span class='warning'>The bucket's content spills on \the [M].</span>")
-			reagents.clear_reagents()
 
 /obj/item/weapon/reagent_containers/glass/paint/dissolvable()
 	var/mob/living/carbon/human/H = get_holder_of_type(src,/mob/living/carbon/human)
@@ -131,6 +128,10 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 		paintright.color = last_pigments
 		dynamic_overlay["[HAND_LAYER]-[GRASP_LEFT_HAND]"] = paintleft
 		dynamic_overlay["[HAND_LAYER]-[GRASP_RIGHT_HAND]"] = paintright
+		//dynamic hat overlay
+		var/image/painthead = image('icons/mob/head.dmi', src, "paint_pigments")
+		painthead.color = last_pigments
+		dynamic_overlay["[HEAD_LAYER]"] = painthead
 	else
 		dynamic_overlay = list()
 

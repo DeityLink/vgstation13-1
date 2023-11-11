@@ -1064,6 +1064,10 @@ var/global/list/damage_icon_parts = list()
 		if(head.dynamic_overlay)
 			if(head.dynamic_overlay["[HEAD_LAYER]"])
 				var/image/dyn_overlay = head.dynamic_overlay["[HEAD_LAYER]"]
+
+				if(S.name in I.species_fit)
+					dyn_overlay.icon = S.head_icons
+
 				O.overlays += dyn_overlay
 
 		if(head.blood_DNA && head.blood_DNA.len)
