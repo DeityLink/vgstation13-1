@@ -12,14 +12,15 @@
 
 /*
 
-/obj/item/weapon/painting_brush
-/obj/item/weapon/paint_roller
+/obj/item/painting_brush
+/obj/item/paint_roller
+/obj/item/high_roller
 
 */
 
-/obj/item/weapon/painting_brush
+/obj/item/painting_brush
 	// Graphics stuff
-	desc = "Horse hair on a stick, with a space age twist. Paint won't dry or run out on this"
+	desc = "Horse hair on a stick, with a space age twist. Paint won't dry or run out on this."
 	name = "painting brush"
 	icon = 'icons/obj/painting_items.dmi'
 	icon_state = "painting_brush"
@@ -37,7 +38,7 @@
 	var/nano_paint = FALSE
 	var/list/blood_data = list("wet paint" = "paint")
 
-/obj/item/weapon/painting_brush/update_icon()
+/obj/item/painting_brush/update_icon()
 	..()
 	overlays.len = 0
 	if (paint_color)
@@ -60,7 +61,7 @@
 		M.update_inv_hands()
 
 
-/obj/item/weapon/painting_brush/afterattack(obj/target, mob/user, proximity_flag, click_parameters)
+/obj/item/painting_brush/afterattack(obj/target, mob/user, proximity_flag, click_parameters)
 	if(proximity_flag == 0) // not adjacent
 		return
 
@@ -103,12 +104,12 @@
 		the_turf.advanced_graffiti.interact(user, p)
 		return
 
-/obj/item/weapon/painting_brush/clean_act(var/cleanliness)
+/obj/item/painting_brush/clean_act(var/cleanliness)
 	paint_color = null
 	nano_paint = FALSE
 	update_icon()
 
-/obj/item/weapon/painting_brush/proc/paint_doodle(var/mob/living/user, var/turf/T)
+/obj/item/painting_brush/proc/paint_doodle(var/mob/living/user, var/turf/T)
 	if (!paint_color)
 		to_chat(user, "<span class='warning'>There is no paint on your brush.</span>")
 		return
@@ -165,9 +166,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/obj/item/weapon/paint_roller
+/obj/item/paint_roller
 	name = "paint roller"
-	desc = "Used to cover floors in paint more efficiently than by just dumping buckets on them"
+	desc = "Used to cover floors in paint more efficiently than by just dumping buckets on them."
 	icon = 'icons/obj/painting_items.dmi'
 	icon_state = "paint_roller"
 	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/arts_n_crafts.dmi', "right_hand" = 'icons/mob/in-hand/right/arts_n_crafts.dmi')
@@ -195,12 +196,12 @@
 		"Square Corner" = "border_corner",
 		)//found in paint_masks.dmi
 
-/obj/item/weapon/paint_roller/clean_act(var/cleanliness)
+/obj/item/paint_roller/clean_act(var/cleanliness)
 	paint_color = null
 	nano_paint = FALSE
 	update_icon()
 
-/obj/item/weapon/paint_roller/afterattack(obj/target, mob/user, proximity_flag, click_parameters)
+/obj/item/paint_roller/afterattack(obj/target, mob/user, proximity_flag, click_parameters)
 	if(proximity_flag == 0) // not adjacent
 		return
 
@@ -253,7 +254,7 @@
 		W.apply_paint_stroke(paint_color, paint_alpha, _dir, "wall_side", blood_data, nano_paint)
 		playsound(src, get_sfx("mop"), 5, 1)
 
-/obj/item/weapon/paint_roller/update_icon()
+/obj/item/paint_roller/update_icon()
 	..()
 	overlays.len = 0
 	if (paint_color)
@@ -274,7 +275,7 @@
 		var/mob/M = loc
 		M.update_inv_hands()
 
-/obj/item/weapon/paint_roller/AltClick(var/mob/user)
+/obj/item/paint_roller/AltClick(var/mob/user)
 	if (user.incapacitated() || !Adjacent(user))
 		return
 	var/choices = list()
@@ -285,7 +286,7 @@
 		return
 	stroke_state = stroke_states[new_mode]
 
-/obj/item/weapon/paint_roller/verb/set_painting_mode()
+/obj/item/paint_roller/verb/set_painting_mode()
 	set name = "Change painting mode"
 	set category = "Object"
 	set src in range(0)
@@ -294,3 +295,205 @@
 	var/new_mode = input("Choose a painting mode","[src]") in stroke_states
 	if (new_mode && !usr.incapacitated() && Adjacent(usr))
 		stroke_state = stroke_states[new_mode]
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/obj/item/high_roller
+	name = "high roller"
+	desc = "Nyehaeh there's the high roller!"
+	icon = 'icons/obj/painting_items.dmi'
+	icon_state = "high_roller"
+	item_state = "high_roller"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/arts_n_crafts.dmi', "right_hand" = 'icons/mob/in-hand/right/arts_n_crafts.dmi')
+	origin_tech = Tc_MATERIALS + "=4;"//TODO
+	w_class = W_CLASS_LARGE
+	flags = FPRINT | TWOHANDABLE | SLOWDOWN_WHEN_CARRIED
+	slowdown = NO_SLOWDOWN//HIGHROLLER_SLOWDOWN when active
+
+	var/obj/item/weapon/reagent_containers/container = null
+	var/mixed_color = "#ffffff"
+	var/mixed_alpha = 255
+	var/pigment_color = "#ffffff"
+
+/obj/item/high_roller/attack_self(mob/user)
+	if(wielded)
+		unwield(user)
+		user.unregister_event(/event/after_move, src, /obj/item/high_roller/proc/swipe_turf)
+	else
+		wield(user)
+		if(wielded)
+			user.register_event(/event/after_move, src, /obj/item/high_roller/proc/swipe_turf)
+			if (!container)
+				to_chat(user, "<span class='warning'>You need to slot in a reagent container before you can use the roller.</span>")
+
+/obj/item/high_roller/attack_hand(var/mob/living/user)
+	if (container && (user.get_inactive_hand() == src))
+		user.put_in_hands(container)
+		container = null
+		playsound(user.loc, 'sound/items/Deconstruct.ogg', 50, 1)
+		update_icon()
+		return
+	..()
+
+/obj/item/high_roller/splashable()
+	return FALSE
+
+/obj/item/high_roller/update_wield(mob/user)
+	if(wielded)
+		slowdown = HIGHROLLER_SLOWDOWN
+	else
+		slowdown = NO_SLOWDOWN
+	update_icon()
+
+/obj/item/high_roller/attackby(obj/item/W, mob/user)
+	if(istype(W, /obj/item/weapon/reagent_containers))
+		if(user.drop_item(W, src))
+			if (container)
+				user.put_in_hands(container)
+				to_chat(user, "You swap the containers.")
+			else
+				to_chat(user, "You slot the container on the roller.")
+			container = W
+			playsound(user.loc, 'sound/items/Deconstruct.ogg', 50, 1)
+			mixed_color = mix_color_from_reagents(container.reagents.reagent_list)
+			mixed_alpha = mix_alpha_from_reagents(container.reagents.reagent_list)
+			pigment_color = mix_color_from_reagents(container.reagents.reagent_list, TRUE)
+			update_icon()
+			return
+	..()
+
+/obj/item/high_roller/afterattack(obj/target, mob/user, proximity_flag, click_parameters)
+	if(proximity_flag == 0) // not adjacent
+		return
+	if (isshelf(target))
+		return
+	if(target.is_open_container() && target.reagents && !target.reagents.is_empty())
+		to_chat(user, "<span class='warning'>The roller is too large to get dipped in that. You need to slot in a reagent container instead.</span>")
+		return
+	var/turf/T = get_turf(target)
+	swipe_turf(T)
+
+/obj/item/high_roller/AltClick(var/mob/user)
+	if (user.incapacitated() || !Adjacent(user))
+		return
+	if (!container)
+		to_chat(user, "<span class='warning'>There is no container to remove.</span>")
+		return
+	if(wielded)
+		unwield(user)
+		user.unregister_event(/event/after_move, src, /obj/item/high_roller/proc/swipe_turf)
+	user.put_in_hands(container)
+	container = null
+	playsound(user.loc, 'sound/items/Deconstruct.ogg', 50, 1)
+	update_icon()
+
+/obj/item/high_roller/verb/remove_container()
+	set name = "Remove container"
+	set category = "Object"
+	set src in range(0)
+	var/mob/user = usr
+	if(user.incapacitated() || !Adjacent(user))
+		return
+	if (!container)
+		to_chat(user, "<span class='warning'>There is no container to remove.</span>")
+		return
+	if(wielded)
+		unwield(user)
+		user.unregister_event(/event/after_move, src, /obj/item/high_roller/proc/swipe_turf)
+	user.put_in_hands(container)
+	container = null
+	playsound(user.loc, 'sound/items/Deconstruct.ogg', 50, 1)
+	update_icon()
+
+/obj/item/high_roller/update_icon()
+	..()
+	overlays.len = 0
+
+	if (wielded)
+		item_state = "high_roller_deployed"
+	else
+		item_state = "high_roller"
+
+	var/image/rollerhandleft = image(inhand_states["left_hand"], src, "palette-color")//blank
+	var/image/rollerhandright = image(inhand_states["right_hand"], src, "palette-color")
+
+	if (container)
+		var/image/container_color = image(icon, src, "high_roller_container")
+
+		var/image/container_color_handleft = image(inhand_states["left_hand"], src, "[item_state]_container")
+		var/image/container_color_handright = image(inhand_states["right_hand"], src, "[item_state]_container")
+
+		if (container.reagents.total_volume)
+			container_color.color = mixed_color
+			container_color.alpha = mixed_alpha
+			container_color_handleft.color = mixed_color
+			container_color_handleft.alpha = mixed_alpha
+			container_color_handright.color = mixed_color
+			container_color_handright.alpha = mixed_alpha
+
+			var/image/container_fillings = image(icon, src, "high_roller_fillings[clamp(round(9*container.reagents.total_volume/container.reagents.maximum_volume),1,9)]")
+			container_fillings.color = mixed_color
+			container_fillings.alpha = mixed_alpha
+			overlays += container_fillings
+
+			if (pigment_color)
+				var/image/paint_color = image(icon, src, "high_roller_pigments")
+				paint_color.color = pigment_color
+				paint_color.alpha = mixed_alpha
+				overlays += paint_color
+
+				var/image/pigment_color_handleft = image(inhand_states["left_hand"], src, "[item_state]_pigments")
+				pigment_color_handleft.color = pigment_color
+				pigment_color_handleft.alpha = mixed_alpha
+				rollerhandleft.overlays += pigment_color_handleft
+				var/image/pigment_color_handright = image(inhand_states["right_hand"], src, "[item_state]_pigments")
+				pigment_color_handright.color = pigment_color
+				pigment_color_handright.alpha = mixed_alpha
+				rollerhandright.overlays += pigment_color_handright
+
+		overlays += container_color
+		rollerhandleft.overlays += container_color_handleft
+		rollerhandright.overlays += container_color_handright
+
+	dynamic_overlay["[HAND_LAYER]-[GRASP_LEFT_HAND]"] = rollerhandleft
+	dynamic_overlay["[HAND_LAYER]-[GRASP_RIGHT_HAND]"] = rollerhandright
+
+	update_blood_overlay()
+	if(ismob(loc))
+		var/mob/M = loc
+		M.update_inv_hands()
+
+/obj/item/high_roller/dropped(var/mob/user)
+	if(wielded)
+		unwield(user)
+		user.unregister_event(/event/after_move, src, /obj/item/high_roller/proc/swipe_turf)
+	..()
+
+/obj/item/high_roller/proc/swipe_turf(var/turf/T)
+	if (!T)
+		T = get_turf(src)
+		if (!T)
+			return
+
+	var/mob/user = loc
+	if(container && container.reagents.total_volume)
+		for(var/datum/reagent/R in container.reagents.reagent_list)
+			for (var/mob/M in T.contents)
+				if (M.lying)
+					R.reaction_mob(M, TOUCH, 5, ALL_LIMBS, FALSE)
+					add_logs(user, M, "rolled over", admin = TRUE, object = src, addition = "Reagents: [english_list(container.get_reagent_names())]")
+
+			var/list/blood_data = list("wet paint" = "paint")
+			if (R.id == BLOOD)
+				blood_data = list(R.data["blood_DNA"] = R.data["blood_type"])
+
+			if (R.flags & CHEMFLAG_PIGMENT)
+				T.apply_paint_overlay(R.color, R.alpha, blood_data, R.id == NANOPAINT)
+			else
+				R.reaction_turf(T, 5)
+
+		container.reagents.remove_any(1)
+		playsound(T, get_sfx("mop"), 5, 1)
+		anim(target = T, a_icon = 'icons/effects/effects.dmi', flick_anim = "wfoam-disolve", lay = SNOW_LAYER, col = mixed_color, alph = mixed_alpha, plane = ABOVE_TURF_PLANE)
+		update_icon()

@@ -53,7 +53,7 @@ interactions:
 */
 
 
-/obj/item/weapon/palette
+/obj/item/palette
 	// Graphics stuff
 	desc = "A palette on which to store colours. Let out your inner Picasso."
 	name = "palette"
@@ -74,11 +74,11 @@ interactions:
 	var/list/stored_colours = list()
 	var/list/nanopaint_indexes = list()
 
-/obj/item/weapon/palette/attack_self(mob/user)
+/obj/item/palette/attack_self(mob/user)
 	. = ..()
 	ui_interact(user)
 
-/obj/item/weapon/palette/attackby(obj/item/weapon/W, mob/user)
+/obj/item/palette/attackby(obj/item/weapon/W, mob/user)
 	. = ..()
 	var/datum/painting_utensil/p = new(user, W)
 	if (p.base_color)
@@ -87,7 +87,7 @@ interactions:
 		to_chat(user, "<span class='notice'>You add a new color to \the [src].</span>")
 		update_icon()
 
-/obj/item/weapon/palette/ui_interact(mob/user, ui_key, datum/nanoui/ui, force_open)
+/obj/item/palette/ui_interact(mob/user, ui_key, datum/nanoui/ui, force_open)
 	. = ..()
 	var/list/data = list()
 	var/list/paint_colours
@@ -112,7 +112,7 @@ interactions:
 		// Auto update every Master Controller tick.
 		ui.set_auto_update(1)
 
-/obj/item/weapon/palette/update_icon()
+/obj/item/palette/update_icon()
 	overlays.len = 0
 	var/i = 0
 	var/image/paintleft = image(inhand_states["left_hand"], src, "palette-color")
@@ -139,7 +139,7 @@ interactions:
 		var/mob/M = loc
 		M.update_inv_hands()
 
-/obj/item/weapon/palette/Topic(href, href_list)
+/obj/item/palette/Topic(href, href_list)
 	if (..())
 		return
 	if (href_list["colour"])
@@ -151,10 +151,10 @@ interactions:
 		var/mob/living/L = usr
 		if (!istype(L))
 			return
-		var/obj/item/weapon/painting_brush/PB
+		var/obj/item/painting_brush/PB
 		for (var/i = 1 to L.held_items.len)
 			var/obj/O = L.held_items[i]
-			if (istype(O, /obj/item/weapon/painting_brush))
+			if (istype(O, /obj/item/painting_brush))
 				PB = O
 				break
 		if (!PB)
@@ -196,11 +196,11 @@ interactions:
 			return
 		for (var/i = 1 to C.held_items.len)
 			var/obj/O = C.held_items[i]
-			if (istype(O, /obj/item/weapon/painting_brush))
+			if (istype(O, /obj/item/painting_brush))
 				to_chat(usr, "<span class='notice'>You start cleaning \the [O]...</span>")
 				if (do_after(usr, src, 1 SECONDS))
 					to_chat(usr, "<span class='notice'>You finish cleaning \the [O].</span>")
-					var/obj/item/weapon/painting_brush/PB = O
+					var/obj/item/painting_brush/PB = O
 					PB.paint_color = null
 					PB.update_icon()
 	update_icon()

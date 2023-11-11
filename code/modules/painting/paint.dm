@@ -54,6 +54,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 		playsound(target.loc, 'sound/effects/slosh.ogg', 25, 1)
 		if (prob(50))
 			add_spots()
+		return
 	else
 		return ..()
 
@@ -340,6 +341,23 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 			if(istype(I))
 				I.add_blood_from_data(blood_data)
 
+/datum/reagent/paint/reaction_obj(var/obj/O, var/volume)
+	if(..())
+		return 1
+
+	var/paint_data = list(
+		"viruses"		=null,
+		"blood_DNA"		="wet paint",
+		"blood_colour"	= data["color"],
+		"blood_type"	="paint",
+		"resistances"	=null,
+		"trace_chem"	=null,
+		"virus2" 		=list(),
+		"immunity" 		=null,
+		)
+
+	O.add_blood_from_data(paint_data)
+
 /datum/reagent/paint/reaction_turf(var/turf/T, var/volume, var/list/splashplosion=list())
 	if(..())
 		return TRUE
@@ -483,6 +501,23 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 			var/obj/item/I = H.held_items[i]
 			if(istype(I))
 				I.add_blood_from_data(blood_data)
+
+/datum/reagent/flaxoil/reaction_obj(var/obj/O, var/volume)
+	if(..())
+		return 1
+
+	var/paint_data = list(
+		"viruses"		=null,
+		"blood_DNA"		="wet paint",
+		"blood_colour"	= data["color"],
+		"blood_type"	="paint",
+		"resistances"	=null,
+		"trace_chem"	=null,
+		"virus2" 		=list(),
+		"immunity" 		=null,
+		)
+
+	O.add_blood_from_data(paint_data)
 
 /datum/reagent/flaxoil/reaction_turf(var/turf/T, var/volume, var/list/splashplosion=list())
 	if(..())

@@ -51,7 +51,7 @@
 	var/addictive = FALSE
 	var/tolerance_increase = null  //for tolerance, if set above 0, will increase each by that amount on tick.
 
-/datum/reagent/proc/reaction_mob(var/mob/living/M, var/method = TOUCH, var/volume, var/list/zone_sels = ALL_LIMBS, var/list/splashplosion=list())
+/datum/reagent/proc/reaction_mob(var/mob/living/M, var/method = TOUCH, var/volume, var/list/zone_sels = ALL_LIMBS, var/allow_permeability = TRUE, var/list/splashplosion=list())
 	set waitfor = 0
 
 	if(!holder)
@@ -65,7 +65,7 @@
 	src = null
 
 	//If the chemicals are in a smoke cloud, do not let the chemicals "penetrate" into the mob's system (balance station 13) -- Doohl
-	if(self.holder && !istype(self.holder.my_atom, /obj/effect/smoke/chem))
+	if(self.holder && allow_permeability && !istype(self.holder.my_atom, /obj/effect/smoke/chem))
 		if(method == TOUCH)
 
 			var/chance = 1
@@ -2566,6 +2566,8 @@
 		return 1
 
 	if(volume >= 1)
+		for (var/obj/effect/decal/cleanable/C in T)
+			qdel(C)
 
 		if (T.advanced_graffiti)
 			T.overlays -= T.advanced_graffiti_overlay
@@ -2618,6 +2620,7 @@
 
 	for(var/atom/A in T)
 		A.clean_blood()
+		A.clean_act(clean_level)
 
 	for(var/obj/item/I in T)
 		I.decontaminate()

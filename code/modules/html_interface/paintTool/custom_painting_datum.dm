@@ -59,14 +59,14 @@
 		base_color = rgb(h.color_r, h.color_g, h.color_b)
 
 	// Painting with a brush
-	if (istype(held_item, /obj/item/weapon/painting_brush))
+	if (istype(held_item, /obj/item/painting_brush))
 		// If holding a palette (item) add it's colors to the brush's list
-		for (var/obj/item/weapon/palette/pal in user.held_items)
+		for (var/obj/item/palette/pal in user.held_items)
 			for (var/c in pal.stored_colours)
 				palette += pal.stored_colours[c]
 				nano_palette += (pal.nanopaint_indexes[c] ? "#FFFFFF" : "#161616")
 
-		var/obj/item/weapon/painting_brush/b = held_item
+		var/obj/item/painting_brush/b = held_item
 		if (b.paint_color)
 			max_strength = BRUSH_STRENGTH_MAX
 			min_strength = BRUSH_STRENGTH_MIN
@@ -289,8 +289,8 @@
 	else if (href_list["newcolor"])
 		var/mob/user = usr
 		var/obj/item/held_item = user.get_active_hand()
-		if (istype(held_item,/obj/item/weapon/painting_brush))
-			var/obj/item/weapon/painting_brush/PB = held_item
+		if (istype(held_item,/obj/item/painting_brush))
+			var/obj/item/painting_brush/PB = held_item
 			PB.paint_color = href_list["newcolor"]
 			PB.nano_paint = text2num(href_list["nanopaint"])
 			PB.update_icon()

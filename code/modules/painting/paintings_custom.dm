@@ -80,11 +80,11 @@
 			return TRUE
 
 	// Covering
-	if (istype(W, /obj/item/weapon/paint_roller))
+	if (istype(W, /obj/item/paint_roller))
 		if (protected_by_glass)
 			return FALSE
 
-		var/obj/item/weapon/paint_roller/P = W
+		var/obj/item/paint_roller/P = W
 
 		if (!P.paint_color)
 			to_chat(user, "<span class='warning'>There is no paint on your roller.</span>")
@@ -305,11 +305,11 @@
 			return TRUE
 
 	// Covering
-	if (istype(W, /obj/item/weapon/paint_roller))
+	if (istype(W, /obj/item/paint_roller))
 		if (protected_by_glass)
 			return FALSE
 
-		var/obj/item/weapon/paint_roller/P = W
+		var/obj/item/paint_roller/P = W
 
 		if (!P.paint_color)
 			to_chat(user, "<span class='warning'>There is no paint on your roller.</span>")

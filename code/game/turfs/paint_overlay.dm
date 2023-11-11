@@ -472,6 +472,7 @@ var/list/paint_overlay_override_walls = list(
 		nano_paint = FALSE
 		my_turf.lighting_overlay.update_overlay()
 	if (erase)
+		overlay.overlays.len = 0
 		sub_overlays.len = 0
 		wet_time = 0
 		blood_DNA = list()

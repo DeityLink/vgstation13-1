@@ -122,3 +122,6 @@
 
 /atom/movable/lighting_overlay/send_to_past(var/duration)
 	return
+
+/atom/movable/clean_act(var/cleanliness)
+	return

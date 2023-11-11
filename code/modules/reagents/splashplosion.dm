@@ -34,11 +34,10 @@
 						if (isanimal(AM))
 							R.reaction_animal(AM, TOUCH, volume_for_this_tile,hit_turfs)
 						else
-							R.reaction_mob(AM, TOUCH, volume_for_this_tile, ALL_LIMBS,hit_turfs)
+							R.reaction_mob(AM, TOUCH, volume_for_this_tile, ALL_LIMBS, FALSE, hit_turfs)
 					else if (isobj(AM) && !istype(AM,/atom/movable/lighting_overlay))
 						R.reaction_obj(AM, volume_for_this_tile,hit_turfs)
 			R.reaction_turf(T, volume_for_this_tile,hit_turfs)
 
 	clear_reagents()
-
 
