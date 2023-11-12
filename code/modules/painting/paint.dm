@@ -434,16 +434,16 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	name = "Flax Oil"
 	id = FLAXOIL
 	description = "An oil used in painting. Copies the coloration and opacity of reagents it is mixed with."
-	color = "#303030"
-	alpha = 100
+	color = "#E6C530"
+	alpha = 50
 	reagent_state = REAGENT_STATE_LIQUID
 	nutriment_factor = 2 * REAGENTS_METABOLISM
 	density = 1.808
 	specheatcap = 0.85
 	flags = CHEMFLAG_PIGMENT
 	data = list(
-		"color" = "#303030",
-		"alpha" = 100,
+		"color" = "#E6C530",
+		"alpha" = 50,
 		)
 
 /datum/reagent/flaxoil/handle_data_mix(var/list/added_data=null, var/added_volume, var/mob/admin)
@@ -554,14 +554,24 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	id = ACETONE
 	description = "Removes paint off floors, and everywhere else."
 	reagent_state = REAGENT_STATE_LIQUID
-	color = "#808080"
-	alpha = 50
+	color = "#303030"
+	alpha = 100
 
 /datum/reagent/paint_remover/reaction_turf(var/turf/T, var/volume)
 	if(..())
 		return TRUE
 
+	for (var/obj/effect/decal/cleanable/C in T)
+		if ("wet paint" in C.blood_DNA)
+			qdel(C)
+
 	T.remove_paint_overlay(TRUE)
+
+/datum/reagent/paint_remover/reaction_obj(var/turf/T, var/volume)
+	if(..())
+		return TRUE
+
+
 
 /datum/reagent/paint_remover/on_mob_life(var/mob/living/M)
 	if(..())
@@ -586,9 +596,10 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 /proc/get_reagent_paint_cleaning_percent(obj/container)
 	if(container.reagents)
 		var/cleaner_volume = container.reagents.get_reagent_amount(WATER)
-		cleaner_volume += container.reagents.get_reagent_amount(CLEANER) * PAINT_CLEANER_AGENT_MULTIPLIER
+		cleaner_volume += container.reagents.get_reagent_amount(CLEANER)
+		cleaner_volume += container.reagents.get_reagent_amount(BLEACH) * PAINT_CLEANER_AGENT_MULTIPLIER
 		cleaner_volume += container.reagents.get_reagent_amount(ACETONE) * PAINT_CLEANER_AGENT_MULTIPLIER
-		return min(cleaner_volume > 0 ? cleaner_volume / container.reagents.total_volume : 0, 1)
+		return (cleaner_volume > 0 ? cleaner_volume / container.reagents.total_volume : 0)
 	else
 		return 0
 

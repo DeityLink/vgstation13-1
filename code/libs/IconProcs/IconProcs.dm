@@ -457,9 +457,21 @@
 	var/list/RGB1 = rgb2num(rgb1)
 	var/list/RGB2 = rgb2num(rgb2)
 
-	var/r = min(255, RGB1[1] + RGB2[1] * amount)
-	var/g = min(255, RGB1[2] + RGB2[2] * amount)
-	var/b = min(255, RGB1[3] + RGB2[3] * amount)
+	var/r
+	if (RGB2[1] <= RGB1[1])
+		r = RGB1[1]
+	else
+		r = RGB1[1] + (RGB2[1] - RGB1[1])*amount
+	var/g
+	if (RGB2[2] <= RGB1[2])
+		g = RGB1[2]
+	else
+		g = RGB1[2] + (RGB2[2] - RGB1[2])*amount
+	var/b
+	if (RGB2[3] <= RGB1[3])
+		b = RGB1[3]
+	else
+		b = RGB1[3] + (RGB2[3] - RGB1[3])*amount
 
 	return rgb(r, g, b)
 

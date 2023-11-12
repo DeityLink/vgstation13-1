@@ -117,6 +117,14 @@ var/const/INGEST = 2
 	handle_reactions()
 	return total_transfered
 
+/datum/reagents/proc/remove_from_all(var/amount=1)
+	for(var/datum/reagent/R in reagent_list)
+		remove_reagent(R.id, (R.volume/total_volume) * amount)
+		if (R.volume < 0.01)
+			del_reagent(R.id,update_totals=0)
+
+	return amount
+
 /datum/reagents/proc/get_master_reagent()
 	var/the_reagent = null
 	var/the_volume = 0

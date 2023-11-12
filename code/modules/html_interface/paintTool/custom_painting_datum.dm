@@ -188,6 +188,30 @@
 	src.parent = parent
 	mp_handler.set_parent(parent)
 
+/datum/custom_painting/proc/smear(var/amount=50, var/strength=1)
+	var/list/list_of_numbers = list()
+	var/list/pixels_to_shift = list()
+
+	for (var/i = 1 to bitmap.len)
+		list_of_numbers += "[i]"
+	for (var/i = 1 to amount)
+		var/num = pick(list_of_numbers)
+		var/actual_num = text2num(num)
+		list_of_numbers -= num
+		pixels_to_shift[num] = list(bitmap[actual_num], nanomap[actual_num])//saving pixel data and location before smearing
+
+	for (var/index in pixels_to_shift)
+		var/list/colors_to_move = pixels_to_shift[index]
+		var/actual_index = text2num(index)
+		var/new_index = actual_index
+		for (var/i = 1 to strength)
+			new_index = actual_index + bitmap_width
+			if (new_index > bitmap.len)
+				new_index -= bitmap.len
+				colors_to_move = list(base_color, "#000000")
+			bitmap[new_index] = colors_to_move[1]
+			nanomap[new_index] = colors_to_move[2]
+
 /datum/custom_painting/proc/bucket_fill(var/color,var/nanopaint=FALSE)
 	bitmap = list()
 	nanomap = list()

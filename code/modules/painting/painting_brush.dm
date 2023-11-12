@@ -306,7 +306,7 @@
 	icon_state = "high_roller"
 	item_state = "high_roller"
 	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/arts_n_crafts.dmi', "right_hand" = 'icons/mob/in-hand/right/arts_n_crafts.dmi')
-	origin_tech = Tc_MATERIALS + "=4;"//TODO
+	origin_tech = Tc_MATERIALS + "=3;" + Tc_ENGINEERING + "=2;"
 	w_class = W_CLASS_LARGE
 	flags = FPRINT | TWOHANDABLE | SLOWDOWN_WHEN_CARRIED
 	slowdown = NO_SLOWDOWN//HIGHROLLER_SLOWDOWN when active
@@ -493,7 +493,8 @@
 			else
 				R.reaction_turf(T, 5)
 
-		container.reagents.remove_any(1)
+		container.reagents.remove_from_all(1)
+		container.reagents.handle_special_behaviours()
 		playsound(T, get_sfx("mop"), 5, 1)
 		anim(target = T, a_icon = 'icons/effects/effects.dmi', flick_anim = "wfoam-disolve", lay = SNOW_LAYER, col = mixed_color, alph = mixed_alpha, plane = ABOVE_TURF_PLANE)
 		update_icon()

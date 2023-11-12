@@ -47,6 +47,21 @@
 	QDEL_NULL(painting_data)
 	..()
 
+/obj/structure/painting/custom/proc/smear(var/amount=50, var/strength=1)
+	painting_data.smear(amount,strength)
+	update_painting(TRUE)
+
+/obj/structure/painting/custom/proc/smear_until_clean()
+	var/strength = 1
+
+	for(var/i = 1 to 20)
+		smear((painting_height*painting_width)*(strength/5), strength)
+		strength = min(5,strength+1)
+		sleep(2)
+
+	painting_data.blank_contents()
+	update_painting(TRUE)
+
 /obj/structure/painting/custom/attackby(obj/item/W, mob/user)
 	// Painting
 	var/datum/painting_utensil/p = new(user, W)
@@ -67,9 +82,16 @@
 			if (do_after(user, src, 10))
 				// Reagent mix is strong enough to clean the canvas, do so
 				var/cleaner_percent = get_reagent_paint_cleaning_percent(container)
-				if (cleaner_percent >= PAINT_CLEANER_THRESHOLD)
-					painting_data.blank_contents()
+				if (cleaner_percent > 1)//using acetone or bleach
+					spawn()
+						smear_until_clean()
 					to_chat(usr, "<span class='warning'>You wash the paint off \the [name]!</span>")
+				else if (cleaner_percent >= PAINT_CLEANER_THRESHOLD)//just water, or diluted cleaners
+					spawn()
+						smear((painting_height*painting_width)/2, 1)
+						sleep(2)
+						smear((painting_height*painting_width)/2, 2)
+					to_chat(usr, "<span class='warning'>You smear the paint across \the [name]!</span>")
 
 				// Reagent mix is opaque enough to paint the canvas, do so
 				else
@@ -87,7 +109,10 @@
 		var/obj/item/paint_roller/P = W
 
 		if (!P.paint_color)
-			to_chat(user, "<span class='warning'>There is no paint on your roller.</span>")
+			to_chat(user, "<span class='warning'>You smear the paint across the canvas.</span>")
+			if (do_after(user, src, 10))
+				smear((painting_height*painting_width)/2, 1)
+				update_painting(TRUE)
 			return
 
 		to_chat(usr, "<span class='warning'>You start covering \the [src] in paint using \the [P].</span>")
