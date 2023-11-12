@@ -377,7 +377,7 @@
 	contains = list(/obj/item/weapon/storage/fancy/crayons,
 					/obj/item/weapon/storage/toolbox/paint,
 					/obj/item/painting_brush,
-					/obj/item/painting_roller,
+					/obj/item/paint_roller,
 					/obj/item/palette,
 					/obj/structure/easel,
 					/obj/item/mounted/frame/painting/custom,

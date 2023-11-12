@@ -588,6 +588,12 @@ var/global/list/damage_icon_parts = list()
 		if(w_uniform.dynamic_overlay)
 			if(w_uniform.dynamic_overlay["[UNIFORM_LAYER]"])
 				var/image/dyn_overlay = w_uniform.dynamic_overlay["[UNIFORM_LAYER]"]
+
+				if(is_fat)
+					dyn_overlay = replace_overlays_icon(dyn_overlay, 'icons/mob/uniform_fat.dmi')
+				else if(species.name in under_uniform.species_fit)
+					dyn_overlay = replace_overlays_icon(dyn_overlay, species.uniform_icons)
+
 				O.overlays += dyn_overlay
 
 		if(w_uniform.blood_DNA && w_uniform.blood_DNA.len)
@@ -636,6 +642,10 @@ var/global/list/damage_icon_parts = list()
 			if(wear_id.dynamic_overlay)
 				if(wear_id.dynamic_overlay["[ID_LAYER]"])
 					var/image/dyn_overlay = wear_id.dynamic_overlay["[ID_LAYER]"]
+
+					if(species.name in ID_worn.species_fit)
+						dyn_overlay = replace_overlays_icon(dyn_overlay, species.id_icons)
+
 					O.overlays += dyn_overlay
 			O.pixel_x = species.inventory_offsets["[slot_wear_id]"]["pixel_x"] * PIXEL_MULTIPLIER
 			O.pixel_y = species.inventory_offsets["[slot_wear_id]"]["pixel_y"] * PIXEL_MULTIPLIER
@@ -710,6 +720,10 @@ var/global/list/damage_icon_parts = list()
 		if(gloves.dynamic_overlay)
 			if(gloves.dynamic_overlay["[GLOVES_LAYER]"])
 				var/image/dyn_overlay = gloves.dynamic_overlay["[GLOVES_LAYER]"]
+
+				if(S.name in gloves.species_fit)
+					dyn_overlay = replace_overlays_icon(dyn_overlay, S.gloves_icons)
+
 				O.overlays += dyn_overlay
 
 		if (istype(gloves, /obj/item/clothing/gloves))
@@ -807,6 +821,10 @@ var/global/list/damage_icon_parts = list()
 			if(glasses.dynamic_overlay)
 				if(glasses.dynamic_overlay["[GLASSES_OVER_HAIR_LAYER]"])
 					var/image/dyn_overlay = glasses.dynamic_overlay["[GLASSES_OVER_HAIR_LAYER]"]
+
+					if(S.name in glasses.species_fit)
+						dyn_overlay = replace_overlays_icon(dyn_overlay, S.glasses_icons)
+
 					O.overlays += dyn_overlay
 			obj_to_plane_overlay(O,GLASSES_OVER_HAIR_LAYER)
 			//overlays_standing[GLASSES_OVER_HAIR_LAYER]	= standing
@@ -821,6 +839,10 @@ var/global/list/damage_icon_parts = list()
 			if(glasses.dynamic_overlay)
 				if(glasses.dynamic_overlay["[GLASSES_LAYER]"])
 					var/image/dyn_overlay = glasses.dynamic_overlay["[GLASSES_LAYER]"]
+
+					if(S.name in glasses.species_fit)
+						dyn_overlay = replace_overlays_icon(dyn_overlay, S.glasses_icons)
+
 					O.overlays += dyn_overlay
 			O.pixel_x = species.inventory_offsets["[slot_glasses]"]["pixel_x"] * PIXEL_MULTIPLIER
 			O.pixel_y = species.inventory_offsets["[slot_glasses]"]["pixel_y"] * PIXEL_MULTIPLIER
@@ -869,6 +891,10 @@ var/global/list/damage_icon_parts = list()
 		if(ears.dynamic_overlay)
 			if(ears.dynamic_overlay["[EARS_LAYER]"])
 				var/image/dyn_overlay = ears.dynamic_overlay["[EARS_LAYER]"]
+
+				if(S.name in ears.species_fit)
+					dyn_overlay = replace_overlays_icon(dyn_overlay, S.ears_icons)
+
 				O.overlays += dyn_overlay
 		if(I.clothing_flags & COLORS_OVERLAY)
 			O.color = I.color
@@ -940,6 +966,10 @@ var/global/list/damage_icon_parts = list()
 		if(shoes.dynamic_overlay)
 			if(shoes.dynamic_overlay["[SHOES_LAYER]"])
 				var/image/dyn_overlay = shoes.dynamic_overlay["[SHOES_LAYER]"] //as far as i know no shoes use this, so for now no one-footed stuff here
+
+				if(S.name in shoes.species_fit)
+					dyn_overlay = replace_overlays_icon(dyn_overlay, S.shoes_icons)
+
 				O.overlays += dyn_overlay
 		if(shoes.blood_DNA && shoes.blood_DNA.len)
 			var/blood_icon_state = "shoeblood"
@@ -1066,7 +1096,7 @@ var/global/list/damage_icon_parts = list()
 				var/image/dyn_overlay = head.dynamic_overlay["[HEAD_LAYER]"]
 
 				if(S.name in I.species_fit)
-					dyn_overlay.icon = S.head_icons
+					dyn_overlay = replace_overlays_icon(dyn_overlay, S.head_icons)
 
 				O.overlays += dyn_overlay
 
@@ -1121,6 +1151,10 @@ var/global/list/damage_icon_parts = list()
 					if(above.dynamic_overlay["[HEAD_LAYER]"])
 						var/image/dyn_overlay = above.dynamic_overlay["[HEAD_LAYER]"]
 						dyn_overlay.pixel_y = (species.inventory_offsets["[slot_head]"]["pixel_y"] + (2 * i)) * PIXEL_MULTIPLIER
+
+						if(S.name in above.species_fit)
+							dyn_overlay = replace_overlays_icon(dyn_overlay, S.head_icons)
+
 						O.overlays += dyn_overlay
 
 				if(above.blood_DNA && above.blood_DNA.len)
@@ -1179,6 +1213,10 @@ var/global/list/damage_icon_parts = list()
 		if(belt.dynamic_overlay)
 			if(belt.dynamic_overlay["[BELT_LAYER]"])
 				var/image/dyn_overlay = belt.dynamic_overlay["[BELT_LAYER]"]
+
+				if(S.name in belt.species_fit)
+					dyn_overlay = replace_overlays_icon(dyn_overlay, S.belt_icons)
+
 				O.overlays += dyn_overlay
 		O.pixel_x = species.inventory_offsets["[slot_belt]"]["pixel_x"] * PIXEL_MULTIPLIER
 		O.pixel_y = species.inventory_offsets["[slot_belt]"]["pixel_y"] * PIXEL_MULTIPLIER
@@ -1230,6 +1268,12 @@ var/global/list/damage_icon_parts = list()
 		if(wear_suit.dynamic_overlay)
 			if(wear_suit.dynamic_overlay["[SUIT_LAYER]"])
 				var/image/dyn_overlay = wear_suit.dynamic_overlay["[SUIT_LAYER]"]
+
+				if((((M_FAT in mutations) && (species.anatomy_flags & CAN_BE_FAT)) || (species.anatomy_flags & IS_BULKY)) && !(wear_suit.icon_override))
+					dyn_overlay = replace_overlays_icon(dyn_overlay, 'icons/mob/suit_fat.dmi')
+				else if(SP.name in wear_suit.species_fit)
+					dyn_overlay = replace_overlays_icon(dyn_overlay, SP.wear_suit_icons)
+
 				O.overlays += dyn_overlay
 
 		if(istype(wear_suit, /obj/item/clothing/suit/strait_jacket) )
@@ -1306,6 +1350,10 @@ var/global/list/damage_icon_parts = list()
 		if(wear_mask.dynamic_overlay)
 			if(wear_mask.dynamic_overlay["[FACEMASK_LAYER]"])
 				var/image/dyn_overlay = wear_mask.dynamic_overlay["[FACEMASK_LAYER]"]
+
+				if(S.name in wear_mask.species_fit)
+					dyn_overlay = replace_overlays_icon(dyn_overlay, S.wear_mask_icons)
+
 				O.overlays += dyn_overlay
 
 		if( !istype(wear_mask, /obj/item/clothing/mask/cigarette) && wear_mask.blood_DNA && wear_mask.blood_DNA.len )
@@ -1369,6 +1417,10 @@ var/global/list/damage_icon_parts = list()
 			if(back.dynamic_overlay)
 				if(back.dynamic_overlay["[BACK_LAYER]"])
 					var/image/dyn_overlay = back.dynamic_overlay["[BACK_LAYER]"]
+
+					if(S.name in back.species_fit)
+						dyn_overlay = replace_overlays_icon(dyn_overlay, S.back_icons)
+
 					O.overlays += dyn_overlay
 			O.pixel_x = species.inventory_offsets["[slot_back]"]["pixel_x"] * PIXEL_MULTIPLIER
 			O.pixel_y = species.inventory_offsets["[slot_back]"]["pixel_y"] * PIXEL_MULTIPLIER

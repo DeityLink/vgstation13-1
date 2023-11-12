@@ -507,6 +507,18 @@ var/list/datum/stack_recipe/cardboard_recipes = list (
 	new/datum/stack_recipe("empty recharge pack",           /obj/structure/vendomatpack/custom,                  4  ),
 	)
 
+/* =========================================================================
+							CLOTH RECIPES
+========================================================================= */
+var/list/datum/stack_recipe/cloth_recipes_by_hand = list (
+	new/datum/stack_recipe("Cleaning Rag",	/obj/item/weapon/reagent_containers/glass/rag,	1,	time = 20),
+	new/datum/stack_recipe("Toga",			/obj/item/clothing/under/toga,					3,	time = 50),
+	)
+
+var/list/datum/stack_recipe/cloth_recipes_with_tool = list (
+	new/datum/stack_recipe("Cleaning Rag",	/obj/item/weapon/reagent_containers/glass/rag,	1,	time = 30),
+	)
+
 /* ========================================================================
 							LEATHER RECIPES
 ======================================================================== */
@@ -523,7 +535,7 @@ var/list/datum/stack_recipe/leather_recipes = list (
 	new/datum/stack_recipe/leather("Bullwhip",		/obj/item/weapon/gun/hookshot/whip,			10,	time = 100,),
 	new/datum/stack_recipe/leather("Cowboy hat",	/obj/item/clothing/head/cowboy,				4,	time = 70,),
 	new/datum/stack_recipe/leather("Cowboy boots",	/obj/item/clothing/shoes/jackboots/cowboy,	4, 	time = 80,),
-	new/datum/stack_recipe/leather("Rags",			/obj/item/clothing/under/rags,				3,	time = 80,),
+	new/datum/stack_recipe/leather("Rags",			/obj/item/clothing/under/leather_rags,		3,	time = 80,),
 	new/datum/stack_recipe/leather("Leather gloves",/obj/item/clothing/gloves/botanic_leather,	2,	time = 90,),
 	new/datum/stack_recipe/leather("Leather shoes",	/obj/item/clothing/shoes/leather,			4,	time = 80,),
 	new/datum/stack_recipe/leather("Leather satchel",/obj/item/weapon/storage/backpack/satchel,	12,	time = 130,),

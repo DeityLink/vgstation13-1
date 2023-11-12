@@ -12,6 +12,7 @@
 /obj/item/stack
 	gender = PLURAL
 	origin_tech = Tc_MATERIALS + "=1"
+	icon = 'icons/obj/stacks_sheets.dmi'
 	var/list/datum/stack_recipe/recipes
 	var/singular_name
 	var/irregular_plural //"Teeth", for example. Without this, you'd see "There are 30 tooths in the stack."

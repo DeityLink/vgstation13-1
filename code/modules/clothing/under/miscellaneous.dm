@@ -989,8 +989,8 @@
 	item_state = icon_state
 	_color = icon_state
 
-/obj/item/clothing/under/rags
-	name ="rags"
+/obj/item/clothing/under/leather_rags
+	name ="leather rags"
 	desc = "Some leather scraps tied together."
 	icon_state = "rags"
 	item_state = "rags"
@@ -998,3 +998,27 @@
 	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/clothing.dmi', "right_hand" = 'icons/mob/in-hand/right/clothing.dmi')
 	clothing_flags = ONESIZEFITSALL
 	species_fit = list(INSECT_SHAPED, VOX_SHAPED, GREY_SHAPED)
+
+/obj/item/clothing/under/toga
+	name ="toga"
+	desc = "Linen cloth wrapped in a wearable fashion."
+	icon_state = "toga"
+	item_state = "toga"
+	_color = "toga"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/clothing.dmi', "right_hand" = 'icons/mob/in-hand/right/clothing.dmi')
+	clothing_flags = COLORS_OVERLAY
+	//TODO
+	//clothing_flags = ONESIZEFITSALL
+	//species_fit = list(INSECT_SHAPED, VOX_SHAPED, GREY_SHAPED)
+	dyeable_parts = list("sash")
+	hood = new /obj/item/clothing/head/toga_cap()
+	color = "#E5E4DC"
+
+/obj/item/clothing/head/toga_cap
+	name = "toga cap"
+	desc = "The wrappings of a toga allow for an improvised cap."
+	icon_state = "toga_cap"
+	item_state = "toga_cap"
+	species_fit = list(INSECT_SHAPED)
+	clothing_flags = COLORS_OVERLAY
+	body_parts_covered = HEAD|EARS|MASKHEADHAIR

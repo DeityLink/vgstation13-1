@@ -1,9 +1,10 @@
 
 /obj/item/stack/tile
+	icon = 'icons/obj/tiles.dmi'
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/sheets_n_ores.dmi', "right_hand" = 'icons/mob/in-hand/right/sheets_n_ores.dmi')
 	var/material
 	var/datum/paint_overlay/paint_overlay = null
 	var/list/stacked_paint = list()
-	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/sheets_n_ores.dmi', "right_hand" = 'icons/mob/in-hand/right/sheets_n_ores.dmi')
 
 /obj/item/stack/tile/clean_act(var/cleanliness)//1 = water, 2 = space cleaner, 3 = bleach/paint thinner
 	..()
@@ -36,7 +37,7 @@
 	overlays.len = 0
 	if (paint_overlay && paint_overlay.sub_overlays.len > 0)
 		var/image/O = pick(paint_overlay.sub_overlays)
-		var/image/I = image('icons/obj/items.dmi',src,"tile-paint")
+		var/image/I = image('icons/obj/tiles.dmi',src,"tile-paint")
 		I.color = O.color
 		overlays += I
 

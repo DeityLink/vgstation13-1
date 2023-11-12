@@ -536,6 +536,39 @@
 			to_chat(user, "<span class='notice'>You finish deconstructing \the [src].</span>")
 			new /obj/item/stack/sheet/metal/(loc, 20)
 			qdel(src)
+	if(istype(W,/obj/item/clothing))
+		var/obj/item/clothing/C = W
+		if (C.clothing_flags & COLORS_OVERLAY)
+			var/dye_target = "full"
+			if (C.dyeable_parts.len > 0)
+				var/list/choices = list("full")
+				choices += C.dyeable_parts
+				dye_target = input("Which part do you want to dye?","Clothing Dyeing",1) as null|anything in choices
+			if (!dye_target)
+				return
+			to_chat(user, "<span class='notice'>You begin dyeing \the [src][(dye_target != "full") ? "'s [dye_target]" : ""].</span>")
+			playsound(loc, 'sound/effects/slosh.ogg', 25, 1)
+			if (do_after(user, src, 30))
+				var/mixed_color = mix_color_from_reagents(reagents.reagent_list, TRUE)
+				var/mixed_alpha = mix_alpha_from_reagents(reagents.reagent_list)
+				if (!mixed_color)
+					to_chat(user, "<span class='warning'>It seems that there are no pigments among the reagents in the cauldron.</span>")
+					for(var/datum/reagent/R in reagents.reagent_list)
+						R.reaction_obj(C, R.volume)
+					C.update_icon()
+					user.update_inv_hands()
+					return
+				if (dye_target == "full")
+					C.color = mixed_color
+					C.update_icon()
+					user.update_inv_hands()
+				else
+					C.dyed_parts[dye_target] = list(mixed_color,mixed_alpha)
+					C.update_icon()
+					user.update_inv_hands()
+		else
+			to_chat(user, "<span class='warning'>Can't dye that.</span>")
+		return
 	..()
 
 /obj/structure/reagent_dispensers/cauldron/on_reagent_change()

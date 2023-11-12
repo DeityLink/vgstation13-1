@@ -139,8 +139,49 @@
 	desc = "This roll of cloth is made from only the finest chemicals and bunny rabbits."
 	singular_name = "cloth roll"
 	icon_state = "sheet-cloth"
+	item_state = "sheet-cloth"
 	origin_tech = Tc_MATERIALS + "=2"
 	autoignition_temperature = AUTOIGNITION_FABRIC
+
+/obj/item/stack/sheet/cloth/New(loc, amount, var/param_color = null)
+	..()
+
+	recipes = cloth_recipes_by_hand
+	update_icon()
+
+/obj/item/stack/sheet/cloth/copy_evidences(var/obj/item/stack/from)
+	..(from)
+	color = from.color
+	update_icon()
+
+/obj/item/stack/sheet/cloth/use(var/amount)
+	. = ..()
+	update_icon()
+
+/obj/item/stack/sheet/cloth/add(var/amount)
+	. = ..()
+	update_icon()
+
+/obj/item/stack/sheet/cloth/update_icon()
+	if(amount == 1)
+		icon_state = "sheet-cloth-single"
+		name = "piece of [initial(name)]"
+	else if(amount >= (MAX_SHEET_STACK_AMOUNT / 2))
+		icon_state = "sheet-cloth-large"
+		name = singular_name
+	else
+		icon_state = "sheet-cloth"
+		name = singular_name
+
+/obj/item/stack/sheet/cloth/examine()
+	..()
+	if(amount == 1)
+		to_chat(usr, "<span class='info'>Enough for a rag maybe...</span>")
+	else if(amount >= (MAX_SHEET_STACK_AMOUNT / 2))
+		to_chat(usr, "<span class='info'>Now all you need is a loom or some sewing implements.</span>")
+	else
+		to_chat(usr, "<span class='info'>Can be used on its own to produce some basic items and clothing, but more can be made using the proper tools.</span>")
+
 
 /*
  * Cardboard
