@@ -46,7 +46,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	if (!target.splashable())
 		return
 
-	if((flags & OPENCONTAINER) && reagents.total_volume >= 0 && !isshelf(target) && !is_open_container(target))
+	if((flags & OPENCONTAINER) && reagents.total_volume >= 0 && !isshelf(target) && !target.is_open_container())
 		var/datum/reagent/R = reagents.get_master_reagent()
 		target.visible_message("<span class='warning'>\The [target] has been splashed with [R.name] by \the [user]!</span>")
 		reagents.reaction(target, TOUCH)

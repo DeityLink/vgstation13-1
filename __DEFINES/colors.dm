@@ -9,3 +9,5 @@
 
 #define DYNAMIC_TEXT_COLOR_V_MIN 60 //Dynamically-colored text such as that describing blood-stains will have its HSV V brightness clamped to between these.
 #define DYNAMIC_TEXT_COLOR_V_MAX 200
+
+#define COLOR_LINEN "#E5E4DC"

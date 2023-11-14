@@ -53,6 +53,18 @@ LINEN BINS
 //todo: more cutting tools?
 //todo: sharp thing code/game/objects/objs.dm
 
+/obj/item/weapon/bedsheet/linen
+	//crafted from cloth.
+	icon_state = "sheetdyeable"
+	color = COLOR_LINEN
+	_color = "linen"
+
+/obj/item/weapon/bedsheet/linen/New()
+	..()
+	var/image/I = image(icon, src, "sheetdyeable-overlay")
+	I.appearance_flags = RESET_COLOR
+	overlays += I
+
 /obj/item/weapon/bedsheet/blue
 	icon_state = "sheetblue"
 	_color = "blue"
@@ -126,6 +138,26 @@ LINEN BINS
 
 /obj/item/weapon/bedsheet/brown/cargo
 	_color = "cargo"		//exists for washing machines, is not different from brown bedsheet in any way
+
+/obj/item/weapon/bedsheet/dye_act(var/obj/structure/reagent_dispensers/cauldron/cauldron, var/mob/user)
+	to_chat(user, "<span class='notice'>You begin dyeing \the [src].</span>")
+	playsound(cauldron.loc, 'sound/effects/slosh.ogg', 25, 1)
+	if (do_after(user, cauldron, 30))
+		var/mixed_color = mix_color_from_reagents(cauldron.reagents.reagent_list, TRUE)
+		var/mixed_alpha = mix_alpha_from_reagents(cauldron.reagents.reagent_list)
+		if (copytext(icon_state, 1, 6) == "plaid")
+			icon_state = "plaidsheetdyeable"
+			color = BlendRGB(color, mixed_color, mixed_alpha/255)
+		else
+			overlays.len = 0
+			icon_state = "sheetdyeable"
+			color = BlendRGB(color, mixed_color, mixed_alpha/255)
+			var/image/I = image(icon, src, "sheetdyeable-overlay")
+			I.appearance_flags = RESET_COLOR
+			overlays += I
+			update_blood_overlay()
+		user.update_inv_hands()
+	return TRUE
 
 /obj/structure/bedsheetbin
 	name = "linen bin"

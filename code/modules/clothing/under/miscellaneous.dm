@@ -999,6 +999,8 @@
 	clothing_flags = ONESIZEFITSALL
 	species_fit = list(INSECT_SHAPED, VOX_SHAPED, GREY_SHAPED)
 
+///////////////////////////////////////////////////////////////////////////
+
 /obj/item/clothing/under/toga
 	name ="toga"
 	desc = "Linen cloth wrapped in a wearable fashion."
@@ -1012,8 +1014,9 @@
 	//species_fit = list(INSECT_SHAPED, VOX_SHAPED, GREY_SHAPED)
 	dyeable_parts = list("sash")
 	hood = new /obj/item/clothing/head/toga_cap()
-	color = "#E5E4DC"
+	color = COLOR_LINEN
 
+//cap is automatically deployed by the uniform
 /obj/item/clothing/head/toga_cap
 	name = "toga cap"
 	desc = "The wrappings of a toga allow for an improvised cap."
@@ -1021,4 +1024,6 @@
 	item_state = "toga_cap"
 	species_fit = list(INSECT_SHAPED)
 	clothing_flags = COLORS_OVERLAY
-	body_parts_covered = HEAD|EARS|MASKHEADHAIR
+	body_parts_covered = HEAD|EARS|HIDEHEADHAIR
+
+///////////////////////////////////////////////////////////////////////////

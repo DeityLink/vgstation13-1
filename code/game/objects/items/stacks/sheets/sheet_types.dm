@@ -142,12 +142,55 @@
 	item_state = "sheet-cloth"
 	origin_tech = Tc_MATERIALS + "=2"
 	autoignition_temperature = AUTOIGNITION_FABRIC
+	fire_fuel = 1
+	siemens_coefficient = 0.2
+	w_type = RECYK_FABRIC
+	starting_materials = list(MAT_FABRIC = CC_PER_SHEET_FABRIC)
+	mat_type = MAT_FABRIC
+	perunit = CC_PER_SHEET_FABRIC
+	color = COLOR_LINEN
 
 /obj/item/stack/sheet/cloth/New(loc, amount, var/param_color = null)
 	..()
 
 	recipes = cloth_recipes_by_hand
 	update_icon()
+
+/obj/item/stack/sheet/cloth/getFireFuel()
+	return (amount - 1 + fire_fuel) / 10 //Each piece essentially has 0.1 fire_fuel.
+
+/obj/item/stack/sheet/cloth/burnFireFuel(used_fuel_ratio, used_reactants_ratio)
+	var/expected_to_burn = used_fuel_ratio * used_reactants_ratio * amount //The expected number of planks to burn. Can be fractional.
+	var/actually_burned = round(expected_to_burn) //Definitely burn the floor of that many.
+	fire_fuel -= expected_to_burn - actually_burned //Subtract the remainder from fire_fuel.
+	if(fire_fuel <= 0) //If that brings it below zero, burn another plank and increase fire_fuel to track the next fractional plank burned.
+		++actually_burned
+		++fire_fuel
+	if(actually_burned)
+		var/ashtype = ashtype()
+		new ashtype(loc) //use() will delete src without calling ashify(), so here we spawn ashes if any planks burned, whether or not the object was destroyed.
+	use(actually_burned)
+
+/obj/item/stack/sheet/cloth/can_stack_with(obj/item/other_stack)
+	if(ispath(other_stack) && (src.type == other_stack))
+		return (color == COLOR_LINEN)
+
+	if (src.type == other_stack.type)
+		if (src.color == other_stack.color)
+			return TRUE
+		else
+			to_chat(usr, "<span class='warning'>You cannot stack cloth rolls of different colors.</span>")
+	return FALSE
+
+/obj/item/stack/sheet/cloth/dye_act(var/obj/structure/reagent_dispensers/cauldron/cauldron, var/mob/user)
+	to_chat(user, "<span class='notice'>You begin dyeing \the [src].</span>")
+	playsound(cauldron.loc, 'sound/effects/slosh.ogg', 25, 1)
+	if (do_after(user, cauldron, 30))
+		var/mixed_color = mix_color_from_reagents(cauldron.reagents.reagent_list, TRUE)
+		var/mixed_alpha = mix_alpha_from_reagents(cauldron.reagents.reagent_list)
+		color = BlendRGB(color, mixed_color, mixed_alpha/255)
+		user.update_inv_hands()
+	return TRUE
 
 /obj/item/stack/sheet/cloth/copy_evidences(var/obj/item/stack/from)
 	..(from)

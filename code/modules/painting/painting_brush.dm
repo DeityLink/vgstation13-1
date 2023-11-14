@@ -93,6 +93,25 @@
 		update_icon()
 	else if (isfloor(target))
 		paint_doodle(user,target)
+	else if (ishuman(target) && paint_color)
+		var/mob/living/carbon/human/H = target
+		var/paint_data = list(
+			"viruses"		=null,
+			"blood_DNA"		="wet paint",
+			"blood_colour"	= paint_color,
+			"blood_type"	="paint",
+			"resistances"	=null,
+			"trace_chem"	=null,
+			"virus2" 		=list(),
+			"immunity" 		=null,
+			)
+		if (user.zone_sel.selecting == LIMB_LEFT_HAND || user.zone_sel.selecting == LIMB_RIGHT_HAND)
+			H.bloody_hands_from_data(copy_blood_data(paint_data),2,src)
+		else if (user.zone_sel.selecting == LIMB_LEFT_FOOT || user.zone_sel.selecting == LIMB_RIGHT_FOOT)
+			H.add_blood_to_feet(3, paint_color, list("wet paint" = "paint"))
+		else
+			H.bloody_body_from_data(copy_blood_data(paint_data),0,src)
+		playsound(src, get_sfx("mop"), 5, 1)
 
 //presumably this will allow painting on the floor, credit to Anonymous user No.453861032
 	if(istype(target, /turf/simulated)) 
@@ -252,6 +271,25 @@
 		if (T != W)
 			_dir = get_dir_cardinal(W,T)
 		W.apply_paint_stroke(paint_color, paint_alpha, _dir, "wall_side", blood_data, nano_paint)
+		playsound(src, get_sfx("mop"), 5, 1)
+	else if (ishuman(target) && paint_color)
+		var/mob/living/carbon/human/H = target
+		var/paint_data = list(
+			"viruses"		=null,
+			"blood_DNA"		="wet paint",
+			"blood_colour"	= paint_color,
+			"blood_type"	="paint",
+			"resistances"	=null,
+			"trace_chem"	=null,
+			"virus2" 		=list(),
+			"immunity" 		=null,
+			)
+		if (user.zone_sel.selecting == LIMB_LEFT_HAND || user.zone_sel.selecting == LIMB_RIGHT_HAND)
+			H.bloody_hands_from_data(copy_blood_data(paint_data),2,src)
+		else if (user.zone_sel.selecting == LIMB_LEFT_FOOT || user.zone_sel.selecting == LIMB_RIGHT_FOOT)
+			H.add_blood_to_feet(3, paint_color, list("wet paint" = "paint"))
+		else
+			H.bloody_body_from_data(copy_blood_data(paint_data),0,src)
 		playsound(src, get_sfx("mop"), 5, 1)
 
 /obj/item/paint_roller/update_icon()

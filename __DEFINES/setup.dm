@@ -1111,6 +1111,7 @@ var/default_colour_matrix = list(1,0,0,0,\
 #define RECYK_ELECTRONIC 5
 #define RECYK_WOOD       6
 #define RECYK_PLASTIC    7
+#define RECYK_FABRIC     8
 
 ////////////////
 // job.info_flags

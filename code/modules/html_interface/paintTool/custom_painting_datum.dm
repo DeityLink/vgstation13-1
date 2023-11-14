@@ -352,6 +352,8 @@
 			var/turf/simulated/floor/F = parent
 			F.render_advanced_graffiti(src, usr)
 
+		playsound(usr.loc, get_sfx("mop"), 10, 1)
+
 		return TRUE
 
 /datum/custom_painting/proc/render_on(icon/ico, offset_x = src.offset_x, offset_y = src.offset_y)

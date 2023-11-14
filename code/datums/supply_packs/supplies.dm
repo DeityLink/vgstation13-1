@@ -372,7 +372,7 @@
 	group = "Supplies"
 	containsdesc = "Standard firefighting gear. Includes two full suits to protect upcoming firemen against the dangers of fire, plus two classic fire extinguishers. Fire axe not included."
 
-/datum/supply_packs/artscrafts
+/datum/supply_packs/paintgeneral
 	name = "Painter general supplies"
 	contains = list(/obj/item/weapon/storage/fancy/crayons,
 					/obj/item/weapon/storage/toolbox/paint,
@@ -393,7 +393,7 @@
 	containsicon = "painting"
 	containsdesc = "An all-in-one crate containing everything a painter needs to get started."
 
-/datum/supply_packs/artscrafts
+/datum/supply_packs/paintsamples
 	name = "Random paint samples"
 	contains = list(/obj/item/weapon/reagent_containers/glass/paint/filled/random,
 					/obj/item/weapon/reagent_containers/glass/paint/filled/random,
@@ -404,7 +404,7 @@
 					/obj/item/weapon/reagent_containers/glass/paint/filled/random,
 					/obj/item/weapon/reagent_containers/glass/paint/filled/random,
 					)
-	cost = 50
+	cost = 30
 	containertype = /obj/structure/closet/crate
 	containername = "\improper Paints crate"
 	group = "Supplies"

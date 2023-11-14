@@ -510,13 +510,18 @@ var/list/datum/stack_recipe/cardboard_recipes = list (
 /* =========================================================================
 							CLOTH RECIPES
 ========================================================================= */
+/datum/stack_recipe/cloth/finish_building(var/mob/usr, var/obj/item/stack/S, var/obj/R)
+	R.color = S.color
+	return 1
+
 var/list/datum/stack_recipe/cloth_recipes_by_hand = list (
-	new/datum/stack_recipe("Cleaning Rag",	/obj/item/weapon/reagent_containers/glass/rag,	1,	time = 20),
-	new/datum/stack_recipe("Toga",			/obj/item/clothing/under/toga,					3,	time = 50),
+	new/datum/stack_recipe/cloth("Cleaning Rag",	/obj/item/weapon/reagent_containers/glass/rag,	1,	time = 20),
+	new/datum/stack_recipe/cloth("Toga",			/obj/item/clothing/under/toga,					3,	time = 50),
+	new/datum/stack_recipe/cloth("Bedsheet",		/obj/item/weapon/bedsheet/linen,				2,	time = 20),
 	)
 
 var/list/datum/stack_recipe/cloth_recipes_with_tool = list (
-	new/datum/stack_recipe("Cleaning Rag",	/obj/item/weapon/reagent_containers/glass/rag,	1,	time = 30),
+	new/datum/stack_recipe/cloth("Cleaning Rag",	/obj/item/weapon/reagent_containers/glass/rag,	1,	time = 30),
 	)
 
 /* ========================================================================

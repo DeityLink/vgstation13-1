@@ -129,6 +129,8 @@
 /obj/item/weapon/reagent_containers/spray/cleaner/update_icon()
 	overlays -= content_reagent
 	if (!is_empty())
+		if (!content_reagent)
+			content_reagent = image(icon,src,"cleaner-content3")
 		content_reagent.icon_state = "cleaner-content[clamp(round(3*reagents.total_volume/reagents.maximum_volume),1,3)]"
 		content_reagent.color = mix_color_from_reagents(reagents.reagent_list)
 		content_reagent.alpha = mix_alpha_from_reagents(reagents.reagent_list)

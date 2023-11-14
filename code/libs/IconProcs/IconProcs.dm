@@ -436,6 +436,10 @@
 	amount<0 or amount>1 are allowed
  */
 /proc/BlendRGB(rgb1, rgb2, amount)
+	if (!rgb1)
+		rgb1 = "#ffffff"
+	if (!rgb2)
+		rgb2 = "#ffffff"
 	var/list/RGB1 = ReadRGB(rgb1)
 	var/list/RGB2 = ReadRGB(rgb2)
 

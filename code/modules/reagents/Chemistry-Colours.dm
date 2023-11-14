@@ -37,11 +37,13 @@
 
 	var/alpha
 	var/total_alpha
+	var/total_volume
 
 	for(var/datum/reagent/reagent in reagent_list)
-		total_alpha += reagent.alpha
+		total_alpha += (reagent.alpha * reagent.volume)
+		total_volume += reagent.volume
 
-	alpha = total_alpha / reagent_list.len
+	alpha = total_alpha / total_volume
 
 	return alpha
 

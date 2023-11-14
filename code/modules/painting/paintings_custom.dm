@@ -96,6 +96,7 @@
 				// Reagent mix is opaque enough to paint the canvas, do so
 				else
 					painting_data.bucket_fill(mix_color_from_reagents(container.reagents.reagent_list), container.reagents.has_reagent(NANOPAINT))
+				playsound(loc, 'sound/effects/slosh.ogg', 25, 1)
 				container.reagents.remove_any(5)
 				update_painting(TRUE)
 
@@ -113,6 +114,7 @@
 			if (do_after(user, src, 10))
 				smear((painting_height*painting_width)/2, 1)
 				update_painting(TRUE)
+				playsound(loc, get_sfx("mop"), 10, 1)
 			return
 
 		to_chat(usr, "<span class='warning'>You start covering \the [src] in paint using \the [P].</span>")
