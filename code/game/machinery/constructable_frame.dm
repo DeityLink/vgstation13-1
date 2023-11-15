@@ -1673,15 +1673,25 @@ to destroy them and players will be able to make replacements.
 
 /obj/item/weapon/circuitboard/suit_storage_unit
 	name = "Circuit board (Suit Storage Unit)"
-	desc = "A circuit board used to clean, charge, and store a hardsuit"
+	desc = "A circuit board used to clean, charge, and store a hardsuit."
 	build_path = /obj/machinery/suit_storage_unit
 	board_type = MACHINE
 	origin_tech = Tc_ENGINEERING + "=2;" + Tc_PROGRAMMING + "=2;" + Tc_POWERSTORAGE + "=2"
 	req_components = list(
 		/obj/item/weapon/stock_parts/micro_laser = 2,
 		/obj/item/weapon/stock_parts/manipulator = 1,
-		/obj/item/weapon/stock_parts/scanning_module = 1,	
-		/obj/item/weapon/stock_parts/capacitor = 1,	
+		/obj/item/weapon/stock_parts/scanning_module = 1,
+		/obj/item/weapon/stock_parts/capacitor = 1,
 		/obj/item/weapon/stock_parts/console_screen = 1
 	)
-	
+
+/obj/item/weapon/circuitboard/electric_loom
+	name = "Circuit board (Electric Loom)"
+	desc = "A circuit board used to build a machine that can turn flax into cloth."
+	build_path = /obj/machinery/electric_loom
+	board_type = MACHINE
+	origin_tech = Tc_ENGINEERING + "=3;" + Tc_PROGRAMMING + "=2;" + Tc_BIOTECH + "=3"
+	req_components = list(
+		/obj/item/weapon/stock_parts/manipulator = 3,
+		/obj/item/weapon/stock_parts/matter_bin = 2,
+	)

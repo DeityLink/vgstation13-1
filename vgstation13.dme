@@ -759,6 +759,7 @@
 #include "code\game\machinery\vending_packs.dm"
 #include "code\game\machinery\washing_machine.dm"
 #include "code\game\machinery\weathercontrol.dm"
+#include "code\game\machinery\weaving.dm"
 #include "code\game\machinery\wishgranter.dm"
 #include "code\game\machinery\atmoalter\area_atmos_computer.dm"
 #include "code\game\machinery\atmoalter\canister.dm"
