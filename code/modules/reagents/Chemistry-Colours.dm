@@ -12,6 +12,9 @@
 	var/vol_temp
 	// see libs/IconProcs/IconProcs.dm
 	for(var/datum/reagent/reagent in reagent_list)
+		if (reagent.id == BLACKCOLOR)
+			return "#000000"
+			continue
 		if (pigments_only && !(reagent.flags & CHEMFLAG_PIGMENT))
 			continue
 		if(reagent.id == BLOOD && reagent.data["blood_colour"])
@@ -40,6 +43,8 @@
 	var/total_volume
 
 	for(var/datum/reagent/reagent in reagent_list)
+		if (reagent.id == BLACKCOLOR)
+			return 255
 		total_alpha += (reagent.alpha * reagent.volume)
 		total_volume += reagent.volume
 

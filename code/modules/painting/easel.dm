@@ -4,6 +4,9 @@
 	icon = 'icons/obj/painting_items.dmi'
 	icon_state = "easel"
 	density = 1
+	plane = ABOVE_HUMAN_PLANE
+	layer = EASEL_LAYER
+
 	var/obj/structure/painting/custom/painting = null
 
 	var/rest_overlay = "easel_rest" // Piece the canvas will rest upon

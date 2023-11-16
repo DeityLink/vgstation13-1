@@ -507,7 +507,7 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 			return NO_REACTION_UNMET_TEMP_COND
 
 		var/multiplier = min(multipliers) * multiplier_override
-		var/list/preserved_data = null
+		var/list/preserved_data = list()
 		for(var/B in C.required_reagents)
 			req_reag_amt = C.required_reagents[B]
 			if(islist(B))
@@ -975,6 +975,12 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 
 /datum/reagents/proc/is_full()
 	return total_volume >= maximum_volume
+
+/datum/reagents/proc/get_max_paint_light()
+	var/max_paint_light = PAINTLIGHT_NONE
+	for (var/datum/reagent/R in reagent_list)
+		max_paint_light = max(max_paint_light, R.paint_light)
+	return max_paint_light
 
 /datum/reagents/proc/get_overall_mass() //currently unused
 	//M = DV

@@ -107,10 +107,6 @@
 
 	..()
 
-/obj/machinery/atmospherics/pipe/clean_act(var/cleanliness)
-	if (cleanliness >= CLEANLINESS_BLEACH)
-		color = ""
-
 /obj/machinery/atmospherics/pipe/simple
 	icon = 'icons/obj/pipes.dmi'
 	icon_state = "intact"

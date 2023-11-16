@@ -551,7 +551,3 @@ By design, d1 is the smallest direction and d2 is the highest
 
 /obj/structure/cable/proc/hasDir(var/dir)
 	return (d1 == dir || d2 == dir)
-
-/obj/structure/cable/clean_act(var/cleanliness)
-	if (cleanliness >= CLEANLINESS_BLEACH)
-		color = ""

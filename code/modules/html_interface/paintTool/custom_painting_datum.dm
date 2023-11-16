@@ -64,7 +64,13 @@
 		for (var/obj/item/palette/pal in user.held_items)
 			for (var/c in pal.stored_colours)
 				palette += pal.stored_colours[c]
-				nano_palette += (pal.nanopaint_indexes[c] ? "#FFFFFF" : "#161616")
+				switch(pal.nanopaint_indexes[c])
+					if (PAINTLIGHT_NONE)
+						nano_palette += "#161616"
+					if (PAINTLIGHT_LIMITED)
+						nano_palette += "#999999"
+					if (PAINTLIGHT_FULL)
+						nano_palette += "#FFFFFF"
 
 		var/obj/item/painting_brush/b = held_item
 		if (b.paint_color)
@@ -74,7 +80,13 @@
 			//  so make sure we're not adding it again to the list
 			if (!(b.paint_color in palette))
 				palette += b.paint_color
-				nano_palette += (b.nano_paint ? "#FFFFFF" : "#161616")
+				switch(b.nano_paint)
+					if (PAINTLIGHT_NONE)
+						nano_palette += "#161616"
+					if (PAINTLIGHT_LIMITED)
+						nano_palette += "#999999"
+					if (PAINTLIGHT_FULL)
+						nano_palette += "#FFFFFF"
 			base_color = b.paint_color
 			nano_paint = b.nano_paint
 
@@ -212,10 +224,10 @@
 			bitmap[new_index] = colors_to_move[1]
 			nanomap[new_index] = colors_to_move[2]
 
-/datum/custom_painting/proc/bucket_fill(var/color,var/nanopaint=FALSE)
+/datum/custom_painting/proc/bucket_fill(var/color,var/nanopaint=PAINTLIGHT_NONE)
 	bitmap = list()
 	nanomap = list()
-	if (nanopaint)
+	if (nanopaint != PAINTLIGHT_NONE)
 		for (var/i = 0, i < bitmap_height * bitmap_width, i++)
 			bitmap += color
 			if (uppertext(color) == "#FFFFFF")

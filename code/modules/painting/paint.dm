@@ -22,6 +22,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	species_fit = list(INSECT_SHAPED)
 	armor = list(melee = 8, bullet = 3, laser = 3, energy = 0, bomb = 1, bio = 1, rad = 0)
 	slot_flags = SLOT_HEAD
+	controlled_splash = TRUE
 
 	var/icon/spots
 	var/last_pigments = ""
@@ -39,24 +40,9 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 /obj/item/weapon/reagent_containers/glass/paint/mop_act(obj/item/weapon/mop/M, mob/user)
 	return 0
 
-/obj/item/weapon/reagent_containers/glass/paint/afterattack(var/atom/target, mob/user , flag)
-	if(!flag || user.stat)
-		return
-
-	if (!target.splashable())
-		return
-
-	if((flags & OPENCONTAINER) && reagents.total_volume >= 0 && !isshelf(target) && !target.is_open_container())
-		var/datum/reagent/R = reagents.get_master_reagent()
-		target.visible_message("<span class='warning'>\The [target] has been splashed with [R.name] by \the [user]!</span>")
-		reagents.reaction(target, TOUCH)
-		reagents.remove_any(amount_per_transfer_from_this)
-		playsound(target.loc, 'sound/effects/slosh.ogg', 25, 1)
-		if (prob(50))
-			add_spots()
-		return
-	else
-		return ..()
+/obj/item/weapon/reagent_containers/glass/paint/splash_special()
+	if (prob(50))
+		add_spots()
 
 //manipulating the bucket causes it to spill some of its paint on itself, getting dirtier and dirtier
 /obj/item/weapon/reagent_containers/glass/paint/pickup(var/mob/user)
@@ -158,12 +144,11 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	update_icon()
 
 /obj/item/weapon/reagent_containers/glass/paint/clean_act(var/cleanliness)
-	if (cleanliness >= CLEANLINESS_SPACECLEANER)
-		color = ""
+	..()
 	if (cleanliness >= CLEANLINESS_BLEACH)
 		spots = icon(icon,"paint_spots")
 		last_pigments = ""
-	on_reagent_change()
+		on_reagent_change()
 
 /obj/item/weapon/reagent_containers/glass/paint/proc/add_spots(var/spots_to_add = 1, var/color_override)
 	if (!(flags & OPENCONTAINER))
@@ -277,7 +262,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	/datum/reagent/paint 			= Acrylic Paint
 	/datum/reagent/paint/nanopaint	= Nano Paint
 	/datum/reagent/paint/flaxoil	= Flax Oil
-	/datum/reagent/paint_remover	= Acetone
+	/datum/reagent/acetone			= Acetone
 */
 
 /datum/reagent/paint
@@ -392,6 +377,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	name = "Nano Paint"
 	id = NANOPAINT
 	description = "A paint with unaturally bright properties."
+	paint_light = PAINTLIGHT_FULL
 
 //Mixing Nano-paints together adds them together using the RGB color space
 /datum/reagent/paint/nanopaint/handle_data_mix(var/list/added_data=null, var/added_volume, var/mob/admin)
@@ -549,7 +535,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 
 //----------------------------------------------------------------------------------------------------
 
-/datum/reagent/paint_remover
+/datum/reagent/acetone
 	name = "Acetone"
 	id = ACETONE
 	description = "Removes paint off floors, and everywhere else."
@@ -557,7 +543,7 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 	color = "#303030"
 	alpha = 100
 
-/datum/reagent/paint_remover/reaction_turf(var/turf/T, var/volume)
+/datum/reagent/acetone/reaction_turf(var/turf/T, var/volume)
 	if(..())
 		return TRUE
 
@@ -567,13 +553,31 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 
 	T.remove_paint_overlay(TRUE)
 
-/datum/reagent/paint_remover/reaction_obj(var/turf/T, var/volume)
+/datum/reagent/acetone/reaction_obj(var/obj/O, var/volume)
 	if(..())
 		return TRUE
 
+	if ("wet paint" in O.blood_DNA)
+		O.clean_blood()
+	O.color = ""
 
+/datum/reagent/acetone/reaction_mob(var/mob/living/M, var/method = TOUCH, var/volume, var/list/zone_sels = ALL_LIMBS)
+	if(..())
+		return TRUE
 
-/datum/reagent/paint_remover/on_mob_life(var/mob/living/M)
+	if(iscarbon(M))
+		var/mob/living/carbon/H = M
+		for(var/obj/item/I in H.held_items)
+			if ("wet paint" in I.blood_DNA)
+				I.clean_blood()
+
+		for(var/obj/item/clothing/C in M.get_equipped_items())
+			if ("wet paint" in C.blood_DNA)
+				if (C.clean_blood())
+					H.update_inv_by_slot(C.slot_flags)
+	M.color = ""
+
+/datum/reagent/acetone/on_mob_life(var/mob/living/M)
 	if(..())
 		return 1
 	for (var/datum/reagent/R in M.reagents.reagent_list)

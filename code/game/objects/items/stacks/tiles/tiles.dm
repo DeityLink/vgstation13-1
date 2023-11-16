@@ -6,7 +6,7 @@
 	var/datum/paint_overlay/paint_overlay = null
 	var/list/stacked_paint = list()
 
-/obj/item/stack/tile/clean_act(var/cleanliness)//1 = water, 2 = space cleaner, 3 = bleach/paint thinner
+/obj/item/stack/tile/clean_act(var/cleanliness)
 	..()
 	if (cleanliness >= CLEANLINESS_BLEACH)
 		paint_overlay = null

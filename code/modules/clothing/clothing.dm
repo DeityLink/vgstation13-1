@@ -215,11 +215,9 @@
 		return
 	user.update_inv_w_uniform()
 
-/obj/item/clothing/clean_act(var/cleanliness)//1 = water, 2 = space cleaner, 3 = bleach/paint thinner
-	if (cleanliness >= CLEANLINESS_WATER)
-		clean_blood()
+/obj/item/clothing/clean_act(var/cleanliness)
+	..()
 	if (cleanliness >= CLEANLINESS_BLEACH)
-		color = ""
 		dyed_parts.len = 0
 		update_icon()
 		if (ismob(loc))

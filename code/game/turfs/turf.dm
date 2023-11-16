@@ -728,8 +728,7 @@
 		PathNodes = list()
 	PathNodes["[id]"] = PN
 
-/turf/clean_act(var/cleanliness)//1 = water, 2 = space cleaner, 3 = bleach/paint thinner
-	if (cleanliness >= CLEANLINESS_SPACECLEANER)
-		color = ""
+/turf/clean_act(var/cleanliness)
+	..()
 	if (cleanliness >= CLEANLINESS_BLEACH)
 		remove_paint_overlay(TRUE)

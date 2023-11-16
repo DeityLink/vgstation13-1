@@ -79,7 +79,7 @@
 
 /obj/effect/decal/cleanable/greenglow/New()
 	..()
-	set_light(1,2,LIGHT_COLOR_GREEN)
+	set_light(1,2,COLOR_RADIUM)
 
 /obj/effect/decal/cleanable/blueglow
 	name = "glowing luminol"

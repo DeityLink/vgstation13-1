@@ -400,10 +400,16 @@ function generateColorPaletteBackgroundStyle (color, ieMode) {
 
 function setColor(color,nano){
 	setPaintColor(color);
-	if (nano == "#FFFFFF")
-		setNanoPaint(1);
-	else
+	switch(nano) {
+		case "#161616":
 		setNanoPaint(0);
+		break;
+		case "#999999":
+		setNanoPaint(1);
+		break;
+		default:
+		setNanoPaint(2);
+	} 
 	updateSelectedColorDisplay(color, getOpacity())
 
 	var content = "newcolor=" + encodeURIComponent(color) + ";";

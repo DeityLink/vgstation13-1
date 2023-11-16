@@ -73,7 +73,7 @@ var height;
 var bitmap;
 var nanomap;
 
-var nanopaint = false;
+var nanopaint = 0;
 var polarized = false;
 
 //Keep track of how scaled up the canvas is vs the actual bitmap
@@ -239,8 +239,8 @@ function pixelDraw(x, y, rgba, alpha) {
 	let nanorba = hexToRgba(nanomap[pixel]);
 
 	//Mix both color values
-	if (nanopaint)
-		rgba = colorScreenBlend(rgba, orgba, alpha);
+	if (nanopaint > 1)//nano paint is additive. radium blends normally.
+		rgba = colorAdditiveBlend(rgba, orgba, alpha);
 	else
 		rgba = blendFunction(rgba, orgba, alpha);
 
@@ -248,8 +248,8 @@ function pixelDraw(x, y, rgba, alpha) {
 	bitmap[pixel] = rgbaToHex(rgba);
 
 	//If we're painting with nano paint, we draw on the nanomap as well
-	if (nanopaint) {
-		paint = colorScreenBlend(paint, nanorba, alpha);//Nano-Paint is additive
+	if (nanopaint > 0) {
+		paint = colorAdditiveBlend(paint, nanorba, alpha);//Nano-Paint is additive
 		if ((painthex == "#FFFFFF") || (painthex == "#ffffff"))
 			nanomap[pixel] = "#FEFEFE";//workaround because Byond
 		else
@@ -278,6 +278,17 @@ function colorMultiplyBlend(c1, c2, alpha) {
 	for (k in c1)
 		result[k] = Math.round(c1[k]*c2[k]/255);
 	return colorAlphaBlend(result, c2, alpha);
+}
+
+//c1 is the new color, c2 is the canvas
+function colorAdditiveBlend(c1, c2, alpha) {
+	var result = {};
+	for (k in c1)
+		if (c2[k] >= c1[k])
+			result[k] = c2[k]
+		else
+			result[k] = Math.round(c2[k] + (c1[k] - c2[k]) * alpha);
+	return result;
 }
 
 function colorScreenBlend(c1, c2, alpha) {

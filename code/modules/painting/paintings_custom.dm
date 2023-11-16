@@ -22,7 +22,6 @@
 	var/base_color = "#ffffff"
 
 	// Icon to render our painting data on
-	layer = CANVAS_LAYER
 	var/base_icon = 'icons/obj/paintings.dmi'
 	var/base_icon_state = "blank"
 	var/frame_icon = 'icons/obj/painting_items.dmi'
@@ -95,7 +94,7 @@
 
 				// Reagent mix is opaque enough to paint the canvas, do so
 				else
-					painting_data.bucket_fill(mix_color_from_reagents(container.reagents.reagent_list), container.reagents.has_reagent(NANOPAINT))
+					painting_data.bucket_fill(mix_color_from_reagents(container.reagents.reagent_list), container.reagents.get_max_paint_light())
 				playsound(loc, 'sound/effects/slosh.ogg', 25, 1)
 				container.reagents.remove_any(5)
 				update_painting(TRUE)
@@ -326,7 +325,7 @@
 
 				// Reagent mix is opaque enough to paint the canvas, do so
 				else
-					painting_data.bucket_fill(mix_color_from_reagents(container.reagents.reagent_list), container.reagents.has_reagent(NANOPAINT))
+					painting_data.bucket_fill(mix_color_from_reagents(container.reagents.reagent_list), container.reagents.get_max_paint_light())
 					container.reagents.remove_any(5)
 				update_painting(TRUE)
 			return TRUE

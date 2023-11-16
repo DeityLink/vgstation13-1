@@ -1022,9 +1022,9 @@
 		return 1
 
 /mob/living/carbon/human/clean_act(var/cleanliness)
+	..()
 	if (cleanliness >= CLEANLINESS_SPACECLEANER)
-		color = ""
-		clean_blood()
+		color = ""//color is a bit easier to remove on humans, for convenience's sake
 
 /mob/living/carbon/human/yank_out_object()
 	set category = "Object"

@@ -98,7 +98,13 @@ interactions:
 		C_data["tag"] = C_tag
 		var/colour = rgb2num(stored_colours[C_tag]) // Shaving off the alpha channel
 		C_data["base_color"] = rgb(colour[1], colour[2], colour[3])
-		C_data["nano_paint"] = (nanopaint_indexes[C_tag] ? "#FFFFFF" : "#161616")
+		switch(nanopaint_indexes[C_tag])
+			if (PAINTLIGHT_NONE)
+				C_data["nano_paint"] = "#161616"
+			if (PAINTLIGHT_LIMITED)
+				C_data["nano_paint"] = "#999999"
+			if (PAINTLIGHT_FULL)
+				C_data["nano_paint"] = "#FFFFFF"
 		paint_colours += list(C_data)
 	data["paint_colours"] = paint_colours
 	ui = nanomanager.try_update_ui(user, src, ui_key, ui, data, force_open)
@@ -171,12 +177,12 @@ interactions:
 					strengh = clamp(strengh, 0, 1)
 					var/colour_pencil = rgb2num(PB.paint_color)
 					var/colour_palette = rgb2num(colour)
-					if (nanopaint || PB.nano_paint)
+					if ((nanopaint == PAINTLIGHT_FULL) || (PB.nano_paint == PAINTLIGHT_FULL))
 						var/blend_rgb = AddRGB(colour, PB.paint_color, strengh)
 						stored_colours[colour_tag] = blend_rgb
 						PB.paint_color = blend_rgb
 						PB.nano_paint = TRUE
-						nanopaint_indexes[colour_tag] = TRUE
+						nanopaint_indexes[colour_tag] = PAINTLIGHT_FULL
 					else
 						var/blend = colorRybBlend(colour_pencil, colour_palette, strengh)
 						var/blend_rgb = rgb(blend[1], blend[2], blend[3], blend[4], "COLORSPACE_RGB")
@@ -210,7 +216,8 @@ interactions:
 // DM doesn't have a RYB color space, so i'm doing this manually. #YOLO
 /proc/rgbToRyb(list/rgb)
 	// Soon-to-be result
-	var/ryb = list("r" = 0, "y" = 0, "b" = 0, "a" = rgb[4])
+
+	var/ryb = list("r" = 0, "y" = 0, "b" = 0, "a" = (rgb.len < 4 ? 255 : rgb[4]))
 
 	// Make a copy of the input to work on
 	var/tmpRgb = rgb.Copy()
@@ -291,10 +298,10 @@ interactions:
 	rgb[3] = round(rgb[3] + i)
 	return rgb
 
-/proc/colorRybBlend(c1, c2, alpha)
+/proc/colorRybBlend(var/list/c1, var/list/c2, alpha)
 	var/c1Ryb = rgbToRyb(c1)
 	var/c2Ryb = rgbToRyb(c2)
-	var/resultRyb = list("r" = 0, "y" = 0, "b" = 0, "a" = c2[4]);
+	var/resultRyb = list("r" = 0, "y" = 0, "b" = 0, "a" = (c2.len < 4 ? 255 : c2[4]));
 
 	alpha *= (c1Ryb["a"] / 255)
 

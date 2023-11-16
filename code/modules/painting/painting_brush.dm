@@ -35,7 +35,7 @@
 
 	// Paint brush stuff
 	var/paint_color = null
-	var/nano_paint = FALSE
+	var/nano_paint = PAINTLIGHT_NONE
 	var/list/blood_data = list("wet paint" = "paint")
 
 /obj/item/painting_brush/update_icon()
@@ -61,7 +61,7 @@
 		M.update_inv_hands()
 
 
-/obj/item/painting_brush/afterattack(obj/target, mob/user, proximity_flag, click_parameters)
+/obj/item/painting_brush/afterattack(obj/target, mob/living/user, proximity_flag, click_parameters)
 	if(proximity_flag == 0) // not adjacent
 		return
 
@@ -72,7 +72,7 @@
 		if (cleaner_percent >= PAINT_CLEANER_THRESHOLD)
 			// Clean up that brush
 			paint_color = null
-			nano_paint = FALSE
+			nano_paint = PAINTLIGHT_NONE
 			to_chat(user, "<span class='notice'>You clean \the [name] in \the [target.name].</span>")
 		else
 			// Take the pigment mix's color
@@ -82,7 +82,9 @@
 				return
 			var/list/paint_color_rgb = rgb2num(paint_rgb)
 			paint_color = rgb(paint_color_rgb[1], paint_color_rgb[2], paint_color_rgb[3], mix_alpha_from_reagents(target.reagents.reagent_list))
-			nano_paint = target.reagents.has_reagent(NANOPAINT)
+			nano_paint = target.reagents.get_max_paint_light()
+			if (nano_paint == PAINTLIGHT_LIMITED)//for now, only Radium
+				user.apply_radiation(4)//never4get the Radium Girls
 			to_chat(user, "<span class='notice'>You dip \the [name] in \the [target.name].</span>")
 			var/datum/reagent/B = get_blood(target.reagents)
 			if (B)
@@ -124,8 +126,9 @@
 		return
 
 /obj/item/painting_brush/clean_act(var/cleanliness)
+	..()
 	paint_color = null
-	nano_paint = FALSE
+	nano_paint = PAINTLIGHT_NONE
 	update_icon()
 
 /obj/item/painting_brush/proc/paint_doodle(var/mob/living/user, var/turf/T)
@@ -201,7 +204,7 @@
 	var/paint_amount = 0
 	var/paint_color = null
 	var/paint_alpha = 255
-	var/nano_paint = FALSE
+	var/nano_paint = PAINTLIGHT_NONE
 	var/list/blood_data = list("wet paint" = "paint")
 	var/stroke_state = "border_roller"
 	var/list/stroke_states = list(
@@ -216,11 +219,12 @@
 		)//found in paint_masks.dmi
 
 /obj/item/paint_roller/clean_act(var/cleanliness)
+	..()
 	paint_color = null
-	nano_paint = FALSE
+	nano_paint = PAINTLIGHT_NONE
 	update_icon()
 
-/obj/item/paint_roller/afterattack(obj/target, mob/user, proximity_flag, click_parameters)
+/obj/item/paint_roller/afterattack(obj/target, mob/living/user, proximity_flag, click_parameters)
 	if(proximity_flag == 0) // not adjacent
 		return
 
@@ -229,7 +233,7 @@
 
 		if (cleaner_percent >= PAINT_CLEANER_THRESHOLD)
 			paint_color = null
-			nano_paint = FALSE
+			nano_paint = PAINTLIGHT_NONE
 			to_chat(user, "<span class='notice'>You clean \the [name] in \the [target.name].</span>")
 		else
 			// Take the pigment mix's color
@@ -241,7 +245,9 @@
 			var/mix_alpha = mix_alpha_from_reagents(target.reagents.reagent_list)
 			paint_color = rgb(paint_color_rgb[1], paint_color_rgb[2], paint_color_rgb[3], mix_alpha)
 			paint_alpha = mix_alpha
-			nano_paint = target.reagents.has_reagent(NANOPAINT)
+			nano_paint = target.reagents.get_max_paint_light()
+			if (nano_paint == PAINTLIGHT_LIMITED)//for now, only Radium
+				user.apply_radiation(4)//never4get the Radium Girls
 			to_chat(user, "<span class='notice'>You dip \the [name] in \the [target.name].</span>")
 			var/datum/reagent/B = get_blood(target.reagents)
 			if (B)
@@ -259,7 +265,7 @@
 		var/_dir = user.dir
 		if (T != F)
 			_dir = get_dir_cardinal(F,T)
-		F.apply_paint_stroke(paint_color, paint_alpha, _dir, stroke_state, blood_data, nano_paint)
+		F.apply_paint_stroke(paint_color, paint_alpha, _dir, stroke_state, blood_data, nano_paint == PAINTLIGHT_FULL)
 		playsound(src, get_sfx("mop"), 5, 1)
 	else if (iswall(target))
 		var/turf/W = target
@@ -270,7 +276,7 @@
 		var/_dir = user.dir
 		if (T != W)
 			_dir = get_dir_cardinal(W,T)
-		W.apply_paint_stroke(paint_color, paint_alpha, _dir, "wall_side", blood_data, nano_paint)
+		W.apply_paint_stroke(paint_color, paint_alpha, _dir, "wall_side", blood_data, nano_paint == PAINTLIGHT_FULL)
 		playsound(src, get_sfx("mop"), 5, 1)
 	else if (ishuman(target) && paint_color)
 		var/mob/living/carbon/human/H = target
@@ -527,7 +533,7 @@
 				blood_data = list(R.data["blood_DNA"] = R.data["blood_type"])
 
 			if (R.flags & CHEMFLAG_PIGMENT)
-				T.apply_paint_overlay(R.color, R.alpha, blood_data, R.id == NANOPAINT)
+				T.apply_paint_overlay(R.color, R.alpha, blood_data, R.paint_light == PAINTLIGHT_FULL)
 			else
 				R.reaction_turf(T, 5)
 

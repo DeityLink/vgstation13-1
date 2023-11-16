@@ -380,6 +380,7 @@
 					/obj/item/paint_roller,
 					/obj/item/palette,
 					/obj/structure/easel,
+					/obj/item/weapon/reagent_containers/glass/bottle/acetone,
 					/obj/item/mounted/frame/painting/custom,
 					/obj/item/mounted/frame/painting/custom/landscape,
 					/obj/item/mounted/frame/painting/custom/portrait,

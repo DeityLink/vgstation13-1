@@ -50,6 +50,7 @@
 	var/mug_desc = null
 	var/addictive = FALSE
 	var/tolerance_increase = null  //for tolerance, if set above 0, will increase each by that amount on tick.
+	var/paint_light = PAINTLIGHT_NONE
 
 /datum/reagent/proc/reaction_mob(var/mob/living/M, var/method = TOUCH, var/volume, var/list/zone_sels = ALL_LIMBS, var/allow_permeability = TRUE, var/list/splashplosion=list())
 	set waitfor = 0
@@ -277,7 +278,7 @@
 		holder = null
 	..()
 
-/datum/reagent/proc/handle_special_behavior(var/obj/item/weapon/reagent_containers/food/drinks/drinkingglass/D) //rip steve
+/datum/reagent/proc/when_drinkingglass_master_reagent(var/obj/item/weapon/reagent_containers/food/drinks/drinkingglass/D) //rip steve
 	return
 
 /datum/reagent/proc/handle_data_mix(var/list/added_data=null, var/added_volume, var/mob/admin)
@@ -567,7 +568,7 @@
 		color = data["color"]
 
 
-/datum/reagent/blood/handle_special_behavior(var/obj/item/weapon/reagent_containers/food/drinks/drinkingglass/D)
+/datum/reagent/blood/when_drinkingglass_master_reagent(var/obj/item/weapon/reagent_containers/food/drinks/drinkingglass/D)
 	var/totally_not_blood = "Tomato Juice"
 
 	switch(color)
@@ -2050,9 +2051,11 @@
 	id = RADIUM
 	description = "Radium is an alkaline earth metal. It is extremely radioactive."
 	reagent_state = REAGENT_STATE_SOLID
-	color = "#669966" //rgb: 102, 153, 102
+	color = COLOR_RADIUM//"#61F09A" //rgb: 101, 242, 156
 	density = 5
 	specheatcap = 94
+	flags = CHEMFLAG_PIGMENT
+	paint_light = PAINTLIGHT_LIMITED
 
 /datum/reagent/radium/on_mob_life(var/mob/living/M)
 
@@ -4576,11 +4579,58 @@ var/procizine_tolerance = 0
 	T.add_nutrientlevel(10)
 	T.add_planthealth(1)
 
-/datum/reagent/ultraglue
-	name = "Ultra Glue"
+/datum/reagent/glue
+	name = "Glue"
 	id = GLUE
-	description = "An extremely powerful bonding agent."
+	description = "A powerful and fast-acting bonding agent. Also used as a medium to produce acrylic paint."
 	color = "#FFFFCC" //rgb: 255, 255, 204
+	var/glue_duration = 3 MINUTES//same as school glue
+	var/glue_state_to_set = GLUE_STATE_TEMP
+	var/turning_into_paint = FALSE
+
+/datum/reagent/glue/reaction_turf(var/turf/T, var/volume)
+	if(..())
+		return TRUE
+	//TODO: sticky floors that slow people down
+
+/datum/reagent/glue/reaction_obj(var/obj/O, var/volume)
+	if(..())
+		return TRUE
+
+	O.glue_act(glue_duration, glue_state_to_set)
+
+/datum/reagent/glue/reaction_mob(var/mob/living/M, var/method = TOUCH, var/volume, var/list/zone_sels = ALL_LIMBS)
+	if(..())
+		return TRUE
+
+	if(iscarbon(M))
+		var/mob/living/carbon/H = M
+		for(var/obj/item/I in H.held_items)
+			I.glue_act(glue_duration, glue_state_to_set)
+
+		for(var/obj/item/clothing/C in M.get_equipped_items())
+			C.glue_act(glue_duration, glue_state_to_set)
+
+/datum/reagent/glue/special_behaviour()
+	if (turning_into_paint)
+		return
+	var/datum/reagent/paint_exists = null
+	var/list/non_paint_pigments = list()
+	for (var/datum/reagent/R in holder.reagent_list)
+		if ((R.id == ACRYLIC) || (R.id == NANOPAINT))//we exclude flax oil so players can turn it into acrylic if they want to get rid of any alpha
+			paint_exists = R
+		else if (R.flags & CHEMFLAG_PIGMENT)
+			non_paint_pigments += R
+	var/mixed_pigment_color = mix_color_from_reagents(non_paint_pigments)
+
+	if (!mixed_pigment_color)//no pigments?
+		if (paint_exists)
+			paint_exists.volume += volume//if there's already acrylic or nano paint we just increase its volume
+			holder.del_reagent(id)
+	else
+		turning_into_paint = TRUE
+		holder.add_reagent(ACRYLIC, volume, list("color" = mixed_pigment_color))
+		holder.del_reagent(id)
 
 /datum/reagent/diethylamine
 	name = "Diethylamine"
@@ -7294,7 +7344,7 @@ var/procizine_tolerance = 0
 	custom_metabolism = 0.01
 	dupeable = FALSE
 
-/datum/reagent/ethanol/scientists_serendipity/handle_special_behavior(var/obj/item/weapon/reagent_containers/food/drinks/drinkingglass/D)
+/datum/reagent/ethanol/scientists_serendipity/when_drinkingglass_master_reagent(var/obj/item/weapon/reagent_containers/food/drinks/drinkingglass/D)
 	if(volume < 10)
 		glass_icon_state = "scientists_surprise"
 		glass_name = "\improper Scientist's Surprise"
@@ -8736,7 +8786,7 @@ var/procizine_tolerance = 0
 	reagent_state = REAGENT_STATE_LIQUID
 	color = "#664300" //rgb: 102, 67, 0
 
-/datum/reagent/ethanol/drink/pintpointer/handle_special_behavior(var/obj/item/weapon/reagent_containers/food/drinks/drinkingglass/D)
+/datum/reagent/ethanol/drink/pintpointer/when_drinkingglass_master_reagent(var/obj/item/weapon/reagent_containers/food/drinks/drinkingglass/D)
 	var/obj/item/weapon/reagent_containers/food/drinks/drinkingglass/pintpointer/P = new (get_turf(D))
 	var/datum/reagents/glassreagents = D.reagents
 
