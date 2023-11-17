@@ -643,6 +643,9 @@ Assign your candidates in choose_candidates() instead.
 /datum/dynamic_ruleset/roundstart/extended/choose_candidates()
 	return TRUE
 
+/datum/dynamic_ruleset/roundstart/extended/get_weight()
+    return 1
+
 /datum/dynamic_ruleset/roundstart/extended/execute()
 	message_admins("Starting a round of extended.")
 	log_admin("Starting a round of extended.")
