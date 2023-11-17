@@ -686,11 +686,18 @@
 		T.visible_message("<span class='notice'>[bicon(holder.my_atom)] The salts dissolve into the blood without so much as a reaction.</span>")
 		return
 
+/datum/chemical_reaction/ethylcyanoacrylate
+	name = "Ethyl Cyanoacrylate"
+	id = ETHYLCYANOACRYLATE
+	result = ETHYLCYANOACRYLATE
+	required_reagents = list(ETHANOL = 1, NITROGEN = 1, CARBON = 1)
+	result_amount = 1
+
 /datum/chemical_reaction/glue
 	name = "Glue"
 	id = GLUE
 	result = GLUE
-	required_reagents = list(ETHANOL = 1, SILICON = 1, CARBON = 1)
+	required_reagents = list(ETHYLCYANOACRYLATE = 1, SILICON = 1)
 	result_amount = 1
 
 /datum/chemical_reaction/flash_powder

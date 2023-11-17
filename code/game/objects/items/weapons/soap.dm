@@ -117,7 +117,7 @@
 	else
 		user.simple_message("<span class='notice'>You clean \the [target.name].</span>",
 			"<span class='warning'>You [pick("deface","ruin","stain")] \the [target.name].</span>")
-		target.clean_blood()
+		target.clean_act(CLEANLINESS_SPACECLEANER)
 		on_successful_use(user)
 
 /obj/item/weapon/soap/attack(var/mob/target, var/mob/user)

@@ -819,6 +819,9 @@
 	if(volume >= 3) //Hardcoded
 		T.wet(800)
 
+	for (var/obj/effect/decal/cleanable/glue/G in T)
+		qdel(G)
+
 	T.clean_act(CLEANLINESS_WATER)
 
 	var/hotspot = (locate(/obj/effect/fire) in T)
@@ -4579,24 +4582,45 @@ var/procizine_tolerance = 0
 	T.add_nutrientlevel(10)
 	T.add_planthealth(1)
 
+/datum/reagent/ethylcyanoacrylate
+	name = "Ethyl Cyanoacrylate"
+	id = ETHYLCYANOACRYLATE
+	description = "An esther of low viscosity used as an intermediate component of glue production."
+	color = "#DDDDDD"
+	alpha = 50
+
 /datum/reagent/glue
 	name = "Glue"
 	id = GLUE
 	description = "A powerful and fast-acting bonding agent. Also used as a medium to produce acrylic paint."
-	color = "#FFFFCC" //rgb: 255, 255, 204
-	var/glue_duration = 3 MINUTES//same as school glue
+	color = COLOR_GLUE //rgb: 255, 255, 204
+	var/glue_duration = 1 MINUTES
 	var/glue_state_to_set = GLUE_STATE_TEMP
 	var/turning_into_paint = FALSE
 
 /datum/reagent/glue/reaction_turf(var/turf/T, var/volume)
 	if(..())
 		return TRUE
-	//TODO: sticky floors that slow people down
+	if (isfloor(T))
+		if (!(locate(/obj/effect/decal/cleanable/glue) in T))
+			new /obj/effect/decal/cleanable/glue(T)
 
 /datum/reagent/glue/reaction_obj(var/obj/O, var/volume)
 	if(..())
 		return TRUE
 
+	var/glue_data = list(
+		"viruses"		=null,
+		"blood_DNA"		="glue",
+		"blood_colour"	= COLOR_GLUE,
+		"blood_type"	="glue",
+		"resistances"	=null,
+		"trace_chem"	=null,
+		"virus2" 		=list(),
+		"immunity" 		=null,
+		)
+
+	O.add_blood_from_data(glue_data)//visible glue
 	O.glue_act(glue_duration, glue_state_to_set)
 
 /datum/reagent/glue/reaction_mob(var/mob/living/M, var/method = TOUCH, var/volume, var/list/zone_sels = ALL_LIMBS)
@@ -4604,12 +4628,26 @@ var/procizine_tolerance = 0
 		return TRUE
 
 	if(iscarbon(M))
+		var/glue_data = list(
+			"viruses"		=null,
+			"blood_DNA"		="glue",
+			"blood_colour"	= COLOR_GLUE,
+			"blood_type"	="glue",
+			"resistances"	=null,
+			"trace_chem"	=null,
+			"virus2" 		=list(),
+			"immunity" 		=null,
+			)
+
 		var/mob/living/carbon/H = M
 		for(var/obj/item/I in H.held_items)
+			I.add_blood_from_data(glue_data)
 			I.glue_act(glue_duration, glue_state_to_set)
 
 		for(var/obj/item/clothing/C in M.get_equipped_items())
+			C.add_blood_from_data(glue_data)
 			C.glue_act(glue_duration, glue_state_to_set)
+		H.regenerate_icons()
 
 /datum/reagent/glue/special_behaviour()
 	if (turning_into_paint)

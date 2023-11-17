@@ -1034,10 +1034,8 @@ Use this proc preferably at the end of an equipment loadout
 
 	var/atom/movable/P = AM
 
-	if(ismob(AM))
-		var/mob/M = AM
-		if(M.locked_to) //If the mob is locked_to on something, let's just try to pull the thing they're locked_to to for convenience's sake.
-			P = M.locked_to
+	if(AM.locked_to) //If the atom is locked_to on something, let's just try to pull the thing they're locked_to to for convenience's sake.
+		P = AM.locked_to
 
 	if(!P.anchored)
 		P.add_fingerprint(src)

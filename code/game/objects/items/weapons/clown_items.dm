@@ -320,10 +320,10 @@
 	icon_state = "glue_safe0"
 
 /obj/proc/glue_act(var/stick_time = 1 SECONDS, var/glue_state = GLUE_STATE_NONE) //proc for when glue is used on something
-	last_glue_application = world.time
 	default_glue_act(stick_time, glue_state)
 
 /obj/proc/default_glue_act(stick_time, glue_state)
+	last_glue_application = world.time
 	switch(glue_state)
 		if(GLUE_STATE_TEMP)
 			current_glue_state = GLUE_STATE_TEMP
@@ -339,6 +339,8 @@
 /obj/proc/default_unglue()
 	if(current_glue_state == GLUE_STATE_TEMP)
 		current_glue_state = GLUE_STATE_NONE
+		if ("glue" in blood_DNA)
+			clean_blood()
 		return 1
 	else
 		return 0

@@ -459,6 +459,7 @@ var/list/datum/stack_recipe/wood_recipes = list (
 	new/datum/stack_recipe("trophy mount",		/obj/item/mounted/frame/trophy_mount,	2,		time = 15									),
 	new/datum/stack_recipe("notice board",		/obj/structure/noticeboard,				2,		time = 15,	one_per_turf = 1,	on_floor = 1),
 	//Painting
+	new/datum/stack_recipe("manual loom",		/obj/structure/spinning_wheel,			10,		time = 25,	one_per_turf = 0,	on_floor = 0),
 	new/datum/stack_recipe_list("art supplies", list(
 		new/datum/stack_recipe("wooden block",		/obj/structure/block/wood,							10,	time = 50,	one_per_turf = 1,	on_floor = 1),
 		null,

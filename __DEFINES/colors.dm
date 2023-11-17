@@ -12,3 +12,4 @@
 
 #define COLOR_LINEN "#E5E4DC"
 #define COLOR_RADIUM "#61F09A"
+#define COLOR_GLUE "#FFFFCC"

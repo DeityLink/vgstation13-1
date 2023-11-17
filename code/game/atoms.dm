@@ -535,7 +535,7 @@ its easier to just keep the beam vertical.
 /atom/proc/shuttle_act(var/datum/shuttle/S)
 	return
 
-/atom/proc/clean_act(var/cleanliness)//1 = water, 2 = space cleaner, 3 = bleach
+/atom/proc/clean_act(var/cleanliness)//1 = contact with water (splashed with water, removes glue from objs), 2 = space cleaner or efficient cleaning (showers, sink, soap), 3 = bleach
 	if (cleanliness >= CLEANLINESS_SPACECLEANER)
 		clean_blood()
 	if (cleanliness >= CLEANLINESS_BLEACH)

@@ -173,7 +173,7 @@
 
 /obj/item/stack/sheet/cloth/can_stack_with(obj/item/other_stack)
 	if(ispath(other_stack) && (src.type == other_stack))
-		return (color == COLOR_LINEN)
+		return (uppertext(color) == COLOR_LINEN)
 
 	if (src.type == other_stack.type)
 		if (src.color == other_stack.color)
