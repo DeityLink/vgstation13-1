@@ -579,7 +579,7 @@
 	cloth_layer = HEAD_LAYER
 	cloth_icon = 'icons/mob/head.dmi'
 
-	var/obj/item/clothing/suit/hood_suit = null // the suit this hood belongs to
+	var/obj/item/clothing/hood_suit = null // the suit this hood belongs to
 
 /obj/item/clothing/head/Destroy()
 	if(hood_suit)

@@ -539,7 +539,7 @@
 		else
 			to_chat(mob, "<span class = 'notice'>Your pupils dilate further.</span>")
 
-/datum/disease2/effect/colorsmoke
+/datum/disease2/effect/colorsplash
 	name = "Colorful Syndrome"
 	desc = "Causes the infected to expulse bursts of paint from their pores."
 	encyclopedia = "The paint can be cleaned from items with "
@@ -548,7 +548,7 @@
 	var/list/random_color_list = list("#00aedb","#a200ff","#f47835","#d41243","#d11141","#00b159","#00aedb","#f37735","#ffc425","#008744","#0057e7","#d62d20","#ffa700")
 	max_multiplier = 3
 
-/datum/disease2/effect/colorsmoke/activate(var/mob/living/mob)
+/datum/disease2/effect/colorsplash/activate(var/mob/living/mob)
 	var/obj/item/weapon/reagent_containers/R = new(get_turf(mob))
 	R.invisibility = 101
 	var/list/colors_to_use = random_color_list.Copy()

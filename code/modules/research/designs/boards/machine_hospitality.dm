@@ -98,16 +98,6 @@
 	category = "Machine Boards"
 	build_path = /obj/item/weapon/circuitboard/conduction_plate
 
-/datum/design/processor
-	name = "Circuit Design (Food Processor)"
-	desc = "Allows for the construction of circuit boards used to build a Food Processor."
-	id = "processor"
-	req_tech = list(Tc_PROGRAMMING = 3, Tc_ENGINEERING = 2, Tc_BIOTECH = 3, Tc_POWERSTORAGE = 2)
-	build_type = IMPRINTER
-	materials = list(MAT_GLASS = 2000, SACID = 20)
-	category = "Machine Boards"
-	build_path = /obj/item/weapon/circuitboard/processor
-
 /datum/design/electricloom
 	name = "Circuit Design (Electric Loom)"
 	desc = "Allows for the construction of circuit boards used to build an electric loom."

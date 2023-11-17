@@ -17531,7 +17531,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/ghettobar)
 "aEh" = (
-/obj/item/weapon/reagent_containers/glass/paint,
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint,
 /obj/machinery/light/small{
 	dir = 8;
 	flickering = 1
@@ -18209,7 +18209,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/fsmaint2)
 "aFB" = (
-/obj/item/weapon/reagent_containers/glass/paint,
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint,
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
 "aFC" = (

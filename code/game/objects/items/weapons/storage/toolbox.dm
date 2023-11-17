@@ -159,21 +159,22 @@
 	desc = "Contains an assortment of paints for the artistic trader."
 	icon_state = "toolbox_paint"
 	item_state = "toolbox_paint"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/arts_n_crafts.dmi', "right_hand" = 'icons/mob/in-hand/right/arts_n_crafts.dmi')
 	attack_verb = list("daubs", "decorates", "slathers")
 	max_combined_w_class = 42
 	items_to_spawn = list(
-		/obj/item/weapon/reagent_containers/glass/paint/filled/red,
-		/obj/item/weapon/reagent_containers/glass/paint/filled/vermilion,
-		/obj/item/weapon/reagent_containers/glass/paint/filled/orange,
-		/obj/item/weapon/reagent_containers/glass/paint/filled/amber,
-		/obj/item/weapon/reagent_containers/glass/paint/filled/yellow,
-		/obj/item/weapon/reagent_containers/glass/paint/filled/chartreuse,
-		/obj/item/weapon/reagent_containers/glass/paint/filled/green,
-		/obj/item/weapon/reagent_containers/glass/paint/filled/turquoise,
-		/obj/item/weapon/reagent_containers/glass/paint/filled/blue,
-		/obj/item/weapon/reagent_containers/glass/paint/filled/indigo,
-		/obj/item/weapon/reagent_containers/glass/paint/filled/violet,
-		/obj/item/weapon/reagent_containers/glass/paint/filled/magenta,
-		/obj/item/weapon/reagent_containers/glass/paint/filled/black,
-		/obj/item/weapon/reagent_containers/glass/paint/filled/white,
+		/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/red,
+		/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/vermilion,
+		/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/orange,
+		/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/amber,
+		/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/yellow,
+		/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/chartreuse,
+		/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/green,
+		/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/turquoise,
+		/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/blue,
+		/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/indigo,
+		/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/violet,
+		/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/magenta,
+		/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/black,
+		/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/white,
 	)

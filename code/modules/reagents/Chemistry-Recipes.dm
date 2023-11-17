@@ -2282,11 +2282,17 @@
 	required_container = /obj/item/slime_extract/pyrite
 
 /datum/chemical_reaction/slime_extract/slimepaint/on_reaction(var/datum/reagents/holder)
-	var/list/paints = subtypesof(/obj/item/weapon/reagent_containers/glass/paint)
-	var/chosen = pick(paints)
-	var/obj/P = new chosen
-	if(P)
-		P.forceMove(get_turf(holder.my_atom))
+	new /obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random(get_turf(holder.my_atom))
+	..()
+
+/datum/chemical_reaction/slime_extract/slimenanopaint
+	name = "Slime Nano Paint"
+	id = "s_nanopaint"
+	required_reagents = list(PHAZON = 5)
+	required_container = /obj/item/slime_extract/pyrite
+
+/datum/chemical_reaction/slime_extract/slimepaint/on_reaction(var/datum/reagents/holder)
+	new /obj/item/weapon/reagent_containers/glass/metal_bucket/nanopaint/filled/vantablack(get_turf(holder.my_atom))
 	..()
 
 /datum/chemical_reaction/slime_extract/slimecash

@@ -396,14 +396,14 @@
 
 /datum/supply_packs/paintsamples
 	name = "Random paint samples"
-	contains = list(/obj/item/weapon/reagent_containers/glass/paint/filled/random,
-					/obj/item/weapon/reagent_containers/glass/paint/filled/random,
-					/obj/item/weapon/reagent_containers/glass/paint/filled/random,
-					/obj/item/weapon/reagent_containers/glass/paint/filled/random,
-					/obj/item/weapon/reagent_containers/glass/paint/filled/random,
-					/obj/item/weapon/reagent_containers/glass/paint/filled/random,
-					/obj/item/weapon/reagent_containers/glass/paint/filled/random,
-					/obj/item/weapon/reagent_containers/glass/paint/filled/random,
+	contains = list(/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random,
+					/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random,
+					/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random,
+					/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random,
+					/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random,
+					/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random,
+					/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random,
+					/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random,
 					)
 	cost = 30
 	containertype = /obj/structure/closet/crate

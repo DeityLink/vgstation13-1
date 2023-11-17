@@ -17,8 +17,9 @@
 	icon_state = "wooden_loom"
 	density = 1
 	anchored = 0
+	pass_flags_self = PASSMACHINE
 
-	var/remaining_cloth = 0
+	var/remaining_cloth_to_spin = 0
 	var/mob/spinner = null
 
 /obj/structure/spinning_wheel/Destroy()
@@ -29,8 +30,8 @@
 
 /obj/structure/spinning_wheel/examine(mob/user)
 	..()
-	if(remaining_cloth > 0)
-		to_chat(user, "<span class='info'>There is enough flax in it to produce [remaining_cloth] more cloth sheets.</span>")
+	if(remaining_cloth_to_spin > 0)
+		to_chat(user, "<span class='info'>There is enough flax in it to produce [remaining_cloth_to_spin] more cloth sheets.</span>")
 	else
 		to_chat(user, "<span class='info'>Grow some flax then put it in there before you can use it.</span>")
 
@@ -43,7 +44,7 @@
 			update_icon()
 		else
 			to_chat(user, "<span class='warning'>\The [spinner] is currently weaving at this [src] already.</span>")
-	else if (remaining_cloth > 0)
+	else if (remaining_cloth_to_spin > 0)
 		spinner = user
 		to_chat(user, "<span class='notice'>You start weaving the flax into cloth.</span>")
 		processing_objects.Add(src)
@@ -62,12 +63,12 @@
 			"<span class='notice'>You dissasemble \the [src].</span>")
 			var/turf/T = get_turf(src)
 			new /obj/item/stack/sheet/wood(T, 10)
-			for (var/i = 1 to round(remaining_cloth/CLOTH_PER_FLAX))
+			for (var/i = 1 to round(remaining_cloth_to_spin/CLOTH_PER_FLAX))
 				new /obj/item/weapon/reagent_containers/food/snacks/grown/flax(T)
 			qdel(src)
 	else if (istype(W, /obj/item/weapon/reagent_containers/food/snacks/grown/flax))
 		if(user.drop_item(W, loc))
-			remaining_cloth += CLOTH_PER_FLAX
+			remaining_cloth_to_spin += CLOTH_PER_FLAX
 			qdel(W)
 			to_chat(user, "<span class='notice'>You prepare the flax to be weaved by the wheel.</span>")
 			playsound(src, 'sound/items/bonegel.ogg', 50, 0)
@@ -75,7 +76,7 @@
 	else if (istype(W, /obj/item/weapon/storage/bag/plants))
 		var/inserted = FALSE
 		for (var/obj/item/weapon/reagent_containers/food/snacks/grown/flax/F in W.contents)
-			remaining_cloth += CLOTH_PER_FLAX
+			remaining_cloth_to_spin += CLOTH_PER_FLAX
 			inserted = TRUE
 			qdel(F)
 		if (inserted)
@@ -91,12 +92,12 @@
 /obj/structure/spinning_wheel/process()
 	set waitfor = FALSE
 
-	if (!spinner || !Adjacent(spinner) || spinner.incapacitated() || spinner.lying || (remaining_cloth <= 0))
+	if (!spinner || !Adjacent(spinner) || spinner.incapacitated() || spinner.lying || (remaining_cloth_to_spin <= 0))
 		spinner = null
 		update_icon()
 		processing_objects.Remove(src)
 		return
-	if (remaining_cloth > 0)
+	if (remaining_cloth_to_spin > 0)
 		playsound(src, 'sound/machines/loom_wooden.ogg', 20, 0)
 		if (spawn_cloth(spinner))
 			spawn(10)//process is called every 2 seconds, this lets us spawn 1 cloth per second
@@ -104,9 +105,9 @@
 
 
 /obj/structure/spinning_wheel/proc/spawn_cloth(var/mob/_spinner)
-	remaining_cloth--
+	remaining_cloth_to_spin--
 	drop_stack(/obj/item/stack/sheet/cloth, loc, 1)
-	if (remaining_cloth <= 0)
+	if (remaining_cloth_to_spin <= 0)
 		to_chat(_spinner, "<span class='warning'>There [src] is out of flax.</span>")
 		spinner = null
 		update_icon()
@@ -117,7 +118,7 @@
 /obj/structure/spinning_wheel/update_icon()
 	if (spinner)
 		icon_state = "wooden_loom_spin"
-	else if (remaining_cloth > 0)
+	else if (remaining_cloth_to_spin > 0)
 		icon_state = "wooden_loom_ready"
 	else
 		icon_state = "wooden_loom"
@@ -132,9 +133,215 @@
 	icon_state = "electric_loom"
 	density = 1
 	anchored = 1
+	machine_flags = SCREWTOGGLE | CROWDESTROY | WRENCHMOVE | FIXED2WORK | EJECTNOTDEL | MULTIOUTPUT
+	use_power = MACHINE_POWER_USE_IDLE
+	idle_power_usage = 5
+	active_power_usage = 500
+	pass_flags_self = PASSMACHINE
 
-	var/remaining_cloth = 0
+	var/remaining_cloth_to_spin = 0
+	var/current_production = 0
 	var/stored_cloth = 0
 
-/obj/machinery/electric_loom/attackby(var/obj/item/O, var/mob/user)
+	var/manipulator_rating = 0
+	var/matterbin_rating = 0
+
+/obj/machinery/electric_loom/New()
+	. = ..()
+
+	component_parts = newlist(
+		/obj/item/weapon/circuitboard/electric_loom,
+		/obj/item/weapon/stock_parts/manipulator,
+		/obj/item/weapon/stock_parts/manipulator,
+		/obj/item/weapon/stock_parts/manipulator,
+		/obj/item/weapon/stock_parts/matter_bin,
+		/obj/item/weapon/stock_parts/matter_bin,
+	)
+
+	RefreshParts()
+	update_icon()
+
+/obj/machinery/electric_loom/spillContents(var/destroy_chance = 0)
 	..()
+	for (var/i = 1 to round(remaining_cloth_to_spin/CLOTH_PER_FLAX))
+		new /obj/item/weapon/reagent_containers/food/snacks/grown/flax(loc)
+	remaining_cloth_to_spin = 0
+	if (stored_cloth > 0)
+		drop_stack(/obj/item/stack/sheet/cloth, loc, stored_cloth)
+		stored_cloth = 0
+		update_icon()
+
+/obj/machinery/electric_loom/attack_hand(var/mob/user, var/ignore_brain_damage = 0)
+	if(..())
+		return TRUE
+
+	if (stored_cloth > 0)
+		user.put_in_hands(drop_stack(/obj/item/stack/sheet/cloth, src, stored_cloth))
+		stored_cloth = 0
+		update_icon()
+		playsound(loc, 'sound/items/Deconstruct.ogg', 50, 1)
+		to_chat(user, "<span class='notice'>You pick up the roll of cloth weaved by the machine.</span>")
+	else
+		to_chat(user, "<span class='warning'>There is no cloth stored in it. Add some flax to the loom first.</span>")
+
+/obj/machinery/electric_loom/RefreshParts()
+	//Better Manipulators = Faster production
+	//Better Matter Bins = More cloth per flax
+	for(var/obj/item/weapon/stock_parts/SP in component_parts)
+		if(istype(SP, /obj/item/weapon/stock_parts/manipulator))
+			manipulator_rating += SP.rating
+		if(istype(SP, /obj/item/weapon/stock_parts/matter_bin))
+			matterbin_rating += SP.rating
+	manipulator_rating = round(manipulator_rating/3)+1
+	matterbin_rating = round(matterbin_rating/2)
+
+/obj/machinery/electric_loom/attackby(var/obj/item/W, var/mob/user)
+	..()
+	if (istype(W, /obj/item/weapon/reagent_containers/food/snacks/grown/flax))
+		if(user.drop_item(W, loc))
+			remaining_cloth_to_spin += CLOTH_PER_FLAX
+			qdel(W)
+			to_chat(user, "<span class='notice'>You prepare the flax to be weaved by the loom.</span>")
+			playsound(src, 'sound/items/bonegel.ogg', 50, 0)
+			update_icon()
+	else if (istype(W, /obj/item/weapon/storage/bag/plants))
+		var/inserted = FALSE
+		for (var/obj/item/weapon/reagent_containers/food/snacks/grown/flax/F in W.contents)
+			remaining_cloth_to_spin += CLOTH_PER_FLAX
+			inserted = TRUE
+			qdel(F)
+		if (inserted)
+			playsound(src, 'sound/items/bonegel.ogg', 50, 0)
+			playsound(src, 'sound/effects/rustle3.ogg', 50, 0)
+			to_chat(user, "<span class='notice'>You remove the flax from the bag and prepare it be weaved by the loom.</span>")
+			update_icon()
+		else
+			to_chat(user, "<span class='warning'>There is no flax in the bag.</span>")
+
+/obj/machinery/electric_loom/process()
+	if (stat & (NOPOWER|BROKEN|FORCEDISABLE))
+		return
+	if (!powered())
+		return
+
+	//We can pick up flax from conveyor belts bringing it toward us
+	for (var/direction in cardinal)
+		var/turf/T = get_step(loc, direction)
+		var/obj/machinery/conveyor/C = locate() in T
+		if (C && C.operating && (C.movedir == get_dir(C,src)))
+			var/found = FALSE
+			for (var/obj/item/weapon/reagent_containers/food/snacks/grown/flax/F in T)
+				remaining_cloth_to_spin += CLOTH_PER_FLAX
+				found = TRUE
+				qdel(F)
+			if (found)
+				update_icon()
+
+	if ((remaining_cloth_to_spin > 0) || (current_production > 0))
+		use_power = MACHINE_POWER_USE_ACTIVE
+		spawn()
+			for (var/i = 1 to (manipulator_rating))
+				if (!process_cloth())
+					break
+				sleep(round(SS_WAIT_MACHINERY/manipulator_rating))//manipulator_rating starts at 2, so by default we produce 1 cloth per second
+	else
+		use_power = MACHINE_POWER_USE_IDLE
+
+/obj/machinery/electric_loom/proc/process_cloth(var/mob/_spinner)
+	if (current_production <= 0)
+		remaining_cloth_to_spin--
+		current_production += matterbin_rating
+
+	current_production--
+	stored_cloth++
+
+	if (stored_cloth >= MAX_SHEET_STACK_AMOUNT)
+		stored_cloth = 0
+		drop_stack(/obj/item/stack/sheet/cloth, get_output(), MAX_SHEET_STACK_AMOUNT)
+		update_icon()
+
+	if (remaining_cloth_to_spin + current_production <= 0)
+		update_icon()
+		return 0
+	return 1
+
+/obj/machinery/electric_loom/update_icon()
+	overlays.len = 0
+	luminosity = 0
+	if (stat & (BROKEN))
+		icon_state = "electric_loom-broken"
+		return
+	if (remaining_cloth_to_spin + current_production <= 0)
+		icon_state = "electric_loom"
+		if (!(stat & (NOPOWER|FORCEDISABLE)) && powered())
+			luminosity = 2
+			var/image/led = image(icon,src,"electric_loom-lightempty")
+			led.plane = ABOVE_LIGHTING_PLANE
+			led.layer = ABOVE_LIGHTING_LAYER
+			overlays += led
+		if (stored_cloth > 0)
+			overlays += "electric_loom-cloth"
+	else if ((stat & (NOPOWER|FORCEDISABLE)) || !powered())
+		icon_state = "electric_loom_ready"
+	else
+		icon_state = "electric_loom_spin"
+		luminosity = 2
+		var/image/led = image(icon,src,"electric_loom-lightready")
+		led.plane = ABOVE_LIGHTING_PLANE
+		led.layer = ABOVE_LIGHTING_LAYER
+		overlays += led
+
+/obj/machinery/electric_loom/power_change()
+	..()
+	update_icon()
+
+/obj/machinery/electric_loom/proc/breakdown()
+	stat |= BROKEN
+	update_icon()
+
+/obj/machinery/electric_loom/ex_act(var/severity)
+	switch(severity)
+		if(1)
+			qdel(src)
+		if(2)
+			if (prob(20))
+				qdel(src)
+			else
+				breakdown()
+		if(3)
+			if(prob(50))
+				breakdown()
+
+/obj/machinery/electric_loom/attack_construct(var/mob/user)
+	if(stat & (BROKEN))
+		return
+	if (!Adjacent(user))
+		return 0
+	if(istype(user,/mob/living/simple_animal/construct/armoured))
+		shake(1, 3)
+		playsound(src, 'sound/weapons/heavysmash.ogg', 75, 1)
+		add_hiddenprint(user)
+		breakdown()
+		return 1
+	return 0
+
+/obj/machinery/electric_loom/kick_act(var/mob/living/carbon/human/user)
+	..()
+	if(stat & (BROKEN))
+		return
+	if (prob(5))
+		breakdown()
+
+/obj/machinery/electric_loom/attack_paw(var/mob/user)
+	if(istype(user,/mob/living/carbon/alien/humanoid))
+		if(stat & (BROKEN))
+			return
+		breakdown()
+		user.do_attack_animation(src, user)
+		visible_message("<span class='warning'>\The [user] slashes at \the [src]!</span>")
+		playsound(src, 'sound/weapons/slash.ogg', 100, 1)
+		add_hiddenprint(user)
+	else if (!usr.dexterity_check())
+		to_chat(usr, "<span class='warning'>You don't have the dexterity to do this!</span>")
+	else
+		attack_hand(user)

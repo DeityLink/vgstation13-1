@@ -380,14 +380,15 @@
 	update_icon()
 
 /obj/item/weapon/reagent_containers/glass/bucket
-	desc = "It's a bucket."
 	name = "bucket"
+	desc = "It's a plastic bucket."
 	icon = 'icons/obj/janitor.dmi'
 	icon_state = "bucket"
 	item_state = "bucket"
 	species_fit = list(INSECT_SHAPED)
-	starting_materials = list(MAT_IRON = 200)
-	w_type = RECYK_METAL
+	starting_materials = list(MAT_PLASTIC = 200)
+	autoignition_temperature = AUTOIGNITION_PLASTIC
+	w_type = RECYK_PLASTIC
 	w_class = W_CLASS_MEDIUM
 	amount_per_transfer_from_this = 20
 	possible_transfer_amounts = list(10,20,25,30,50,100,150)

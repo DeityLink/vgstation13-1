@@ -346,6 +346,7 @@
 		S.amount = min(add_amount, S.max_amount)
 		add_amount -= S.amount
 		S.update_materials()
+		S.update_icon()
 	return S
 
 /obj/item/stack/verb_pickup(mob/living/user)

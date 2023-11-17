@@ -14,7 +14,6 @@
 	for(var/datum/reagent/reagent in reagent_list)
 		if (reagent.id == BLACKCOLOR)
 			return "#000000"
-			continue
 		if (pigments_only && !(reagent.flags & CHEMFLAG_PIGMENT))
 			continue
 		if(reagent.id == BLOOD && reagent.data["blood_colour"])

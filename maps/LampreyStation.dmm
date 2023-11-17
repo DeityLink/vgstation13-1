@@ -112083,7 +112083,7 @@
 	},
 /area/lamprey/headofpersonnelline)
 "eHG" = (
-/obj/item/weapon/reagent_containers/glass/paint,
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint,
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor{
 	dir = 8;
