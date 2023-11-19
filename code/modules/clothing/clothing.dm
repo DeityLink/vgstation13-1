@@ -3,6 +3,7 @@
 	sterility = 5
 	autoignition_temperature = AUTOIGNITION_FABRIC
 	w_type = RECYK_FABRIC
+	starting_materials = list(MAT_FABRIC = CC_PER_SHEET_FABRIC)
 	var/list/species_restricted = null //Only these species can wear this kit.
 	var/wizard_garb = 0 //Wearing this empowers a wizard.
 	var/gentling //If TRUE, prevents the wearer from casting wizard spells.
@@ -463,6 +464,7 @@
 	slot_flags = SLOT_EARS
 	cloth_layer = EARS_LAYER
 	cloth_icon = 'icons/mob/ears.dmi'
+	starting_materials = list(MAT_FABRIC = 750)
 
 /obj/item/clothing/ears/attack_hand(mob/user as mob)
 	if (!user)
@@ -527,6 +529,7 @@
 	var/list/bloody_hands_data = list()
 	cloth_layer = GLOVES_LAYER
 	cloth_icon = 'icons/mob/hands.dmi'
+	starting_materials = list(MAT_FABRIC = 938)
 
 /obj/item/clothing/gloves/get_cell()
 	return cell
@@ -578,6 +581,7 @@
 	var/blood_overlay_type = "hat"
 	cloth_layer = HEAD_LAYER
 	cloth_icon = 'icons/mob/head.dmi'
+	starting_materials = list(MAT_FABRIC = 1875)
 
 	var/obj/item/clothing/hood_suit = null // the suit this hood belongs to
 
@@ -688,6 +692,7 @@ var/global/maxStackDepth = 10
 	var/ignore_flip = 0
 	actions_types = list(/datum/action/item_action/toggle_mask)
 	heat_conductivity = MASK_HEAT_CONDUCTIVITY
+	starting_materials = list(MAT_FABRIC = 938)
 
 /datum/action/item_action/toggle_mask
 	name = "Toggle Mask"
@@ -765,6 +770,7 @@ var/global/maxStackDepth = 10
 	var/modulo_steps = 2 //if stepstaken is a multiplier of modulo_steps, play the sound. Does not work if modulo_steps < 1
 	cloth_layer = SHOES_LAYER
 	cloth_icon = 'icons/mob/feet.dmi'
+	starting_materials = list(MAT_FABRIC = 1250)
 
 /obj/item/clothing/shoes/proc/step_action()
 	stepstaken++
@@ -833,6 +839,7 @@ var/global/maxStackDepth = 10
 	sterility = 30
 	cloth_layer = SUIT_LAYER
 	cloth_icon = 'icons/mob/suit.dmi'
+	starting_materials = list(MAT_FABRIC = CC_PER_SHEET_FABRIC)
 
 /obj/item/clothing/suit/togglehood()
 	set name = "Toggle Hood"
@@ -983,6 +990,7 @@ var/global/maxStackDepth = 10
 	var/icon/jersey_overlays
 	cloth_layer = UNIFORM_LAYER
 	cloth_icon = 'icons/mob/uniform.dmi'
+	starting_materials = list(MAT_FABRIC = CC_PER_SHEET_FABRIC)
 
 // Associative list of exact type -> number
 var/list/jersey_numbers = list()
@@ -1132,3 +1140,4 @@ var/list/jersey_numbers = list()
 	w_class = W_CLASS_SMALL
 	throwforce = 2
 	slot_flags = SLOT_BACK
+	starting_materials = list(MAT_FABRIC = CC_PER_SHEET_FABRIC)

@@ -9979,9 +9979,34 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	..()
 
 /datum/reagent/colorful_reagent/reaction_turf(turf/T, reac_volume)
-	if(T)
-		T.apply_paint_overlay(pick(random_color_list))
-	..()
+	if(..())
+		return TRUE
+
+	var/picked_color = pick(random_color_list)
+
+	var/turf/U = get_turf(holder.my_atom)
+	if(isfloor(T))
+		T.apply_paint_overlay(picked_color, 255)
+		if (splashplosion.len > 0)
+			for (var/direction in cardinal)
+				var/turf/R = get_step(T,direction)
+				if (isfloor(R) && !(R in splashplosion) && T.Adjacent(R))
+					if (get_dir(R,U) & get_dir(R,T))
+						R.apply_paint_stroke(picked_color, 255, get_dir_cardinal(R,T), "border_splatter")
+				else if (iswall(R) && !(R in splashplosion))
+					if (get_dir(R,U) & get_dir(R,T))
+						R.apply_paint_stroke(picked_color, 255, get_dir_cardinal(R,T), "wall_splatter")
+	else if(iswall(T))
+		if (T == U)
+			T.apply_paint_overlay(picked_color, 255, list(), id == NANOPAINT)//if we're on top somehow, paint the whole tile
+		else if (splashplosion.len > 0)
+			for (var/direction in cardinal)
+				var/turf/R = get_step(T,direction)
+				if (isfloor(R) && (R in splashplosion))
+					if (get_dir(T,U) & direction)
+						T.apply_paint_stroke(picked_color, 255, get_dir_cardinal(T,R), "wall_splatter")
+		else
+			T.apply_paint_stroke(picked_color, 255, get_dir_cardinal(T,U), "wall_splatter")
 
 /datum/reagent/degeneratecalcium
 	name = "Degenerate Calcium"

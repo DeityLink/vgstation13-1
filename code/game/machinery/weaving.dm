@@ -7,7 +7,7 @@
 
 #define CLOTH_PER_FLAX	2
 
-////////////////////MANUAL LOOM//////////////////////
+////////////////////MANUAL LOOM//////////////////////////////////////////////////////////////////////////////////////////
 //TODO: support wool as well, and maybe other plants such as coton
 //I chose linen to start with because of too much time playing Pharaoh
 /obj/structure/spinning_wheel
@@ -124,7 +124,7 @@
 		icon_state = "wooden_loom"
 
 
-///////////////////ELECTRIC LOOM//////////////////////
+///////////////////ELECTRIC LOOM//////////////////////////////////////////////////////////////////////////////////////////
 
 /obj/machinery/electric_loom
 	name = "electric loom"
@@ -160,6 +160,20 @@
 
 	RefreshParts()
 	update_icon()
+
+/obj/machinery/electric_loom/examine(mob/user)
+	..()
+	if(remaining_cloth_to_spin + current_production > 0)
+		to_chat(user, "<span class='info'>There is enough flax in it to produce [remaining_cloth_to_spin*matterbin_rating + current_production] more cloth sheets.</span>")
+	else
+		to_chat(user, "<span class='info'>Grow some flax then put it in there before you can use it. You can insert flax in it automatically using a conveyor belt.</span>")
+
+	if(stored_cloth > 0)
+		to_chat(user, "<span class='info'>There's [stored_cloth] lengths of cloth on the roll currently being spun. The machine will automatically eject it when its full, or you can pick it up now.</span>")
+	if(output_dir)
+		to_chat(user, "<span class='info'>Ejected cloth will be dropped on the [dir2text(output_dir)]ern tile.</span>")
+	else
+		to_chat(user, "<span class='info'>You can use a multi-tool to set a direction cloth should automatically be ejected to. Otherwise it will be placed on top of the loom.</span>")
 
 /obj/machinery/electric_loom/spillContents(var/destroy_chance = 0)
 	..()
@@ -218,24 +232,24 @@
 		else
 			to_chat(user, "<span class='warning'>There is no flax in the bag.</span>")
 
+/obj/machinery/electric_loom/conveyor_act(var/atom/movable/AM, var/obj/machinery/conveyor/CB)
+	if(istype(AM, /obj/item/weapon/storage/bag/plants))
+		for(var/obj/item/weapon/reagent_containers/food/snacks/grown/flax/F in AM.contents)
+			remaining_cloth_to_spin += CLOTH_PER_FLAX
+			qdel(F)
+	else if(istype(AM, /obj/item/weapon/reagent_containers/food/snacks/grown/flax))
+		remaining_cloth_to_spin += CLOTH_PER_FLAX
+		qdel(AM)
+	else
+		return FALSE
+	update_icon()
+	return TRUE
+
 /obj/machinery/electric_loom/process()
 	if (stat & (NOPOWER|BROKEN|FORCEDISABLE))
 		return
 	if (!powered())
 		return
-
-	//We can pick up flax from conveyor belts bringing it toward us
-	for (var/direction in cardinal)
-		var/turf/T = get_step(loc, direction)
-		var/obj/machinery/conveyor/C = locate() in T
-		if (C && C.operating && (C.movedir == get_dir(C,src)))
-			var/found = FALSE
-			for (var/obj/item/weapon/reagent_containers/food/snacks/grown/flax/F in T)
-				remaining_cloth_to_spin += CLOTH_PER_FLAX
-				found = TRUE
-				qdel(F)
-			if (found)
-				update_icon()
 
 	if ((remaining_cloth_to_spin > 0) || (current_production > 0))
 		use_power = MACHINE_POWER_USE_ACTIVE

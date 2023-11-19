@@ -380,8 +380,8 @@
 	update_icon()
 
 /obj/item/weapon/reagent_containers/glass/bucket
-	name = "bucket"
-	desc = "It's a plastic bucket."
+	name = "plastic bucket"
+	desc = "Can be used to store, carry, and pour reagents."
 	icon = 'icons/obj/janitor.dmi'
 	icon_state = "bucket"
 	item_state = "bucket"
