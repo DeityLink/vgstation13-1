@@ -215,35 +215,21 @@ var/list/one_way_windows
 		healthcheck()
 
 /obj/structure/window/Cross(atom/movable/mover, turf/target, height = 0)
-	if (istype(mover, /obj/item/projectile/beam/liquid_stream))
-		to_chat(world, "window at ([x],[y],[z]), target at ([target.x],[target.y],[target.z])")
 	if(locate(/obj/effect/unwall_field) in loc) //Annoying workaround for this
 		return TRUE
 	if(istype(mover) && mover.checkpass(pass_flags_self))//checking for beam dispersion both in and out, since beams do not trigger Uncross.
-		if (istype(mover, /obj/item/projectile/beam/liquid_stream))
-			to_chat(world, "checkpassed!")
 		if((get_dir(loc, target) | get_dir(loc, mover)) & (dir | opposite_dirs[dir]))
-			if (istype(mover, /obj/item/projectile/beam/liquid_stream))
-				to_chat(world, "dim_beam")
 			dim_beam(mover)
 		return TRUE
 	if(!density)
 		return TRUE
 	if(istype(mover, /obj/item/projectile/beam))
 		var/obj/item/projectile/beam/B = mover
-		to_chat(world, "previous_turf at ([B.previous_turf.x],[B.previous_turf.y],[B.previous_turf.z])")
-		to_chat(world, "bounds_dist ([bounds_dist(border_dummy, B.previous_turf)])")
 		return bounds_dist(border_dummy, B.previous_turf) >= 0
 	else if(istype(mover))
-		if (istype(mover, /obj/item/projectile/beam/liquid_stream))
-			to_chat(world, "bounds_dist wat")
 		return bounds_dist(border_dummy, mover) >= 0
 	else if(get_dir(loc, target) == dir)
-		if (istype(mover, /obj/item/projectile/beam/liquid_stream))
-			to_chat(world, "get_dir(loc, target) == dir")
 		return FALSE
-	if (istype(mover, /obj/item/projectile/beam/liquid_stream))
-		to_chat(world, "TRUE")
 	return TRUE
 
 /obj/structure/window/proc/dim_beam(var/obj/item/projectile/beam/B)

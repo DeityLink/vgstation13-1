@@ -152,9 +152,9 @@
 
 /obj/item/stack/sheet/cloth/New(loc, amount, var/param_color = null)
 	..()
-
 	recipes = cloth_recipes_by_hand
-	update_icon()
+	if (param_color)
+		color = param_color
 
 /obj/item/stack/sheet/cloth/getFireFuel()
 	return (amount - 1 + fire_fuel) / 10 //Each piece essentially has 0.1 fire_fuel.
@@ -204,6 +204,62 @@
 /obj/item/stack/sheet/cloth/add(var/amount)
 	. = ..()
 	update_icon()
+
+/obj/item/stack/sheet/cloth/extra_message()
+	if (!in_needles_or_machine())
+		return "<br><b>More recipes available when using knitting needles or a sewing machine</b>.<br>"
+	return null
+
+/obj/item/stack/sheet/cloth/proc/in_needles_or_machine()
+	if(istype(loc, /obj/item/knitting_needles) || istype(loc, /obj/machinery/sewing_machine))
+		return TRUE
+	return FALSE
+
+/obj/item/stack/sheet/cloth/time_modifier(var/_time)
+	if(istype(loc, /obj/machinery/sewing_machine))
+		var/obj/machinery/sewing_machine/SM = loc
+		var/time_modifier = 0.5
+		time_modifier = max(0.1, 0.5 - (0.1*SM.manipulator_rating))
+		playsound(get_turf(src), 'sound/machines/sewing_machine.ogg', 50, 1)
+		SM.operating = 1
+		SM.update_icon()
+		return _time * time_modifier
+	else if (istype(loc, /obj/item/knitting_needles))
+		var/obj/item/knitting_needles/KS = loc
+		KS.knitting = 1
+		KS.update_icon()
+		playsound(get_turf(src), 'sound/machines/dial_reset.ogg', 50, 1)
+		return _time * 0.75
+	return _time
+
+/obj/item/stack/sheet/cloth/stop_build()
+	if(istype(loc, /obj/machinery/sewing_machine))
+		var/obj/machinery/sewing_machine/SM = loc
+		SM.operating = 0
+		SM.update_icon()
+	else if (istype(loc, /obj/item/knitting_needles))
+		var/obj/item/knitting_needles/KS = loc
+		KS.knitting = 0
+		KS.update_icon()
+
+/obj/item/stack/sheet/cloth/loc_override()
+	if (istype(loc, /obj/machinery/sewing_machine))
+		var/obj/machinery/sewing_machine/SM = loc
+		return SM.get_output()
+	return null
+
+/obj/item/stack/sheet/cloth/allow_use(var/mob/living/user)
+	if (in_needles_or_machine())
+		return loc.Adjacent(user)
+	else
+		return (user.get_active_hand() == src)
+
+/obj/item/stack/sheet/cloth/list_recipes(var/mob/user, var/recipes_sublist)
+	if (in_needles_or_machine())
+		recipes = cloth_recipes_by_hand + cloth_recipes_with_tool
+	else
+		recipes = cloth_recipes_by_hand
+	..()
 
 /obj/item/stack/sheet/cloth/update_icon()
 	if(amount == 1)

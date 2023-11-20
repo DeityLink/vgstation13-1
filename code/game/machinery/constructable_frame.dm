@@ -1695,3 +1695,14 @@ to destroy them and players will be able to make replacements.
 		/obj/item/weapon/stock_parts/manipulator = 3,
 		/obj/item/weapon/stock_parts/matter_bin = 2,
 	)
+
+/obj/item/weapon/circuitboard/sewing_machine
+	name = "Circuit board (Sewing Machine)"
+	desc = "A circuit board used to build a machine that can turn cloth into various items."
+	build_path = /obj/machinery/sewing_machine
+	board_type = MACHINE
+	origin_tech = Tc_ENGINEERING + "=3;" + Tc_PROGRAMMING + "=3;"
+	req_components = list(
+		/obj/item/weapon/stock_parts/manipulator = 2,
+		/obj/item/weapon/stock_parts/matter_bin = 1,
+	)

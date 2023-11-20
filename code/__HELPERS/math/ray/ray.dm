@@ -114,6 +114,10 @@
 	//our result
 	var/list/rayCastHit/hits = list()
 
+	var/turf/T = vector2turf(origin.floored(), z)
+	previous_turf = T
+	final_turf = T
+
 	while(distance < max_distance)
 		//moving one step further
 		pointer += a_step
@@ -136,7 +140,7 @@
 			continue
 
 		//getting the turf at our current (floored) vector
-		var/turf/T = vector2turf(new_position, z)
+		T = vector2turf(new_position, z)
 		if (!T.density)
 			previous_turf = final_turf
 			final_turf = T

@@ -1027,3 +1027,73 @@
 	body_parts_covered = HEAD|EARS|HIDEHEADHAIR
 
 ///////////////////////////////////////////////////////////////////////////
+
+/obj/item/clothing/under/shortpants
+	name ="short pants"
+	desc = "I love my shorts!"
+	icon_state = "shortpants"
+	item_state = "shortpants"
+	_color = "shortpants"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
+	clothing_flags = COLORS_OVERLAY
+	dyeable_parts = list("belt")
+	dye_base_iconstate_override = "linencrafts"
+	color = COLOR_LINEN
+
+/obj/item/clothing/under/pants
+	name ="pants"
+	desc = "I love my pants!"
+	icon_state = "pants"
+	item_state = "pants"
+	_color = "pants"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
+	clothing_flags = COLORS_OVERLAY
+	dyeable_parts = list("belt","pants-tip")
+	dye_base_iconstate_override = "linencrafts"
+	color = COLOR_LINEN
+
+/obj/item/clothing/under/tartankilt
+	name ="tartan kilt"
+	desc = "Free your balls!"
+	icon_state = "kilt_tartan"
+	item_state = "kilt_tartan"
+	_color = "kilt_tartan"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
+	clothing_flags = COLORS_OVERLAY
+	dyeable_parts = list("belt")
+	dye_base_iconstate_override = "linencrafts"
+	color = COLOR_LINEN
+
+/obj/item/clothing/under/poloshortpants
+	name ="short pants and polo"
+	desc = "I love my polo!"//help
+	icon_state = "poloshortpants"
+	item_state = "poloshortpants"
+	_color = "poloshortpants"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
+	clothing_flags = COLORS_OVERLAY
+	dyeable_parts = list("polo","polo-sleeves","polo-stripes","belt","shortpants")
+	dye_base_iconstate_override = "linencrafts"
+	color = COLOR_LINEN
+
+/obj/item/clothing/under/polopants
+	name ="short pants and polo"
+	desc = "I love my polo!"//please replace with something clever
+	icon_state = "polopants"
+	item_state = "polopants"
+	_color = "polopants"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
+	clothing_flags = COLORS_OVERLAY
+	dyeable_parts = list("polo","polo-sleeves","polo-stripes","belt","pants","pants-tip")
+	dye_base_iconstate_override = "linencrafts"
+	color = COLOR_LINEN
+
+/obj/item/clothing/under/dress
+	name ="dress"
+	desc = "I love my dress!"
+	icon_state = "dress"
+	item_state = "dress"
+	_color = "dress"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
+	clothing_flags = COLORS_OVERLAY
+	color = COLOR_LINEN

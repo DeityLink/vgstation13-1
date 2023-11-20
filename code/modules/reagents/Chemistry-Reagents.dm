@@ -9978,7 +9978,7 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 		O.color = pick(random_color_list)
 	..()
 
-/datum/reagent/colorful_reagent/reaction_turf(turf/T, reac_volume)
+/datum/reagent/colorful_reagent/reaction_turf(turf/T, reac_volume, var/list/splashplosion=list())
 	if(..())
 		return TRUE
 

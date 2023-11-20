@@ -54,9 +54,12 @@
 	if (!can_build_here(usr, construct_loc))
 		return
 	if (time)
+		time = S.time_modifier(time)
 		if (!do_after(usr, get_turf(S), time))
+			S.stop_build()
 			return
 	if (S.amount < req_amount*multiplier)
+		S.stop_build()
 		return
 	var/list/stacks_to_consume = list()
 	if(other_reqs.len)
@@ -87,16 +90,18 @@
 							stacks_to_consume.Add(SS)
 							stacks_to_consume[SS] = req_amount
 			if(!found)
+				S.stop_build()
 				return
 	var/atom/O
 	if(ispath(result_type, /obj/item/stack))
-		O = drop_stack(result_type, usr.loc, (max_res_amount>1 ? res_amount*multiplier : 1), usr)
+		O = drop_stack(result_type, construct_loc, (max_res_amount>1 ? res_amount*multiplier : 1), usr)
 		var/obj/item/stack/SS = O
 		SS.update_materials()
 	else
 		for(var/i = 1 to (max_res_amount>1 ? res_amount*multiplier : 1))
-			O = new result_type(usr.loc)
+			O = new result_type(construct_loc)
 
+	S.stop_build()
 	O.change_dir(usr.dir)
 	if(start_unanchored)
 		var/obj/A = O
@@ -458,7 +463,9 @@ var/list/datum/stack_recipe/wood_recipes = list (
 	new/datum/stack_recipe("apiary",			/obj/item/apiary,						10,		time = 25,	one_per_turf = 0,	on_floor = 0),
 	new/datum/stack_recipe("trophy mount",		/obj/item/mounted/frame/trophy_mount,	2,		time = 15									),
 	new/datum/stack_recipe("notice board",		/obj/structure/noticeboard,				2,		time = 15,	one_per_turf = 1,	on_floor = 1),
+	null,
 	//Painting
+	new/datum/stack_recipe("knitting needles",	/obj/item/knitting_needles,				1,		time = 10,	one_per_turf = 0,	on_floor = 0),
 	new/datum/stack_recipe("manual loom",		/obj/structure/spinning_wheel,			10,		time = 25,	one_per_turf = 0,	on_floor = 0),
 	new/datum/stack_recipe_list("art supplies", list(
 		new/datum/stack_recipe("wooden block",		/obj/structure/block/wood,							10,	time = 50,	one_per_turf = 1,	on_floor = 1),
@@ -522,7 +529,14 @@ var/list/datum/stack_recipe/cloth_recipes_by_hand = list (
 	)
 
 var/list/datum/stack_recipe/cloth_recipes_with_tool = list (
-	new/datum/stack_recipe/cloth("Cleaning Rag",	/obj/item/weapon/reagent_containers/glass/rag,	1,	time = 30),
+	null,
+	new/datum/stack_recipe/cloth("Jumpsuit",				/obj/item/clothing/under/color,			5,	time = 150),
+	new/datum/stack_recipe/cloth("Short Pants",				/obj/item/clothing/under/shortpants,	2,	time = 150),
+	new/datum/stack_recipe/cloth("Short Pants with Polo",	/obj/item/clothing/under/poloshortpants,4,	time = 150),
+	new/datum/stack_recipe/cloth("Long Pants",				/obj/item/clothing/under/pants,			3,	time = 150),
+	new/datum/stack_recipe/cloth("Long Pants with Polo",	/obj/item/clothing/under/polopants,		5,	time = 150),
+	new/datum/stack_recipe/cloth("Tartan Kilt",				/obj/item/clothing/under/tartankilt,	2,	time = 150),
+	new/datum/stack_recipe/cloth("Robe",					/obj/item/clothing/under/dress,			4,	time = 150),
 	)
 
 /* ========================================================================

@@ -1194,13 +1194,15 @@ var/list/laser_tag_vests = list(/obj/item/clothing/suit/tag/redtag, /obj/item/cl
 	splashed_atom = A//doesn't matter if it's actually the atom we end up splashing since we only use that var on bullet_die()
 	. = ..()
 
-/obj/item/projectile/beam/liquid_stream/bullet_die()
+/obj/item/projectile/beam/liquid_stream/bullet_die()//splashes reagents on the hit atom, or in front of it in case of turfs and border objects
 	if(reagents && reagents.total_volume && !has_splashed && ((bumped && splashed_atom) || final_turf))
 		if (splashed_atom && !isturf(splashed_atom) && (previous_turf && previous_turf.Adjacent(splashed_atom)))
-			if (istype(splashed_atom, /obj/structure/window) || istype(splashed_atom, /atom/movable/border_dummy))
+			if (splashed_atom.flow_flags & ON_BORDER)
 				loc = previous_turf
 			else
 				loc = get_turf(splashed_atom)
+		else if (isturf(splashed_atom))
+			loc = final_turf
 		else
 			loc = previous_turf
 		playsound(loc, 'sound/effects/slosh.ogg', 20, 1)
@@ -1208,7 +1210,7 @@ var/list/laser_tag_vests = list(/obj/item/clothing/suit/tag/redtag, /obj/item/cl
 		has_splashed = TRUE
 	..()
 //I never want to deal wity ray casts ever again
-/obj/item/projectile/beam/liquid_stream/fireto(var/vector/origin, var/vector/direction)
+/obj/item/projectile/beam/liquid_stream/fireto(var/vector/origin, var/vector/direction)//splashes reagents on the turf if the projectile ran out
 	..()
 	if (reagents && reagents.total_volume && final_turf && !has_splashed)
 		loc = final_turf

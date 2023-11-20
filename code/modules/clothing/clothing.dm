@@ -35,6 +35,8 @@
 	var/list/dyed_parts = list()
 	var/cloth_layer
 	var/cloth_icon
+	var/dye_base_iconstate_override
+	var/dye_base_itemstate_override
 
 	// Hood stuff. Moved to base clothing so it can be used by both uniforms and suits
 	var/obj/item/clothing/head/hood // Headgear to be used as hood, if any.
@@ -86,25 +88,33 @@
 			var/dye_color = dye_data[1]
 			var/dye_alpha = dye_data[2]
 
-			var/image/object_overlay = image(icon, src, "[icon_state]-[part]")
+			var/_state = dye_base_iconstate_override
+			if (!_state)
+				_state = icon_state
+			var/image/object_overlay = image(icon, src, "[_state]-[part]")
 			object_overlay.appearance_flags = RESET_COLOR
 			object_overlay.color = dye_color
 			object_overlay.alpha = dye_alpha
 			overlays += object_overlay
 
-			var/image/worn_overlay = image(cloth_icon, src, "[icon_state]-[part]")
+			var/image/worn_overlay = image(cloth_icon, src, "[_state]-[part]")
 			worn_overlay.appearance_flags = RESET_COLOR
 			worn_overlay.color = dye_color
 			worn_overlay.alpha = dye_alpha
 			dyn_overlay_worn.overlays += worn_overlay
 
-			var/image/left_overlay = image(inhand_states["left_hand"], src, "[icon_state]-[part]")
+			_state = dye_base_itemstate_override
+			if (!_state)
+				_state = item_state
+			if (!_state)
+				_state = icon_state
+			var/image/left_overlay = image(inhand_states["left_hand"], src, "[_state]-[part]")
 			left_overlay.appearance_flags = RESET_COLOR
 			left_overlay.color = dye_color
 			left_overlay.alpha = dye_alpha
 			dyn_overlay_left.overlays += left_overlay
 
-			var/image/right_overlay = image(inhand_states["right_hand"], src, "[icon_state]-[part]")
+			var/image/right_overlay = image(inhand_states["right_hand"], src, "[_state]-[part]")
 			right_overlay.appearance_flags = RESET_COLOR
 			right_overlay.color = dye_color
 			right_overlay.alpha = dye_alpha

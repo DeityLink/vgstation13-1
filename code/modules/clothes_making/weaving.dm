@@ -189,6 +189,9 @@
 	if(..())
 		return TRUE
 
+	if (stat & (BROKEN))
+		to_chat(user, "You have to fix the machine first.")
+		return
 	if (stored_cloth > 0)
 		user.put_in_hands(drop_stack(/obj/item/stack/sheet/cloth, src, stored_cloth))
 		stored_cloth = 0
@@ -201,6 +204,8 @@
 /obj/machinery/electric_loom/RefreshParts()
 	//Better Manipulators = Faster production
 	//Better Matter Bins = More cloth per flax
+	manipulator_rating = 0
+	matterbin_rating = 0
 	for(var/obj/item/weapon/stock_parts/SP in component_parts)
 		if(istype(SP, /obj/item/weapon/stock_parts/manipulator))
 			manipulator_rating += SP.rating
@@ -210,15 +215,21 @@
 	matterbin_rating = round(matterbin_rating/2)
 
 /obj/machinery/electric_loom/attackby(var/obj/item/W, var/mob/user)
-	..()
 	if (istype(W, /obj/item/weapon/reagent_containers/food/snacks/grown/flax))
+		if (stat & (BROKEN))
+			to_chat(user, "You have to fix the machine first.")
+			return
 		if(user.drop_item(W, loc))
 			remaining_cloth_to_spin += CLOTH_PER_FLAX
 			qdel(W)
 			to_chat(user, "<span class='notice'>You prepare the flax to be weaved by the loom.</span>")
 			playsound(src, 'sound/items/bonegel.ogg', 50, 0)
 			update_icon()
+		return
 	else if (istype(W, /obj/item/weapon/storage/bag/plants))
+		if (stat & (BROKEN))
+			to_chat(user, "You have to fix the machine first.")
+			return
 		var/inserted = FALSE
 		for (var/obj/item/weapon/reagent_containers/food/snacks/grown/flax/F in W.contents)
 			remaining_cloth_to_spin += CLOTH_PER_FLAX
@@ -231,8 +242,12 @@
 			update_icon()
 		else
 			to_chat(user, "<span class='warning'>There is no flax in the bag.</span>")
+		return
+	..()
 
 /obj/machinery/electric_loom/conveyor_act(var/atom/movable/AM, var/obj/machinery/conveyor/CB)
+	if (stat & (BROKEN))
+		return FALSE
 	if(istype(AM, /obj/item/weapon/storage/bag/plants))
 		for(var/obj/item/weapon/reagent_containers/food/snacks/grown/flax/F in AM.contents)
 			remaining_cloth_to_spin += CLOTH_PER_FLAX
@@ -311,6 +326,13 @@
 
 /obj/machinery/electric_loom/proc/breakdown()
 	stat |= BROKEN
+	for (var/i = 1 to round(remaining_cloth_to_spin/CLOTH_PER_FLAX))
+		new /obj/item/weapon/reagent_containers/food/snacks/grown/flax(loc)
+	remaining_cloth_to_spin = 0
+	if (stored_cloth > 0)
+		drop_stack(/obj/item/stack/sheet/cloth, loc, stored_cloth)
+		stored_cloth = 0
+		update_icon()
 	update_icon()
 
 /obj/machinery/electric_loom/ex_act(var/severity)

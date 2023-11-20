@@ -28,6 +28,7 @@
 	if (amount)
 		src.amount=amount
 	update_materials()
+	update_icon()
 	//forceMove(loc) // So that Crossed gets called, so that stacks can be merged
 
 /obj/item/stack/Destroy()
@@ -136,15 +137,30 @@
 						t1 += " <A href='?src=\ref[src];make=[i];multiplier=[n]'>[n*R.res_amount]x</A>"
 				if (!(max_multiplier in multipliers))
 					t1 += " <A href='?src=\ref[src];make=[i];multiplier=[max_multiplier]'>[max_multiplier*R.res_amount]x</A>"
-
+	t1 += extra_message()
 	t1 += "</TT></body></HTML>"
 	user << browse(t1, "window=stack")
 	onclose(user, "stack")
 	return
 
+/obj/item/stack/proc/extra_message()
+	return null
+
+/obj/item/stack/proc/time_modifier(var/_time)
+	return _time
+
+/obj/item/stack/proc/loc_override()
+	return null
+
+/obj/item/stack/proc/allow_use(var/mob/living/user)
+	return (user.get_active_hand() == src)
+
+/obj/item/stack/proc/stop_build()
+	return
+
 /obj/item/stack/Topic(href, href_list)
 	..()
-	if ((usr.restrained() || usr.stat || usr.get_active_hand() != src))
+	if ((usr.restrained() || usr.stat || !allow_use(usr)))
 		return
 
 	if (href_list["sublist"] && !href_list["make"])
@@ -159,7 +175,7 @@
 			recipes_list = srl.recipes
 		var/datum/stack_recipe/R = recipes_list[text2num(href_list["make"])]
 		var/multiplier = text2num(href_list["multiplier"])
-		R.build(usr, src, multiplier)
+		R.build(usr, src, multiplier, loc_override())
 	if (src && usr.machine==src) //do not reopen closed window
 		spawn( 0 )
 			src.interact(usr)

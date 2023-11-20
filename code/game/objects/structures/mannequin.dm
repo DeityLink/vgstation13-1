@@ -705,6 +705,7 @@
 
 /obj/structure/mannequin/proc/update_icon_slot(var/obj/abstract/Overlays/O, var/slot)
 	var/obj/item/clothing/clothToUpdate = clothing[slot]
+	O.color = null
 	if(clothToUpdate)
 		var/t_state = clothToUpdate.icon_state
 
@@ -736,19 +737,27 @@
 				else
 					I = image(slotIcon[MANNEQUIN_ICONS_SLOT], t_state)
 
+		var/icon/species_icon
 		if(species.name in clothToUpdate.species_fit)
-			var/icon/species_icon = slotIcon[MANNEQUIN_ICONS_SPECIES]
+			species_icon = slotIcon[MANNEQUIN_ICONS_SPECIES]
 			if(species_icon)
 				I.icon = species_icon
 
 		if(clothToUpdate.icon_override)
 			I.icon	= clothToUpdate.icon_override
 
+		if(clothToUpdate.clothing_flags & COLORS_OVERLAY)
+			I.color = clothToUpdate.color
+
 		O.overlays += I
 
 		if(clothToUpdate.dynamic_overlay)
 			if(clothToUpdate.dynamic_overlay["[slotIcon[MANNEQUIN_DYNAMIC_LAYER]]"])
 				var/image/dyn_overlay = clothToUpdate.dynamic_overlay["[slotIcon[MANNEQUIN_DYNAMIC_LAYER]]"]
+
+				if(species_icon)
+					dyn_overlay = replace_overlays_icon(dyn_overlay, species_icon)
+
 				O.overlays += dyn_overlay
 
 		if(clothToUpdate.blood_DNA && clothToUpdate.blood_DNA.len)
@@ -774,7 +783,6 @@
 					I = image(slotIcon[MANNEQUIN_ICONS_SLOT], above.icon_state)
 
 				if(species.name in above.species_fit)
-					var/icon/species_icon = slotIcon[MANNEQUIN_ICONS_SPECIES]
 					if(species_icon)
 						I.icon = species_icon
 
@@ -784,6 +792,8 @@
 				if(above.dynamic_overlay)
 					if(above.dynamic_overlay["[slotIcon[MANNEQUIN_DYNAMIC_LAYER]]"])
 						var/image/dyn_overlay = above.dynamic_overlay["[slotIcon[MANNEQUIN_DYNAMIC_LAYER]]"]
+						if(species_icon)
+							dyn_overlay = replace_overlays_icon(dyn_overlay, species_icon)
 						dyn_overlay.pixel_y = (2 * i) * PIXEL_MULTIPLIER
 						O.overlays += dyn_overlay
 

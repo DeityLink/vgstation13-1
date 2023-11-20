@@ -107,3 +107,13 @@
 	materials = list(MAT_GLASS = 2000, SACID = 20)
 	category = "Machine Boards"
 	build_path = /obj/item/weapon/circuitboard/electric_loom
+
+/datum/design/sewingmachine
+	name = "Circuit Design (Sewing Machine)"
+	desc = "Allows for the construction of circuit boards used to build a sewing machine."
+	id = "sewingmachine"
+	req_tech = list(Tc_PROGRAMMING = 3, Tc_ENGINEERING = 3)
+	build_type = IMPRINTER
+	materials = list(MAT_GLASS = 2000, SACID = 20)
+	category = "Machine Boards"
+	build_path = /obj/item/weapon/circuitboard/sewing_machine

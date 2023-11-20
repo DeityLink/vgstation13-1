@@ -21,9 +21,16 @@ LINEN BINS
 	restraint_resist_time = 20 SECONDS
 	toolsounds = list("rustle")
 	species_fit = list(VOX_SHAPED)
+	autoignition_temperature = AUTOIGNITION_FABRIC
+	w_type = RECYK_FABRIC
+	starting_materials = list(MAT_FABRIC = 1250)
 
 //cutting the bedsheet into rags and other things
 /obj/item/weapon/bedsheet/attackby(var/obj/item/I, mob/user as mob)
+	if (istype(I, /obj/item/knitting_needles))
+		if (do_after(user, get_turf(src), 30) && loc)
+			plaid_convert()
+		return
 	var/cut_time=0
 	if(I.is_sharp())
 		cut_time = 60 / I.sharpness
@@ -65,21 +72,41 @@ LINEN BINS
 	I.appearance_flags = RESET_COLOR
 	overlays += I
 
+/obj/item/weapon/bedsheet/plaid
+	icon_state = "plaidsheetwhite"
+	_color = "plaidwhite"
+
 /obj/item/weapon/bedsheet/blue
 	icon_state = "sheetblue"
 	_color = "blue"
+
+/obj/item/weapon/bedsheet/blue/plaid
+	icon_state = "plaidsheetblue"
+	_color = "plaidblue"
 
 /obj/item/weapon/bedsheet/green
 	icon_state = "sheetgreen"
 	_color = "green"
 
+/obj/item/weapon/bedsheet/green/plaid
+	icon_state = "plaidsheetgreen"
+	_color = "plaidgreen"
+
 /obj/item/weapon/bedsheet/orange
 	icon_state = "sheetorange"
 	_color = "orange"
 
+/obj/item/weapon/bedsheet/orange/plaid
+	icon_state = "plaidsheetorange"
+	_color = "plaidorange"
+
 /obj/item/weapon/bedsheet/purple
 	icon_state = "sheetpurple"
 	_color = "purple"
+
+/obj/item/weapon/bedsheet/purple/plaid
+	icon_state = "plaidsheetpurple"
+	_color = "plaidpurple"
 
 /obj/item/weapon/bedsheet/rainbow
 	icon_state = "sheetrainbow"
@@ -89,12 +116,20 @@ LINEN BINS
 	icon_state = "sheetred"
 	_color = "red"
 
+/obj/item/weapon/bedsheet/red/plaid
+	icon_state = "plaidsheetred"
+	_color = "plaidred"
+
 /obj/item/weapon/bedsheet/red/redcoat
 	_color = "redcoat" //for denied stamp
 
 /obj/item/weapon/bedsheet/yellow
 	icon_state = "sheetyellow"
 	_color = "yellow"
+
+/obj/item/weapon/bedsheet/yellow/plaid
+	icon_state = "plaidsheetyellow"
+	_color = "plaidyellow"
 
 /obj/item/weapon/bedsheet/mime
 	icon_state = "sheetmime"
@@ -152,12 +187,56 @@ LINEN BINS
 			overlays.len = 0
 			icon_state = "sheetdyeable"
 			color = BlendRGB(color, mixed_color, mixed_alpha/255)
-			var/image/I = image(icon, src, "sheetdyeable-overlay")
+			var/image/I = image(icon, src, "sheet-overlay")
 			I.appearance_flags = RESET_COLOR
 			overlays += I
 			update_blood_overlay()
 		user.update_inv_hands()
 	return TRUE
+
+/obj/item/weapon/bedsheet/proc/plaid_convert()
+	switch(icon_state)
+		if ("plaidsheetwhite")
+			icon_state = "sheetwhite"
+		if ("plaidsheetblue")
+			icon_state = "sheetblue"
+		if ("plaidsheetorange")
+			icon_state = "sheetorange"
+		if ("plaidsheetred")
+			icon_state = "sheetred"
+		if ("plaidsheetpurple")
+			icon_state = "sheetpurple"
+		if ("plaidsheetgreen")
+			icon_state = "sheetgreen"
+		if ("plaidsheetyellow")
+			icon_state = "sheetyellow"
+		if ("sheetwhite")
+			icon_state = "plaidsheetwhite"
+		if ("sheetblue")
+			icon_state = "plaidsheetblue"
+		if ("sheetorange")
+			icon_state = "plaidsheetorange"
+		if ("sheetred")
+			icon_state = "plaidsheetred"
+		if ("sheetpurple")
+			icon_state = "plaidsheetpurple"
+		if ("sheetgreen")
+			icon_state = "plaidsheetgreen"
+		if ("sheetyellow")
+			icon_state = "plaidsheetyellow"
+		if ("plaidsheetdyeable")
+			icon_state = "sheetdyeable"
+		if ("sheetdyeable")
+			icon_state = "plaidsheetdyeable"
+		else
+			return
+	if (copytext(icon_state, 1, 6) == "plaid")
+		overlays.len = 0
+		update_blood_overlay()
+	else
+		var/image/I = image(icon, src, "sheet-overlay")
+		I.appearance_flags = RESET_COLOR
+		overlays += I
 
 /obj/structure/bedsheetbin
 	name = "linen bin"
