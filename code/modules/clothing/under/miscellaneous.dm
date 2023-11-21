@@ -1028,72 +1028,63 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-/obj/item/clothing/under/shortpants
-	name ="short pants"
-	desc = "I love my shorts!"
-	icon_state = "shortpants"
-	item_state = "shortpants"
-	_color = "shortpants"
-	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
-	clothing_flags = COLORS_OVERLAY
-	dyeable_parts = list("belt")
-	dye_base_iconstate_override = "linencrafts"
-	color = COLOR_LINEN
 
-/obj/item/clothing/under/pants
-	name ="pants"
-	desc = "I love my pants!"
-	icon_state = "pants"
-	item_state = "pants"
-	_color = "pants"
+/obj/item/clothing/under/composite
+	name = "uniform"
+	desc = "Comfy and stylish."
+	icon_state = "base_unset"
+	item_state = "base"
+	_color = "base"
 	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
 	clothing_flags = COLORS_OVERLAY
-	dyeable_parts = list("belt","pants-tip")
 	dye_base_iconstate_override = "linencrafts"
 	color = COLOR_LINEN
+	var/list/permanent_parts = list()
 
-/obj/item/clothing/under/tartankilt
-	name ="tartan kilt"
-	desc = "Free your balls!"
-	icon_state = "kilt_tartan"
-	item_state = "kilt_tartan"
-	_color = "kilt_tartan"
-	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
-	clothing_flags = COLORS_OVERLAY
-	dyeable_parts = list("belt")
-	dye_base_iconstate_override = "linencrafts"
-	color = COLOR_LINEN
+/obj/item/clothing/under/composite/proc/set_dyeable_parts()
+	icon_state = "base"
+	dyeable_parts = list()
+	for (var/part in permanent_parts)
+		dyeable_parts += part
+		dyed_parts[part] = list(color,255)
+		switch (part)
+			if ("shortpants")
+				dyeable_parts += list("shortpants-trim")
+			if ("pants")
+				dyeable_parts += list("pants-tip")
+			if ("polo")
+				dyeable_parts += list("polo-stripes","polo-sleeves")
+			if ("tshirt")
+				dyeable_parts += list("tshirt-stripes")
+	dyeable_parts += "belt"
+	if (permanent_parts.len > 1)
+		body_parts_covered = ARMS|LEGS|FULL_TORSO
+	else
+		body_parts_covered = LOWER_TORSO|LEGS
 
-/obj/item/clothing/under/poloshortpants
-	name ="short pants and polo"
-	desc = "I love my polo!"//help
-	icon_state = "poloshortpants"
-	item_state = "poloshortpants"
-	_color = "poloshortpants"
-	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
-	clothing_flags = COLORS_OVERLAY
-	dyeable_parts = list("polo","polo-sleeves","polo-stripes","belt","shortpants")
-	dye_base_iconstate_override = "linencrafts"
-	color = COLOR_LINEN
-
-/obj/item/clothing/under/polopants
-	name ="short pants and polo"
-	desc = "I love my polo!"//please replace with something clever
-	icon_state = "polopants"
-	item_state = "polopants"
-	_color = "polopants"
-	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
-	clothing_flags = COLORS_OVERLAY
-	dyeable_parts = list("polo","polo-sleeves","polo-stripes","belt","pants","pants-tip")
-	dye_base_iconstate_override = "linencrafts"
-	color = COLOR_LINEN
+/obj/item/clothing/under/composite/update_icon()
+	for (var/part in permanent_parts)//enabling actual clothing parts to persist through bleach or full dyeings.
+		if (!(part in dyed_parts))
+			dyed_parts[part] = list(color,255)
+	..()
 
 /obj/item/clothing/under/dress
 	name ="dress"
-	desc = "I love my dress!"
+	desc = "They make you feel like a woman."
 	icon_state = "dress"
 	item_state = "dress"
 	_color = "dress"
 	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
+	clothing_flags = COLORS_OVERLAY
+	color = COLOR_LINEN
+
+/obj/item/clothing/under/villager_dress
+	name ="villager dress"
+	desc = "Greetin. Yea? Ready."
+	icon_state = "villager_dress"
+	item_state = "villager_dress"
+	_color = "villager_dress"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
+	dyeable_parts = list("drape","trim")
 	clothing_flags = COLORS_OVERLAY
 	color = COLOR_LINEN

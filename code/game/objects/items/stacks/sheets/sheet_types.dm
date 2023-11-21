@@ -136,8 +136,8 @@
  */
 /obj/item/stack/sheet/cloth
 	name = "cloth"
-	desc = "This roll of cloth is made from only the finest chemicals and bunny rabbits."
-	singular_name = "cloth roll"
+	desc = "Some linen, made out of flax."
+	singular_name = "lengths of cloth"
 	icon_state = "sheet-cloth"
 	item_state = "sheet-cloth"
 	origin_tech = Tc_MATERIALS + "=2"

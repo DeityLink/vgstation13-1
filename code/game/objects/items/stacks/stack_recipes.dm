@@ -15,6 +15,7 @@
 	var/z_up_required = 0
 	var/z_down_required = 0
 	var/list/other_reqs = list()
+	var/list/extra_data = list()
 
 /datum/stack_recipe/New(title, result_type, req_amount = 1, res_amount = 1, max_res_amount = 1, time = 0, one_per_turf = 0, on_floor = 0, start_unanchored = 0, other_reqs = list(), z_up_required = 0, z_down_required = 0)
 	src.title = title
@@ -42,7 +43,12 @@
 /datum/stack_recipe/proc/finish_building(var/mob/usr, var/obj/item/stack/S, var/R) //This will be called after the recipe is done building, useful for doing something to the result if you want.
 	return R
 
+/datum/stack_recipe/proc/before_build(var/mob/user)
+	return TRUE
+
 /datum/stack_recipe/proc/build(var/mob/usr, var/obj/item/stack/S, var/multiplier = 1, var/turf/construct_loc)
+	if (!before_build(usr))
+		return
 	if (S.amount < req_amount*multiplier)
 		if (res_amount*multiplier>1)
 			to_chat(usr, "<span class='warning'>You haven't got enough [S.irregular_plural ? S.irregular_plural : "[S.singular_name]\s"] to build [res_amount*multiplier] [title]\s!</span>")
@@ -54,8 +60,8 @@
 	if (!can_build_here(usr, construct_loc))
 		return
 	if (time)
-		time = S.time_modifier(time)
-		if (!do_after(usr, get_turf(S), time))
+		var/actual_time = S.time_modifier(time)
+		if (!do_after(usr, get_turf(S), actual_time))
 			S.stop_build()
 			return
 	if (S.amount < req_amount*multiplier)
@@ -528,16 +534,60 @@ var/list/datum/stack_recipe/cloth_recipes_by_hand = list (
 	new/datum/stack_recipe/cloth("Bedsheet",		/obj/item/weapon/bedsheet/linen,				2,	time = 20),
 	)
 
+//keep in mind that tool crafting time is reduced by x0.75 with needles and x0.5 with a sewing machine, then all the way down to x0.1 with upgrades
 var/list/datum/stack_recipe/cloth_recipes_with_tool = list (
 	null,
-	new/datum/stack_recipe/cloth("Jumpsuit",				/obj/item/clothing/under/color,			5,	time = 150),
-	new/datum/stack_recipe/cloth("Short Pants",				/obj/item/clothing/under/shortpants,	2,	time = 150),
-	new/datum/stack_recipe/cloth("Short Pants with Polo",	/obj/item/clothing/under/poloshortpants,4,	time = 150),
-	new/datum/stack_recipe/cloth("Long Pants",				/obj/item/clothing/under/pants,			3,	time = 150),
-	new/datum/stack_recipe/cloth("Long Pants with Polo",	/obj/item/clothing/under/polopants,		5,	time = 150),
-	new/datum/stack_recipe/cloth("Tartan Kilt",				/obj/item/clothing/under/tartankilt,	2,	time = 150),
-	new/datum/stack_recipe/cloth("Robe",					/obj/item/clothing/under/dress,			4,	time = 150),
+	new/datum/stack_recipe/cloth("Jumpsuit",				/obj/item/clothing/under/color,			5,	time = 200),
+	new/datum/stack_recipe/cloth/composite("Composite Set",	/obj/item/clothing/under/composite, 	2),
+	new/datum/stack_recipe/cloth("Sleeve-less Dress",		/obj/item/clothing/under/dress,			4,	time = 160),
+	new/datum/stack_recipe/cloth("Villager Dress",			/obj/item/clothing/under/villager_dress,5,	time = 200),
 	)
+
+/datum/stack_recipe/cloth/composite/before_build(var/mob/user)
+	//first we pick some pants
+	extra_data = list()
+	time = 0
+	req_amount = 0
+	var/list/available_pants = list(
+		"Short Pants (2 cloth)" = list("shortpants",2),
+		"Long Pants (3 cloth)" = list("pants",3),
+		"Tartan Kilt (2 cloth)" = list("tartankilt",2),
+		"Pleated Skirt (3 cloth)" = list("pleatedskirt",3),
+		"Straight Skirt (2 cloth)" = list("straightskirt",2),
+		)
+	var/choice = input(user, "What kind of pants?","Composite Set",null) as null|anything in available_pants
+	if (!choice)
+		req_amount = 2
+		return FALSE
+
+	var/list/result = available_pants[choice]
+	extra_data += result[1]
+	req_amount += result[2]
+
+	//then we may pick a top or none
+	var/list/available_tops = list(
+		"None" = null,
+		"Polo (2 cloth)" = list("polo",2),
+		"T-Shirt (2 cloth)" = list("tshirt",2),
+		)
+	choice = input(user, "What kind of top?","Composite Set",null) as null|anything in available_tops
+
+	if (choice != "None")
+		result = available_tops[choice]
+		extra_data += result[1]
+		req_amount += result[2]
+
+	//the total time depends on the amount of cloth needed
+	time = req_amount * 40
+
+	return TRUE
+
+/datum/stack_recipe/cloth/composite/finish_building(var/mob/usr, var/obj/item/stack/S, var/R)
+	var/obj/item/clothing/under/composite/new_clothing = R
+	new_clothing.permanent_parts =  extra_data.Copy()
+	new_clothing.set_dyeable_parts()
+	new_clothing.update_icon()
+	return R
 
 /* ========================================================================
 							LEATHER RECIPES

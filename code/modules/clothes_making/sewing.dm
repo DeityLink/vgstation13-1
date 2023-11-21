@@ -31,6 +31,20 @@
 
 	var/knitting = 0
 
+/obj/item/knitting_needles/alien
+	name = "sewing needles"
+	desc = "They're quite big, but could probably be used as knitting needles still."
+	icon_state = "sewing_needles"
+	item_state = "sewing_needles"
+	starting_materials = list(MAT_IRON = 75)
+	w_type = RECYK_METAL
+	melt_temperature = MELTPOINT_STEEL
+	siemens_coefficient = 1
+	autoignition_temperature = 0
+	force = 10
+	throwforce = 15
+	throw_range = 7
+
 /obj/item/knitting_needles/Destroy()
 	QDEL_NULL(stored_cloth)
 	..()
@@ -58,6 +72,7 @@
 				var/obj/item/stack/sheet/cloth/C = target
 				C.merge(stored_cloth)
 			else
+				user.drop_item(stored_cloth)//in case it's in our bag or another hand
 				stored_cloth.forceMove(target.loc)
 				stored_cloth = target
 				stored_cloth.forceMove(src)
@@ -65,6 +80,7 @@
 				to_chat(user, "<span class='notice'>You swap the cloth rolls.</span>")
 		else
 			to_chat(user, "<span class='notice'>You equip \the [src] with cloth.</span>")
+			user.drop_item(target)//in case it's in our bag or another hand
 			stored_cloth = target
 			stored_cloth.forceMove(src)
 			playsound(user.loc, 'sound/items/bonegel.ogg', 50, 1)
@@ -126,7 +142,7 @@
 		var/image/cloth = image(icon, src, "knitting_needles-cloth")
 		cloth.color = stored_cloth.color
 		overlays += cloth
-		item_state = "knitting_needles[knitting ? "-knitting" : ""]"
+		item_state = "[initial(icon_state)][knitting ? "-knitting" : ""]"
 		//dynamic in-hand overlay
 		var/image/clothleft = image(inhand_states["left_hand"], src, "knitting_needles-cloth[knitting ? "-knitting" : ""]")
 		var/image/clothright = image(inhand_states["right_hand"], src, "knitting_needles-cloth[knitting ? "-knitting" : ""]")

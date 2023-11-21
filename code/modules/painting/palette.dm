@@ -177,17 +177,21 @@ interactions:
 					strengh = clamp(strengh, 0, 1)
 					var/colour_pencil = rgb2num(PB.paint_color)
 					var/colour_palette = rgb2num(colour)
+					//Nano Paint turns any paint it touches into more nano paint and blends additively
 					if ((nanopaint == PAINTLIGHT_FULL) || (PB.nano_paint == PAINTLIGHT_FULL))
 						var/blend_rgb = AddRGB(colour, PB.paint_color, strengh)
 						stored_colours[colour_tag] = blend_rgb
 						PB.paint_color = blend_rgb
 						PB.nano_paint = TRUE
 						nanopaint_indexes[colour_tag] = PAINTLIGHT_FULL
+					//Otherwise, if both paints have limited luminosity, the results will be luminous. Otherwise the result loses its luminosity.
 					else
 						var/blend = colorRybBlend(colour_pencil, colour_palette, strengh)
 						var/blend_rgb = rgb(blend[1], blend[2], blend[3], blend[4], "COLORSPACE_RGB")
 						stored_colours[colour_tag] = blend_rgb
 						PB.paint_color = blend_rgb
+						if ((nanopaint != PAINTLIGHT_LIMITED) || (PB.nano_paint != PAINTLIGHT_LIMITED))
+							PB.nano_paint = PAINTLIGHT_NONE
 				PB.update_icon()
 			if ("duplicate")
 				stored_colours["[++tagindex]"] += colour

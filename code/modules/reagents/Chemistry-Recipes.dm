@@ -1271,6 +1271,13 @@
 	required_reagents = list(SODIUMCHLORIDE = 2, CLEANER = 2, OXYGEN = 1)
 	result_amount = 2
 
+/datum/chemical_reaction/acetone
+	name = "Acetone"
+	id = ACETONE
+	result = ACETONE
+	required_reagents = list(CARBON = 1, WATER = 1, HYDROGEN = 1)
+	result_amount = 2
+
 //This one isn't even close the the real life reaction but will have to do to avoid conflicts with the above reactions.
 /datum/chemical_reaction/luminol
 	name = "Luminol"

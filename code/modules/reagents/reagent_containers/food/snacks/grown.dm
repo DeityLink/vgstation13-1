@@ -1210,7 +1210,7 @@ var/list/strange_seed_product_blacklist = subtypesof(/obj/item/weapon/reagent_co
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/flax
 	name = "flax"
-	desc = "The grains can be ground to produce an oil whose pigment match the color of surrounding reagents."
+	desc = "The grains can be ground to produce an oil whose pigment match the color of surrounding reagents, and the fibers can be weaved into cloth at a spinning wheel or electric loom."
 	gender = PLURAL
 	potency = 20
 	filling_color = "#7E80DE"

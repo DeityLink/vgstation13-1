@@ -542,7 +542,7 @@
 /datum/disease2/effect/colorsplash
 	name = "Colorful Syndrome"
 	desc = "Causes the infected to expulse bursts of paint from their pores."
-	encyclopedia = "The paint can be cleaned from items with "
+	encyclopedia = "The paint can be washed off items, and removed from floors and walls using bleach or acetone. The infected's own skin color will match the color of their last paint burst, but they can recover their original color with a shower, or exposure to space cleaner."
 	stage = 3
 	badness = EFFECT_DANGER_HINDRANCE
 	var/list/random_color_list = list("#00aedb","#a200ff","#f47835","#d41243","#d11141","#00b159","#00aedb","#f37735","#ffc425","#008744","#0057e7","#d62d20","#ffa700")

@@ -238,13 +238,17 @@
 /obj/item/clothing/dye_act(var/obj/structure/reagent_dispensers/cauldron/cauldron, var/mob/user)
 	if (clothing_flags & COLORS_OVERLAY)
 		var/dye_target = "full"
+		var/list/actual_parts = list()
 		if (dyeable_parts.len > 0)
-			var/list/choices = list("full")
-			choices += dyeable_parts
+			var/list/choices = list("Full")
+			for (var/part in dyeable_parts)//doing some swapping so we get an easier list to read in-game
+				var/part_proper_name = dyeable_part_to_name[part]
+				choices += part_proper_name
+				actual_parts[part_proper_name] = part
 			dye_target = input("Which part do you want to dye?","Clothing Dyeing",1) as null|anything in choices
 		if (!dye_target)
 			return
-		to_chat(user, "<span class='notice'>You begin dyeing \the [src][(dye_target != "full") ? "'s [dye_target]" : ""].</span>")
+		to_chat(user, "<span class='notice'>You begin dyeing \the [src][(dye_target != "Full") ? "'s [dye_target]" : ""].</span>")
 		playsound(cauldron.loc, 'sound/effects/slosh.ogg', 25, 1)
 		if (do_after(user, cauldron, 30))
 			var/mixed_color = mix_color_from_reagents(cauldron.reagents.reagent_list, TRUE)
@@ -260,12 +264,12 @@
 				update_icon()
 				user.update_inv_hands()
 				return
-			if (dye_target == "full")
+			if (dye_target == "Full")
 				dyed_parts.len = 0
 				color = BlendRGB(color, mixed_color, mixed_alpha/255)
 			else
 				dyed_parts -= dye_target//moving the new layer on top
-				dyed_parts[dye_target] = list(mixed_color,mixed_alpha)
+				dyed_parts[actual_parts[dye_target]] = list(mixed_color,mixed_alpha)//getting back the actual overlay name
 			update_icon()
 			user.update_inv_hands()
 	else
