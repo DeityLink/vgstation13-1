@@ -72,7 +72,7 @@
 				var/obj/item/stack/sheet/cloth/C = target
 				C.merge(stored_cloth)
 			else
-				user.drop_item(stored_cloth)//in case it's in our bag or another hand
+				user.drop_item(target)//in case it's in our bag or another hand
 				stored_cloth.forceMove(target.loc)
 				stored_cloth = target
 				stored_cloth.forceMove(src)
