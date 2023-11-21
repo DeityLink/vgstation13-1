@@ -93,8 +93,6 @@
 			else
 				blood_data = list("wet paint" = "paint")
 		update_icon()
-	else if (isfloor(target))
-		paint_doodle(user,target)
 	else if (ishuman(target) && paint_color)
 		var/mob/living/carbon/human/H = target
 		var/paint_data = list(
@@ -116,7 +114,7 @@
 		playsound(src, get_sfx("mop"), 5, 1)
 
 //presumably this will allow painting on the floor, credit to Anonymous user No.453861032
-	if(istype(target, /turf/simulated)) 
+	if(istype(target, /turf/simulated))
 		var/turf/simulated/the_turf = target
 		var/datum/painting_utensil/p = new(user, src)
 		if (!the_turf.advanced_graffiti)
@@ -124,6 +122,14 @@
 			the_turf.advanced_graffiti = advanced_graffiti
 		the_turf.advanced_graffiti.interact(user, p)
 		return
+
+/obj/item/painting_brush/AltFrom(var/atom/A,var/mob/user, var/proximity_flag, var/click_parameters)
+	if(proximity_flag == 0) // not adjacent
+		return
+	if (isfloor(A))
+		paint_doodle(user,A)
+		return TRUE
+	return FALSE
 
 /obj/item/painting_brush/clean_act(var/cleanliness)
 	..()
