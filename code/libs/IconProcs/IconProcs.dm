@@ -551,7 +551,8 @@
 /proc/replace_overlays_icon(var/image/I, var/icon/replacement)
 	if (!I || !replacement)
 		return
-	I.icon = replacement
+	if(I.icon_state != "blank")
+		I.icon = replacement
 	var/list/new_overlays = list()
 
 	for (var/lay in I.overlays)
@@ -559,7 +560,7 @@
 		var/mutable_appearance/new_overlay = new (overlay_ref)
 		new_overlay.appearance_flags = overlay_ref.appearance_flags
 		new_overlay.color = overlay_ref.color
-		new_overlay.icon = replacement
+		new_overlay = replace_overlays_icon(new_overlay,replacement)
 		new_overlays += new_overlay
 
 	I.overlays.len = 0

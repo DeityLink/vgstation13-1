@@ -1,241 +1,14 @@
 
-var/list/paint_overlay_override_floors = list(
-	"white" = "floor",
-	"dark" = "floor",
-	"bar" = "floor",
-	"stage_left" = "floor",
-	"stage_bleft" = "floor",
-	"cafeteria" = "floor",
-	"red" = "floor",
-	"redcorner" = "floor",
-	"redfull" = "floor",
-	"whitered" = "floor",
-	"whiteredcorner" = "floor",
-	"whiteredfull" = "floor",
-	"blue" = "floor",
-	"bluecorner" = "floor",
-	"bluefull" = "floor",
-	"whiteblue" = "floor",
-	"whitebluecorner" = "floor",
-	"whitebluefull" = "floor",
-	"green" = "floor",
-	"greencorner" = "floor",
-	"greenfull" = "floor",
-	"whitegreen" = "floor",
-	"whitegreencorner" = "floor",
-	"whitegreenfull" = "floor",
-	"yellow" = "floor",
-	"yellowcorner" = "floor",
-	"yellowfull" = "floor",
-	"whiteyellow" = "floor",
-	"whiteyellowcorner" = "floor",
-	"whiteyellowfull" = "floor",
-	"chapeldark" = "chapel",
-	"enginewarncorner" = "engine",
-	"engineloadingarea" = "engine",
-	"enginedelivery" = "engine",
-	"enginebot" = "engine",
-	"enginewarn" = "engine",
-	"bcircuitoff" = "bcircuit",
-	"gcircuit" = "bcircuit",
-	"gcircuitoff" = "bcircuit",
-	"neutral" = "floor",
-	"neutralfull" = "floor",
-	"neutralcorner" = "floor",
-	"orange" = "floor",
-	"orangecorner" = "floor",
-	"orangefull" = "floor",
-	"whitehall" = "floor",
-	"whitecorner" = "floor",
-	"arrival" = "floor",
-	"arrivalcorner" = "floor",
-	"escape" = "floor",
-	"escapecorner" = "floor",
-	"purple" = "floor",
-	"purplecorner" = "floor",
-	"purplefull" = "floor",
-	"whitepurple" = "floor",
-	"whitepurplecorner" = "floor",
-	"whitepurplefull" = "floor",
-	"cmo" = "floor",
-	"black" = "floor",
-	"blackcorner" = "floor",
-	"caution" = "floor",
-	"cautioncorner" = "floor",
-	"floorgrime" = "floor",
-	"freezerfloor" = "floor",
-	"panelscorched" = "plating",
-	"floorscorched1" = "floor",
-	"floorscorched2" = "floor",
-	"delivery" = "floor",
-	"bot" = "floor",
-	"hydrofloor" = "floor",
-	"brownold" = "floor",
-	"browncornerold" = "floor",
-	"brown" = "floor",
-	"browncorner" = "floor",
-	"redyellow" = "floor",
-	"redyellowfull" = "floor",
-	"redblue" = "floor",
-	"bluered" = "floor",
-	"redbluefull" = "floor",
-	"redgreen" = "floor",
-	"redgreenfull" = "floor",
-	"greenyellow" = "floor",
-	"greenyellowfull" = "floor",
-	"greenblue" = "floor",
-	"greenbluefull" = "floor",
-	"blueyellow" = "floor",
-	"blueyellowfull" = "floor",
-	"showroomfloor" = "floor",
-	"warnwhite" = "warning",
-	"warnwhitecorner" = "warningcorner",
-	"dark-markings" = "floor",
-	"dark vault corner" = "floor",
-	"dark vault full" = "floor",
-	"dark vault stripe" = "floor",
-	"loadingareadirty1" = "loadingarea",
-	"loadingareadirty2" = "loadingarea",
-	"light_on_flicker1" = "no_paint",
-	"light_on_flicker2" = "no_paint",
-	"light_on_flicker3" = "no_paint",
-	"light_on_flicker4" = "no_paint",
-	"light_on" = "no_paint",
-	"light_off" = "no_paint",
-	"light_broken" = "no_paint",
-	"light_on-r" = "no_paint",
-	"light_on-g" = "no_paint",
-	"light_on-b" = "no_paint",
-	"light_on-y" = "no_paint",
-	"light_on-p" = "no_paint",
-	"light_on-w" = "no_paint",
-	"light_base" = "no_paint",
-	"sandstonevault" = "rockvault",
-	"alienvault" = "rockvault",
-	"barber" = "floor",
-	"whitebot" = "floor",
-	"whitedelivery" = "floor",
-	"lava" = "no_paint",
-	"floor4" = "floor-shuttle2",
-	"bcarpet01" = "carpet6-2",
-	"bcarpet02" = "carpet14-10",
-	"bcarpet03" = "carpet10-8",
-	"bcarpet04" = "carpet7-3",
-	"bcarpet05" = "carpet15-15",
-	"bcarpet06" = "carpet11-12",
-	"bcarpet07" = "carpet5-1",
-	"bcarpet08" = "carpet13-5",
-	"bcarpet09" = "carpet9-4",
-	"old_enginewarncorner" = "old_engine",
-	"old_engineloadingarea" = "old_engine",
-	"old_enginedelivery" = "old_engine",
-	"old_enginebot" = "old_engine",
-	"old_enginewarn" = "old_engine",
-	"checker" = "floor",
-	"vaultfull" = "floor",
-	"dark blue corner" = "floor",
-	"dark blue full" = "floor",
-	"dark blue stripe" = "floor",
-	"dark brown corner" = "floor",
-	"dark brown full" = "floor",
-	"dark brown stripe" = "floor",
-	"dark floor corner" = "floor",
-	"dark floor full" = "floor",
-	"dark floor stripe" = "floor",
-	"dark green corner" = "floor",
-	"dark green full" = "floor",
-	"dark green stripe" = "floor",
-	"dark neutral corner" = "floor",
-	"dark neutral full" = "floor",
-	"dark neutral stripe" = "floor",
-	"dark orange corner" = "floor",
-	"dark orange full" = "floor",
-	"dark orange stripe" = "floor",
-	"dark purple corner" = "floor",
-	"dark purple full" = "floor",
-	"dark purple stripe" = "floor",
-	"dark red corner" = "floor",
-	"dark red full" = "floor",
-	"dark red stripe" = "floor",
-	"dark yellow corner" = "floor",
-	"dark yellow full" = "floor",
-	"dark yellow stripe" = "floor",
-	"darkpurple" = "floor",
-	"darkpurplecorners" = "floor",
-	"darkpurplefull" = "floor",
-	"darkred" = "floor",
-	"darkredcorners" = "floor",
-	"darkredfull" = "floor",
-	"darkblue" = "floor",
-	"darkbluecorners" = "floor",
-	"darkbluefull" = "floor",
-	"darkgreen" = "floor",
-	"darkgreencorners" = "floor",
-	"darkgreenfull" = "floor",
-	"darkyellow" = "floor",
-	"darkyellowcorners" = "floor",
-	"darkyellowfull" = "floor",
-	"darkbrown" = "floor",
-	"darkbrowncorners" = "floor",
-	"darkbrownfull" = "floor",
-	"vault" = "floor",
-	"yellow_tint" = "floor",
-	"pattern_blue" = "pattern_yellow",
-	"pattern_red" = "pattern_yellow",
-	"dark_navy" = "floor",
-	"dark_navy_corner" = "floor",
-	"dark_navy_full" = "floor",
-	"tatami-yellow-spiral" = "tatami-green-spiral",
-	"tatami-yellow-3mat" = "tatami-green-3mat",
-	"tatami-yellow-1mat-hori" = "tatami-green-1mat-hori",
-	"tatami-yellow-1mat-verti" = "tatami-green-1mat-verti",
-	"tatami-yellow-2mat-hori" = "tatami-green-2mat-hori",
-	"tatami-yellow-2mat-verti" = "tatami-green-2mat-verti",
-	"tatami-yellow-halfmat" = "tatami-green-halfmat",
-)
+/*
 
-var/list/paint_overlay_override_shuttle_walls = list(
-	"wall2" = "wall1",
-	"diagonalWall2" = "diagonalWall",
-	"diagonalWall3" = "diagonalWall",
-	"pwall" = "wall",
-	"wall3" = "wall",
-	"diagonalWall3S" = "diagonalWallS",
-	)
-
-var/list/paint_overlay_override_walls = list(
-	"supermatter" = "no_paint",
-	"rock(high)" = "rock",
-	"rock(clown)" = "rock",
-	"rock_Uranium" = "rock",
-	"rock_Iron" = "rock",
-	"rock_Gold" = "rock",
-	"rock_Diamond" = "rock",
-	"rock_Silver" = "rock",
-	"rock_Plasma" = "rock",
-	"rock_Clown" = "rock",
-	"rock_Gibtonite" = "rock",
-	"rock_Phazon" = "rock",
-	"rock_Telecrystal" = "rock",
-	"sandstonevault" = "rockvault",
-	"alienvault" = "rockvault",
-	"fakewindows" = "no_paint",
-	"fakewindows2" = "no_paint",
-	"mariahive_Uranium" = "mariahive",
-	"mariahive_Iron" = "mariahive",
-	"mariahive_Gold" = "mariahive",
-	"mariahive_Diamond" = "mariahive",
-	"mariahive_Silver" = "mariahive",
-	"mariahive_Plasma" = "mariahive",
-	"mariahive_Clown" = "mariahive",
-	"mariahive_Phazon" = "mariahive",
-	"mariahive_Telecrystal" = "mariahive",
-	)
+	* get_paint_state()
+	* get_paint_icon()
 
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+*/
 
+//returns the icon_state that corresponds to the paint overlay for that given turf.
 /turf/proc/get_paint_state()
 	var/paint_icon_state = icon_state
 	switch (icon)
@@ -298,6 +71,7 @@ var/list/paint_overlay_override_walls = list(
 
 //------------------------------------------------------
 
+//returns the dmi that corresponds to the paint overlay for that given turf.
 /turf/proc/get_paint_icon()
 	return 'icons/turf/paint_overlays_floors.dmi'
 
@@ -309,20 +83,24 @@ var/list/paint_overlay_override_walls = list(
 
 //------------------------------------------------------
 
+//covers the whole turf with a new coat of paint, removing all paint decals in the process.
 /turf/proc/apply_paint_overlay(var/_color="#FFFFFF",var/_alpha=255,var/_DNA = list(),var/_nano_paint=FALSE)
 	if (!paint_overlay)
 		paint_overlay=new(src)
 	paint_overlay.apply(_color,_alpha, null, SOUTH, _DNA, _nano_paint)
 
+//applies a paint decal
 /turf/proc/apply_paint_stroke(var/_color="#FFFFFF",var/_alpha=255,var/_dir=SOUTH,var/_stroke_icon = "border_splatter",var/_DNA = list(),var/_nano_paint=FALSE)
 	if (!paint_overlay)
 		paint_overlay=new(src)
 	paint_overlay.add_border_stroke(_color,_alpha,_dir, _stroke_icon, _DNA, _nano_paint)
 
+//removes the paint overlay. Keeping erase at 0 let's us re-add it later, useful when we want to preserves things paint on plating hidden by floor tiles.
 /turf/proc/remove_paint_overlay(var/erase)
 	if (paint_overlay)
 		paint_overlay.remove(erase)
 
+//refreshes the paint overlay, ensuring that it matches any changes to the turf (such as its icon changing from damage).
 /turf/proc/update_paint_overlay()
 	if (paint_overlay)
 		paint_overlay.update()
@@ -340,15 +118,16 @@ var/list/paint_overlay_override_walls = list(
 	var/wet_amount = 3//how many steps with wet shoes
 	var/list/blood_DNA = list()
 
-	var/arbitrary_overlay_limit = 32
+	var/arbitrary_overlay_limit = 32//figured not having a limit might be silly.
 
-	var/nano_paint = FALSE
+	var/nano_paint = FALSE//if true, main_color is added to the turf's light, enabling turfs to be lit up even without a proper light source (Might have to rework that when Europa Lights come back)
 	var/main_color = "#000000"
 
 /datum/paint_overlay/New(var/turf/_turf)
 	..()
 	my_turf = _turf
 
+//We'll need to make copies of a paint overlay when moving them to crowbar'd floor tiles.
 /datum/paint_overlay/proc/Copy()
 	var/datum/paint_overlay/copy = new()
 	copy.overlay = image('icons/turf/paint_overlays_floors.dmi',my_turf,"no_paint")
@@ -365,6 +144,7 @@ var/list/paint_overlay_override_walls = list(
 	copy.main_color = main_color
 	return copy
 
+//the main proc that deals with actually adding paint on the floor
 /datum/paint_overlay/proc/apply(var/_color="#FFFFFF",var/_alpha=255,var/_mask=null,var/_mask_dir=SOUTH,var/list/_blood_DNA=list(),var/_nano_paint=FALSE)
 	my_turf.overlays -= overlay
 	if (!overlay)
@@ -406,7 +186,7 @@ var/list/paint_overlay_override_walls = list(
 		blood_DNA["wet paint"] = "paint"
 	my_turf.overlays += overlay
 
-
+//Causes the floor to wet the feet of humans, causing them to leave paint footprints
 /datum/paint_overlay/proc/wet(var/_color="#FFFFFF",var/_duration=10 SECONDS, var/_amount=3)//amount means how far footprints can go
 	wet_time = world.time
 
@@ -414,7 +194,7 @@ var/list/paint_overlay_override_walls = list(
 	wet_duration = _duration
 	wet_amount = _amount
 
-
+//Adding paint decals.
 /datum/paint_overlay/proc/add_border_stroke(var/_color="#FFFFFF",var/_alpha=255,var/_dir=SOUTH,var/stroke_icon = "border_splatter",var/list/_blood_DNA=list(),var/_nano_paint=FALSE)
 	if (!overlay)
 		overlay = image('icons/turf/paint_overlays_floors.dmi',my_turf,"no_paint")
@@ -430,7 +210,7 @@ var/list/paint_overlay_override_walls = list(
 								apply(_color,_alpha,"border_roller_progress",_dir,_blood_DNA,_nano_paint)
 								return
 							if ("border_roller_progress")
-								apply(_color,_alpha,null,_dir,_blood_DNA,_nano_paint)
+								apply(_color,_alpha,null,_dir,_blood_DNA,_nano_paint)//On the third click we just apply a coat over the whole tile
 								return
 	if (stroke_icon == "wall_side" || stroke_icon == "wall_splatter")//painting around a wall
 		var/sides = 0
@@ -511,3 +291,30 @@ var/list/paint_overlay_override_walls = list(
 		H.feet_blood_color = (H.feet_blood_color && H.feet_blood_DNA.len) ? BlendRYB(H.feet_blood_color, wet_color, 0.5) : wet_color
 
 		H.update_inv_shoes(1)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//Lets mappers have some turfs pre-painted
+
+/obj/abstract/map/paint_coat
+	icon = 'icons/turf/paint_overlays_floors.dmi'
+	icon_state = "fullblack"
+	color = "#FFFFFF"
+	alpha = 255
+	var/coat_luminosity = FALSE
+
+/obj/abstract/map/paint_coat/perform_spawn()
+	var/turf/T = get_turf(loc)
+	if (T)
+		T.apply_paint_overlay(color,alpha,list(),coat_luminosity)
+	qdel(src)
+
+/obj/abstract/map/paint_coat/paint_stroke
+	icon = 'icons/turf/paint_masks.dmi'
+	icon_state = "border_roller"
+	dir = SOUTH
+
+/obj/abstract/map/paint_coat/paint_stroke/perform_spawn()
+	var/turf/T = get_turf(loc)
+	if (T)
+		T.apply_paint_stroke(color,alpha,dir,icon_state,list(),coat_luminosity)
+	qdel(src)
