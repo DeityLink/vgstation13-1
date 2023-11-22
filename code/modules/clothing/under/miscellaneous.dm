@@ -1011,7 +1011,7 @@
 	clothing_flags = COLORS_OVERLAY
 	//TODO
 	//clothing_flags = ONESIZEFITSALL
-	//species_fit = list(INSECT_SHAPED, VOX_SHAPED, GREY_SHAPED)
+	species_fit = list(VOX_SHAPED)//, INSECT_SHAPED, GREY_SHAPED)
 	dyeable_parts = list("sash")
 	hood = new /obj/item/clothing/head/toga_cap()
 	color = COLOR_LINEN
@@ -1022,7 +1022,7 @@
 	desc = "The wrappings of a toga allow for an improvised cap."
 	icon_state = "toga_cap"
 	item_state = "toga_cap"
-	species_fit = list(INSECT_SHAPED)
+	species_fit = list(VOX_SHAPED)
 	clothing_flags = COLORS_OVERLAY
 	body_parts_covered = HEAD|EARS|HIDEHEADHAIR
 
@@ -1036,6 +1036,7 @@
 	item_state = "base"
 	_color = "base"
 	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
+	species_fit = list(VOX_SHAPED)
 	clothing_flags = COLORS_OVERLAY
 	dye_base_iconstate_override = "linencrafts"
 	color = COLOR_LINEN
@@ -1075,6 +1076,7 @@
 	item_state = "dress"
 	_color = "dress"
 	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
+	species_fit = list(VOX_SHAPED)
 	clothing_flags = COLORS_OVERLAY
 	color = COLOR_LINEN
 
@@ -1085,6 +1087,7 @@
 	item_state = "villager_dress"
 	_color = "villager_dress"
 	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
+	species_fit = list(VOX_SHAPED)
 	dyeable_parts = list("drape","trim")
 	clothing_flags = COLORS_OVERLAY
 	color = COLOR_LINEN

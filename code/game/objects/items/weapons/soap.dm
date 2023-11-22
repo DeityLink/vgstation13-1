@@ -106,7 +106,7 @@
 			return
 		cleanables = shuffle(cleanables)
 		var/obj/effect/decal/cleanable/C = pick(cleanables)
-		user.simple_message("<span class='notice'>You scrub \the [C.name] out.</span>",
+		user.simple_message("<span class='notice'>You scrub \the [isatom(C) ? "[C.name]" : "decal"] out.</span>",
 			"<span class='warning'>You destroy [pick("an artwork","a valuable artwork","a rare piece of art","a rare piece of modern art")].</span>")
 		qdel(C)
 		on_successful_use(user)
