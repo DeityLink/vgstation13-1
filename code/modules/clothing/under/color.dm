@@ -9,7 +9,7 @@
 	species_fit = list(VOX_SHAPED, GREY_SHAPED, INSECT_SHAPED)
 	color = COLOR_LINEN
 	clothing_flags = ONESIZEFITSALL | COLORS_OVERLAY
-	dyeable_parts = list("top","top-sleeves-whole","top-sleeves-tip","top-shoulders","top-trim","pants","pants-tip")
+	dyeable_parts = list("top","top-sleeves-whole","top-sleeves-tip","top-shoulders","top-trim","pants","pants-tip","belt")
 	dye_base_iconstate_override = "white"//so we can dye the other jumpsuits without having to add additional icon states
 	dye_base_itemstate_override = "w_suit"
 

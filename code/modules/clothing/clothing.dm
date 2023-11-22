@@ -239,8 +239,8 @@
 	if (clothing_flags & COLORS_OVERLAY)
 		var/dye_target = "full"
 		var/list/actual_parts = list()
+		var/list/choices = list("Full")
 		if (dyeable_parts.len > 0)
-			var/list/choices = list("Full")
 			for (var/part in dyeable_parts)//doing some swapping so we get an easier list to read in-game
 				var/part_proper_name = dyeable_part_to_name[part]
 				choices += part_proper_name
@@ -258,13 +258,17 @@
 				for(var/datum/reagent/R in cauldron.reagents.reagent_list)
 					if (R.id == BLEACH || R.id == ACETONE)
 						silent = TRUE
+						to_chat(user, "<span class='notice'>You wash off \the [src]'s colors.</span>")
+					if (R.id == CLEANER)
+						silent = TRUE
+						to_chat(user, "<span class='notice'>You wash \the [src] clean.</span>")
 					R.reaction_obj(src, R.volume)
 				if (!silent)
 					to_chat(user, "<span class='warning'>It seems that there are no pigments among the reagents in the cauldron.</span>")
 				update_icon()
 				user.update_inv_hands()
 				return
-			if (dye_target == "Full")
+			if (dye_target == "Full" || choices.len <= 1)
 				dyed_parts.len = 0
 				color = BlendRGB(color, mixed_color, mixed_alpha/255)
 			else
@@ -706,6 +710,8 @@ var/global/maxStackDepth = 10
 	var/ignore_flip = 0
 	actions_types = list(/datum/action/item_action/toggle_mask)
 	heat_conductivity = MASK_HEAT_CONDUCTIVITY
+	cloth_layer = FACEMASK_LAYER
+	cloth_icon = 'icons/mob/mask.dmi'
 	starting_materials = list(MAT_FABRIC = 938)
 
 /datum/action/item_action/toggle_mask
@@ -744,6 +750,7 @@ var/global/maxStackDepth = 10
 			flags = 0
 			src.is_flipped = 2
 			body_parts_covered &= ~(MOUTH|HEAD|BEARD|FACE)
+		update_icon()
 		usr.update_inv_wear_mask()
 		usr.update_hair()
 		usr.update_inv_glasses()

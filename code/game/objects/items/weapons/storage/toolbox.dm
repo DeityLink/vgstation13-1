@@ -156,7 +156,7 @@
 
 /obj/item/weapon/storage/toolbox/paint
 	name = "painter's toolbox"
-	desc = "Contains an assortment of paints for the artistic trader."
+	desc = "Contains an assortment of paints for the artistic spacefarer."
 	icon_state = "toolbox_paint"
 	item_state = "toolbox_paint"
 	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/arts_n_crafts.dmi', "right_hand" = 'icons/mob/in-hand/right/arts_n_crafts.dmi')

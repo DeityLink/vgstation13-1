@@ -13,6 +13,7 @@ LINEN BINS
 	icon_state = "sheetwhite"
 	item_state = "bedsheet"
 	slot_flags = SLOT_BACK
+	clothing_flags = COLORS_OVERLAY
 	throwforce = 1
 	throw_speed = 1
 	throw_range = 2

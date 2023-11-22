@@ -69,6 +69,9 @@
 		if(i > 1 && !isnull(recipe_list[i-1]))
 			t1 += "<br>"
 
+		if(istext(E))
+			t1 += "<b>[E]</b>"
+
 		if(istype(E, /datum/stack_recipe_list))
 			var/datum/stack_recipe_list/srl = E
 

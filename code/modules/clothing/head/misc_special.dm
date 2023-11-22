@@ -138,6 +138,26 @@
 		item_state = initial_icon_state
 		to_chat(user, "You lower the ear flaps on \the [src].")
 		body_parts_covered = EARS|HEAD
+	update_icon()
+
+/obj/item/clothing/head/ushanka/linen
+	name = "ushanka"
+	desc = "Adequate protection to endure the cold weather of frozen planets."
+	icon_state = "ushankalinen"
+	item_state = "ushankalinen"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/linencrafts.dmi', "right_hand" = 'icons/mob/in-hand/right/linencrafts.dmi')
+
+	color = COLOR_LINEN
+	clothing_flags = COLORS_OVERLAY
+	dyeable_parts = list("inner","outter","frontmark")
+	dye_base_iconstate_override = "ushankalinen"
+
+/obj/item/clothing/head/ushanka/linen/update_icon()
+	if(icon_state == initial(icon_state))
+		dye_base_iconstate_override = "ushankalinen"
+	else
+		dye_base_iconstate_override = "ushankalinenup"
+	..()
 
 /obj/item/clothing/head/ushanka/security
 	name = "security ushanka"

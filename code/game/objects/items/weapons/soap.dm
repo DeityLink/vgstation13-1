@@ -105,11 +105,7 @@
 				"<span class='notice'>There is nothing for you to vandalize.</span>")
 			return
 		cleanables = shuffle(cleanables)
-		var/obj/effect/decal/cleanable/C
-		for(var/obj/effect/decal/cleanable/d in cleanables)
-			if(d && istype(d))
-				C = d
-				break
+		var/obj/effect/decal/cleanable/C = pick(cleanables)
 		user.simple_message("<span class='notice'>You scrub \the [C.name] out.</span>",
 			"<span class='warning'>You destroy [pick("an artwork","a valuable artwork","a rare piece of art","a rare piece of modern art")].</span>")
 		qdel(C)

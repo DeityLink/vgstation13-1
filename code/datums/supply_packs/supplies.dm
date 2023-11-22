@@ -412,18 +412,6 @@
 	containsicon = "paints"
 	containsdesc = "A collection of 8 paint buckets, containing various known and less known paints."
 
-/datum/supply_packs/knittingbundle
-	name = "Knitting bundle"
-	contains = list(/obj/item/knitting_needles,
-					/obj/item/stack/sheet/cloth/bigstack,
-					)
-	cost = 30
-	containertype = /obj/structure/closet/crate
-	containername = "\improper Knitting bundle"
-	group = "Supplies"
-	containsicon = "knitting"
-	containsdesc = "Some knitting needles and a roll of cloth to get you started on your clothesmaking journey."
-
 /datum/supply_packs/posters
 	name = "Posters assortment"
 	contains = list(/obj/item/mounted/poster,

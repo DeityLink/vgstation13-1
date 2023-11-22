@@ -524,23 +524,37 @@ var/list/datum/stack_recipe/cardboard_recipes = list (
 /* =========================================================================
 							CLOTH RECIPES
 ========================================================================= */
-/datum/stack_recipe/cloth/finish_building(var/mob/usr, var/obj/item/stack/S, var/obj/R)
-	R.color = S.color
-	return 1
 
 var/list/datum/stack_recipe/cloth_recipes_by_hand = list (
+	"Simple Items",
 	new/datum/stack_recipe/cloth("Cleaning Rag",	/obj/item/weapon/reagent_containers/glass/rag,	1,	time = 20),
 	new/datum/stack_recipe/cloth("Toga",			/obj/item/clothing/under/toga,					3,	time = 50),
 	new/datum/stack_recipe/cloth("Bedsheet",		/obj/item/weapon/bedsheet/linen,				2,	time = 20),
 	)
 
 //keep in mind that tool crafting time is reduced by x0.75 with needles and x0.5 with a sewing machine, then all the way down to x0.1 with upgrades
+//a rule of thumb I settled on is 40 ticks per cloth used for the recipe
 var/list/datum/stack_recipe/cloth_recipes_with_tool = list (
 	null,
-	new/datum/stack_recipe/cloth("Jumpsuit",				/obj/item/clothing/under/color,			5,	time = 200),
-	new/datum/stack_recipe/cloth/composite("Composite Set",	/obj/item/clothing/under/composite, 	2),
-	new/datum/stack_recipe/cloth("Sleeve-less Dress",		/obj/item/clothing/under/dress,			4,	time = 160),
-	new/datum/stack_recipe/cloth("Villager Dress",			/obj/item/clothing/under/villager_dress,5,	time = 200),
+	"Uniforms",
+	new/datum/stack_recipe/cloth("Jumpsuit",				/obj/item/clothing/under/color,					5,	time = 200),
+	new/datum/stack_recipe/cloth/composite("Composite Set",	/obj/item/clothing/under/composite,2),
+	new/datum/stack_recipe/cloth("Sleeve-less Dress",		/obj/item/clothing/under/dress,					4,	time = 160),
+	new/datum/stack_recipe/cloth("Villager Dress",			/obj/item/clothing/under/villager_dress,		5,	time = 200),
+	"Suits",
+	new/datum/stack_recipe/cloth("Labcoat",					/obj/item/clothing/suit/storage/labcoat/linen,	3,	time = 120),
+	"Hats",
+	new/datum/stack_recipe/cloth("Soft Cap",				/obj/item/clothing/head/soft/linen,				2,	time = 80),
+	new/datum/stack_recipe/cloth("Flat Cap",				/obj/item/clothing/head/flatcap/linen,			2,	time = 80),
+	new/datum/stack_recipe/cloth("Ushanka",					/obj/item/clothing/head/ushanka/linen,			3,	time = 120),
+	"Masks",
+	new/datum/stack_recipe/cloth("Ski Mask",				/obj/item/clothing/mask/balaclava/skimask/linen,2,	time = 80),
+	new/datum/stack_recipe/cloth("Scarf",					/obj/item/clothing/mask/scarf/linen,			1,	time = 40),
+	"Gloves",
+	new/datum/stack_recipe/cloth("Mittens",					/obj/item/clothing/gloves/mittens,				2,	time = 80),
+	"Accessories",
+	new/datum/stack_recipe/cloth("Tie",						/obj/item/clothing/accessory/tie/linen,			1,	time = 40),
+	new/datum/stack_recipe/cloth("Armband",					/obj/item/clothing/accessory/armband/linen,		1,	time = 40),
 	)
 
 /datum/stack_recipe/cloth/composite/before_build(var/mob/user)
@@ -582,8 +596,13 @@ var/list/datum/stack_recipe/cloth_recipes_with_tool = list (
 
 	return TRUE
 
+/datum/stack_recipe/cloth/finish_building(var/mob/usr, var/obj/item/stack/S, var/obj/R)
+	R.color = S.color
+	return R
+
 /datum/stack_recipe/cloth/composite/finish_building(var/mob/usr, var/obj/item/stack/S, var/R)
 	var/obj/item/clothing/under/composite/new_clothing = R
+	new_clothing.color = S.color
 	new_clothing.permanent_parts =  extra_data.Copy()
 	new_clothing.set_dyeable_parts()
 	new_clothing.update_icon()

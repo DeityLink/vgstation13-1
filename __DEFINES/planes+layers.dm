@@ -96,6 +96,7 @@ Why is FLOAT_PLANE added to a bunch of these?
 
 #define TURF_PLANE				(-1 + FLOAT_PLANE)
 	#define PAINT_LAYER					(TURF_LAYER + 1)
+	#define ADVANCED_GRAFFITI_LAYER		(TURF_LAYER + 2)
 	#define MAPPING_TURF_LAYER			-999
 
 #define GLASSTILE_PLANE			-1						// Another one that won't behave, since it's an overlay

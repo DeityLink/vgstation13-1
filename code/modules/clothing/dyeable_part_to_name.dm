@@ -1,5 +1,5 @@
 
-//
+//on the left, the text used as icon suffixes, on the right, how we want it to appear in the list of the dyeing menu
 var/list/dyeable_part_to_name = list(
 	"sash" = "Sash",
 	"belt" = "Belt",
@@ -24,4 +24,11 @@ var/list/dyeable_part_to_name = list(
 	"top-trim" = "Trim",
 	"pants" = "Pants",
 	"pants-tip" = "Pants Tip",
+	"frontmark" = "Front Mark",
+	"inner" = "Inner",
+	"outter" = "Outer",
+	"tip" = "Tip",
+	"pattern" = "Pattern",
+	"shoulders" = "Shoulders",
+	"stripe" = "Stripe",
 	)
