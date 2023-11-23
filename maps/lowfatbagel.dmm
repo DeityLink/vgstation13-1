@@ -22140,7 +22140,7 @@
 	},
 /area/turret_protected/tcomms_control_room)
 "bhO" = (
-/obj/machinery/constructable_frame/machine_frame,
+/obj/machinery/vending/art,
 /turf/simulated/floor,
 /area/storage/art)
 "bhQ" = (
@@ -22656,6 +22656,8 @@
 /obj/machinery/light{
 	dir = 4
 	},
+/obj/item/stack/sheet/cloth/bigstack,
+/obj/item/knitting_needles,
 /turf/simulated/floor,
 /area/storage/art)
 "bjl" = (
@@ -23276,8 +23278,11 @@
 	dir = 8;
 	pixel_x = -24
 	},
-/obj/item/weapon/reagent_containers/glass/metal_bucket/paint,
-/obj/item/weapon/reagent_containers/glass/metal_bucket/paint,
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random{
+	pixel_x = 4;
+	pixel_y = 8
+	},
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random,
 /turf/simulated/floor,
 /area/storage/art)
 "bkI" = (
@@ -24172,7 +24177,9 @@
 /area/science/server)
 "bne" = (
 /obj/structure/table,
-/obj/item/weapon/chisel,
+/obj/item/weapon/chisel{
+	pixel_x = 5
+	},
 /obj/item/weapon/chisel,
 /turf/simulated/floor,
 /area/storage/art)
@@ -92125,7 +92132,10 @@
 /obj/machinery/camera/autoname{
 	dir = 1
 	},
-/obj/item/weapon/storage/fancy/crayons,
+/obj/item/weapon/storage/fancy/crayons{
+	pixel_y = 3;
+	pixel_x = -1
+	},
 /obj/item/weapon/storage/fancy/crayons,
 /turf/simulated/floor,
 /area/storage/art)

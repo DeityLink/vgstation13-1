@@ -61185,6 +61185,13 @@
 "cHm" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/light,
+/obj/item/high_roller{
+	pixel_x = -4
+	},
+/obj/item/weapon/reagent_containers/glass/metal_bucket/nanopaint/filled/red{
+	pixel_y = 8;
+	pixel_x = 8
+	},
 /turf/simulated/floor,
 /area/lamprey/tinyroomzone)
 "cHn" = (
@@ -196925,10 +196932,18 @@
 "iaC" = (
 /turf/space,
 /area/lamprey/asteroid)
+"mGT" = (
+/obj/machinery/electric_loom,
+/turf/simulated/floor/plating,
+/area/lamprey/engineeringmaintenanceblob)
 "nlh" = (
 /obj/structure/shuttle/diag_wall/smooth,
 /turf/unsimulated/mineral,
 /area/asteroid/clown)
+"rXL" = (
+/obj/structure/spinning_wheel,
+/turf/simulated/floor/plating,
+/area/lamprey/engineeringmaintenanceblob)
 "tRh" = (
 /obj/machinery/crate_weigher,
 /turf/simulated/floor{
@@ -196936,6 +196951,11 @@
 	icon_state = "brown"
 	},
 /area/lamprey/barndgo)
+"uwA" = (
+/obj/structure/table/reinforced,
+/obj/item/weapon/rcl/pre_loaded,
+/turf/simulated/floor/plating,
+/area/lamprey/engineering)
 
 (1,1,1) = {"
 aaa
@@ -294141,7 +294161,7 @@ dbm
 dFm
 dGQ
 dIt
-dJM
+mGT
 dKO
 dJM
 dJL
@@ -294654,7 +294674,7 @@ dGQ
 dGQ
 dGQ
 dGQ
-dJM
+rXL
 dJL
 dVJ
 dGQ
@@ -302165,7 +302185,7 @@ cXx
 doD
 dqj
 drL
-drL
+uwA
 dvd
 dwp
 dxS
@@ -302667,7 +302687,7 @@ cXx
 doE
 dqk
 drM
-drL
+uwA
 dve
 dwq
 dxT
@@ -303169,7 +303189,7 @@ cXx
 doF
 dql
 drL
-drL
+uwA
 dvf
 dwr
 dxU

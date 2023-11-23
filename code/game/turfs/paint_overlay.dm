@@ -296,6 +296,8 @@
 //Lets mappers have some turfs pre-painted
 
 /obj/abstract/map/paint_coat
+	plane = TURF_PLANE
+	layer = PAINT_LAYER
 	icon = 'icons/turf/paint_overlays_floors.dmi'
 	icon_state = "fullblack"
 	color = "#FFFFFF"

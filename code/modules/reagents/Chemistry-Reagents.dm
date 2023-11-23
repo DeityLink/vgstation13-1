@@ -9744,6 +9744,7 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	var/initial_color = null
 	density = 3.46
 	specheatcap = 512.3
+	flags = CHEMFLAG_PIGMENT
 	paint_light = PAINTLIGHT_LIMITED
 
 /datum/reagent/anthracene/on_mob_life(var/mob/living/M)

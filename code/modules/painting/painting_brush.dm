@@ -207,7 +207,6 @@
 	w_type = RECYK_PLASTIC
 	siemens_coefficient = 0
 
-	var/paint_amount = 0
 	var/paint_color = null
 	var/paint_alpha = 255
 	var/nano_paint = PAINTLIGHT_NONE

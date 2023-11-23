@@ -50936,12 +50936,19 @@
 "bQL" = (
 /obj/structure/table,
 /obj/item/stack/cable_coil/random,
-/obj/item/stack/cable_coil/random,
-/obj/item/stack/cable_coil/random,
+/obj/item/stack/cable_coil/random{
+	pixel_x = 4;
+	pixel_y = 2
+	},
+/obj/item/stack/cable_coil/random{
+	pixel_y = 6
+	},
 /obj/machinery/camera{
 	name = "Supplies - Art Storage"
 	},
-/obj/item/weapon/chisel,
+/obj/item/weapon/chisel{
+	pixel_x = -4
+	},
 /turf/simulated/floor,
 /area/storage/art)
 "bQM" = (
@@ -52002,10 +52009,14 @@
 /turf/simulated/floor/plating,
 /area/derelictparts/port)
 "bTf" = (
+/obj/machinery/power/apc{
+	dir = 8;
+	level = 4;
+	pixel_x = -24
+	},
 /obj/structure/cable/yellow{
-	d1 = 2;
 	d2 = 4;
-	icon_state = "2-4"
+	icon_state = "0-4"
 	},
 /turf/simulated/floor,
 /area/storage/art)
@@ -52639,19 +52650,18 @@
 /turf/simulated/wall,
 /area/crew_quarters/theatre)
 "bUq" = (
-/obj/structure/closet,
-/obj/item/mounted/poster,
-/obj/machinery/power/apc{
-	pixel_y = -24
-	},
-/obj/structure/cable/yellow,
+/obj/machinery/vending/art,
 /turf/simulated/floor,
 /area/storage/art)
 "bUr" = (
 /obj/structure/table,
-/obj/item/weapon/storage/fancy/crayons,
-/obj/item/weapon/storage/fancy/crayons,
 /obj/machinery/light/small,
+/obj/item/weapon/storage/fancy/crayons{
+	pixel_y = 2
+	},
+/obj/item/weapon/storage/fancy/crayons{
+	pixel_x = 8
+	},
 /turf/simulated/floor,
 /area/storage/art)
 "bUs" = (
@@ -52676,7 +52686,14 @@
 /area/hallway/primary/port)
 "bUu" = (
 /obj/structure/table,
-/obj/item/device/camera_film,
+/obj/item/mounted/poster{
+	pixel_x = -12;
+	pixel_y = 10
+	},
+/obj/item/device/camera_film{
+	pixel_y = 6;
+	pixel_x = 4
+	},
 /obj/item/device/camera,
 /obj/machinery/firealarm{
 	dir = 1;

@@ -3450,10 +3450,20 @@
 /turf/simulated/wall,
 /area/crew_quarters/fitness)
 "ahg" = (
-/obj/item/weapon/reagent_containers/glass/paint,
 /obj/machinery/light/small{
 	dir = 8;
 	flickering = 1
+	},
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random{
+	pixel_y = 8
+	},
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random{
+	pixel_x = -4;
+	pixel_y = 2
+	},
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random{
+	pixel_x = 4;
+	pixel_y = -2
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
@@ -3649,15 +3659,19 @@
 	icon_state = "poster7";
 	pixel_y = 32
 	},
-/turf/simulated/floor/plating,
+/obj/abstract/map/paint_coat,
+/obj/item/paint_roller,
+/turf/simulated/floor,
 /area/maintenance/fpmaint)
 "ahG" = (
-/obj/structure/block,
 /obj/structure/sign/poster{
 	icon_state = "bsposter7";
 	pixel_y = 32
 	},
-/turf/simulated/floor/plating,
+/obj/abstract/map/paint_coat/paint_stroke{
+	dir = 8
+	},
+/turf/simulated/floor,
 /area/maintenance/fpmaint)
 "ahH" = (
 /obj/structure/block,
@@ -4140,7 +4154,9 @@
 	pixel_y = 32
 	},
 /obj/effect/decal/cleanable/cobweb,
-/turf/simulated/floor/plating,
+/obj/abstract/map/paint_coat,
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/white,
+/turf/simulated/floor,
 /area/maintenance/fpmaint)
 "aiG" = (
 /obj/machinery/light/small{
@@ -6794,7 +6810,17 @@
 /turf/simulated/floor/wood,
 /area/maintenance/fsmaint2)
 "aoJ" = (
-/obj/item/weapon/reagent_containers/glass/paint,
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint{
+	pixel_x = -8;
+	pixel_y = 4
+	},
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint{
+	pixel_x = 4
+	},
+/obj/abstract/map/paint_coat/paint_stroke{
+	dir = 1;
+	icon_state = "splatter"
+	},
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
 "aoK" = (
@@ -11779,12 +11805,11 @@
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
 "aze" = (
-/obj/structure/table,
-/obj/item/device/rcd/tile_painter,
 /obj/structure/sign/poster{
 	icon_state = "bsposter8";
 	pixel_y = -32
 	},
+/obj/structure/mannequin/wood,
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
 "azf" = (
@@ -12119,11 +12144,20 @@
 /area/crew_quarters/bar)
 "azL" = (
 /obj/structure/table,
-/obj/item/weapon/chisel,
-/obj/item/weapon/chisel,
+/obj/item/weapon/chisel{
+	pixel_x = 10;
+	pixel_y = 2
+	},
+/obj/item/weapon/chisel{
+	pixel_x = 16
+	},
 /obj/structure/sign/poster{
 	icon_state = "poster4";
 	pixel_y = -32
+	},
+/obj/item/device/rcd/tile_painter{
+	pixel_x = -2;
+	pixel_y = 4
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
@@ -18580,13 +18614,23 @@
 /area/crew_quarters/locker)
 "aMT" = (
 /obj/structure/table,
-/obj/item/stack/cable_coil/random,
-/obj/item/stack/cable_coil/random,
-/obj/item/weapon/chisel,
-/obj/item/weapon/chisel,
+/obj/item/weapon/chisel{
+	pixel_x = -8;
+	pixel_y = 3
+	},
+/obj/item/weapon/chisel{
+	pixel_y = 6;
+	pixel_x = -3
+	},
 /obj/machinery/alarm{
 	dir = 4;
 	pixel_x = -22
+	},
+/obj/item/painting_brush{
+	pixel_y = -10
+	},
+/obj/item/paint_roller{
+	pixel_y = -16
 	},
 /turf/simulated/floor,
 /area/storage/art)
@@ -18601,10 +18645,7 @@
 /area/storage/art)
 "aMV" = (
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden,
-/obj/machinery/firealarm{
-	dir = 4;
-	pixel_x = 24
-	},
+/obj/machinery/vending/art,
 /turf/simulated/floor,
 /area/storage/art)
 "aMW" = (
@@ -19333,8 +19374,22 @@
 /area/crew_quarters/locker)
 "aOz" = (
 /obj/structure/table,
+/obj/item/stack/cable_coil/random{
+	pixel_y = 3;
+	pixel_x = 3
+	},
+/obj/item/stack/cable_coil/random{
+	pixel_x = 3;
+	pixel_y = -1
+	},
 /obj/item/stack/cable_coil/random,
-/obj/item/stack/cable_coil/random,
+/obj/item/stack/cable_coil/random{
+	pixel_y = 4
+	},
+/obj/machinery/firealarm{
+	dir = 8;
+	pixel_x = -24
+	},
 /turf/simulated/floor,
 /area/storage/art)
 "aOA" = (
@@ -20036,21 +20091,34 @@
 /area/crew_quarters/locker)
 "aQc" = (
 /obj/structure/table,
-/obj/item/weapon/storage/box/labels,
-/obj/item/weapon/hand_labeler,
+/obj/item/weapon/storage/box/labels{
+	pixel_y = 8
+	},
+/obj/item/weapon/hand_labeler{
+	pixel_x = 4
+	},
 /turf/simulated/floor,
 /area/storage/art)
 "aQd" = (
 /obj/structure/table,
-/obj/item/weapon/storage/fancy/crayons,
+/obj/item/weapon/storage/fancy/crayons{
+	pixel_x = -2;
+	pixel_y = 8
+	},
 /obj/item/weapon/storage/fancy/crayons,
 /obj/machinery/light/small,
 /turf/simulated/floor,
 /area/storage/art)
 "aQe" = (
 /obj/structure/table,
-/obj/item/device/camera_film,
-/obj/item/device/camera,
+/obj/item/device/camera_film{
+	pixel_x = 4;
+	pixel_y = 8
+	},
+/obj/item/device/camera{
+	pixel_y = 2;
+	pixel_x = -8
+	},
 /obj/machinery/light_switch{
 	pixel_y = -25
 	},
@@ -24072,7 +24140,11 @@
 	icon_state = "poster9";
 	pixel_x = -32
 	},
-/turf/simulated/floor/plating,
+/obj/abstract/map/paint_coat/paint_stroke{
+	icon_state = "border_roller_progress";
+	dir = 1
+	},
+/turf/simulated/floor,
 /area/maintenance/fpmaint)
 "aXI" = (
 /obj/machinery/power/apc{
@@ -109486,6 +109558,12 @@
 	},
 /turf/space,
 /area)
+"mVe" = (
+/obj/item/stack/tile/metal{
+	amount = 15
+	},
+/turf/simulated/floor/plating,
+/area/maintenance/fpmaint)
 "neG" = (
 /obj/item/weapon/kitchen/utensil/knife/large/butch,
 /obj/item/weapon/kitchen/rollingpin,
@@ -109612,6 +109690,15 @@
 	icon_state = "white"
 	},
 /area/science/lab)
+"oXV" = (
+/obj/structure/easel,
+/obj/item/mounted/frame/painting/custom/landscape,
+/obj/item/painting_brush{
+	pixel_y = 16;
+	pixel_x = -8
+	},
+/turf/simulated/floor/plating,
+/area/maintenance/fpmaint)
 "prF" = (
 /obj/structure/grille,
 /obj/structure/window/reinforced,
@@ -109882,8 +109969,12 @@
 /area/maintenance/fsmaint)
 "tpD" = (
 /obj/structure/table,
-/obj/item/weapon/storage/fancy/crayons,
-/obj/item/weapon/storage/fancy/crayons,
+/obj/item/weapon/storage/fancy/crayons{
+	pixel_y = 4
+	},
+/obj/item/weapon/storage/fancy/crayons{
+	pixel_x = 4
+	},
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
 "tNG" = (
@@ -110026,6 +110117,12 @@
 /obj/item/toy/cards,
 /turf/simulated/floor/wood,
 /area/crew_quarters/bar)
+"voo" = (
+/obj/abstract/map/paint_coat/paint_stroke{
+	dir = 1
+	},
+/turf/simulated/floor,
+/area/maintenance/fpmaint)
 "vqA" = (
 /obj/structure/bed/chair{
 	dir = 4
@@ -212378,9 +212475,9 @@ aeR
 aeq
 aaU
 ahF
+voo
 aba
-aba
-alx
+oXV
 aaU
 acq
 apo
@@ -212880,7 +212977,7 @@ anV
 apT
 aaU
 ahG
-ahH
+mVe
 aba
 aze
 aaU

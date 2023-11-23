@@ -16397,22 +16397,28 @@
 	pixel_y = 32
 	},
 /obj/effect/decal/cleanable/cobweb,
-/turf/simulated/floor/plating,
+/obj/abstract/map/paint_coat,
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/white,
+/turf/simulated/floor,
 /area/maintenance/fpmaint)
 "aBB" = (
-/obj/structure/block,
 /obj/structure/sign/poster{
 	icon_state = "bsposter7";
 	pixel_y = 32
 	},
-/turf/simulated/floor/plating,
+/obj/abstract/map/paint_coat/paint_stroke{
+	dir = 8
+	},
+/turf/simulated/floor,
 /area/maintenance/fpmaint)
 "aBC" = (
 /obj/structure/sign/poster{
 	icon_state = "poster7";
 	pixel_y = 32
 	},
-/turf/simulated/floor/plating,
+/obj/abstract/map/paint_coat,
+/obj/item/paint_roller,
+/turf/simulated/floor,
 /area/maintenance/fpmaint)
 "aBD" = (
 /obj/structure/block,
@@ -17108,7 +17114,11 @@
 	icon_state = "poster9";
 	pixel_x = -32
 	},
-/turf/simulated/floor/plating,
+/obj/abstract/map/paint_coat/paint_stroke{
+	icon_state = "border_roller_progress";
+	dir = 1
+	},
+/turf/simulated/floor,
 /area/maintenance/fpmaint)
 "aDk" = (
 /obj/structure/cable/yellow{
@@ -17531,10 +17541,20 @@
 /turf/simulated/floor/plating,
 /area/maintenance/ghettobar)
 "aEh" = (
-/obj/item/weapon/reagent_containers/glass/metal_bucket/paint,
 /obj/machinery/light/small{
 	dir = 8;
 	flickering = 1
+	},
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random{
+	pixel_y = 8
+	},
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random{
+	pixel_x = -4;
+	pixel_y = 2
+	},
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random{
+	pixel_x = 4;
+	pixel_y = -2
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
@@ -18209,16 +18229,25 @@
 /turf/simulated/floor/plating,
 /area/maintenance/fsmaint2)
 "aFB" = (
-/obj/item/weapon/reagent_containers/glass/metal_bucket/paint,
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint{
+	pixel_x = -8;
+	pixel_y = 4
+	},
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint{
+	pixel_x = 4
+	},
+/obj/abstract/map/paint_coat/paint_stroke{
+	dir = 1;
+	icon_state = "splatter"
+	},
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
 "aFC" = (
-/obj/structure/table,
-/obj/item/device/rcd/tile_painter,
 /obj/structure/sign/poster{
 	icon_state = "bsposter8";
 	pixel_y = -32
 	},
+/obj/structure/mannequin/wood,
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
 "aFD" = (
@@ -18227,17 +18256,30 @@
 /area/maintenance/fpmaint)
 "aFE" = (
 /obj/structure/table,
-/obj/item/weapon/storage/fancy/crayons,
-/obj/item/weapon/storage/fancy/crayons,
+/obj/item/weapon/storage/fancy/crayons{
+	pixel_y = 4
+	},
+/obj/item/weapon/storage/fancy/crayons{
+	pixel_x = 4
+	},
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
 "aFF" = (
 /obj/structure/table,
-/obj/item/weapon/chisel,
-/obj/item/weapon/chisel,
+/obj/item/weapon/chisel{
+	pixel_x = 10;
+	pixel_y = 2
+	},
+/obj/item/weapon/chisel{
+	pixel_x = 16
+	},
 /obj/structure/sign/poster{
 	icon_state = "poster4";
 	pixel_y = -32
+	},
+/obj/item/device/rcd/tile_painter{
+	pixel_x = -2;
+	pixel_y = 4
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
@@ -31094,22 +31136,29 @@
 /area/storage/art)
 "bgL" = (
 /obj/structure/table,
-/obj/item/stack/cable_coil/random,
-/obj/item/stack/cable_coil/random,
-/obj/item/weapon/chisel,
-/obj/item/weapon/chisel,
+/obj/item/weapon/chisel{
+	pixel_x = -8;
+	pixel_y = 3
+	},
+/obj/item/weapon/chisel{
+	pixel_y = 6;
+	pixel_x = -3
+	},
 /obj/machinery/alarm{
 	dir = 4;
 	pixel_x = -22
+	},
+/obj/item/painting_brush{
+	pixel_y = -10
+	},
+/obj/item/paint_roller{
+	pixel_y = -16
 	},
 /turf/simulated/floor,
 /area/storage/art)
 "bgM" = (
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden,
-/obj/machinery/firealarm{
-	dir = 4;
-	pixel_x = 24
-	},
+/obj/machinery/vending/art,
 /turf/simulated/floor,
 /area/storage/art)
 "bgN" = (
@@ -31841,8 +31890,22 @@
 /area/storage/art)
 "bit" = (
 /obj/structure/table,
+/obj/item/stack/cable_coil/random{
+	pixel_y = 3;
+	pixel_x = 3
+	},
+/obj/item/stack/cable_coil/random{
+	pixel_x = 3;
+	pixel_y = -1
+	},
 /obj/item/stack/cable_coil/random,
-/obj/item/stack/cable_coil/random,
+/obj/item/stack/cable_coil/random{
+	pixel_y = 4
+	},
+/obj/machinery/firealarm{
+	dir = 8;
+	pixel_x = -24
+	},
 /turf/simulated/floor,
 /area/storage/art)
 "biu" = (
@@ -32557,21 +32620,34 @@
 /area/crew_quarters/locker)
 "bjW" = (
 /obj/structure/table,
-/obj/item/weapon/storage/fancy/crayons,
+/obj/item/weapon/storage/fancy/crayons{
+	pixel_x = -2;
+	pixel_y = 8
+	},
 /obj/item/weapon/storage/fancy/crayons,
 /obj/machinery/light/small,
 /turf/simulated/floor,
 /area/storage/art)
 "bjX" = (
 /obj/structure/table,
-/obj/item/weapon/storage/box/labels,
-/obj/item/weapon/hand_labeler,
+/obj/item/weapon/storage/box/labels{
+	pixel_y = 8
+	},
+/obj/item/weapon/hand_labeler{
+	pixel_x = 4
+	},
 /turf/simulated/floor,
 /area/storage/art)
 "bjY" = (
 /obj/structure/table,
-/obj/item/device/camera_film,
-/obj/item/device/camera,
+/obj/item/device/camera_film{
+	pixel_x = 4;
+	pixel_y = 8
+	},
+/obj/item/device/camera{
+	pixel_y = 2;
+	pixel_x = -8
+	},
 /obj/machinery/light_switch{
 	pixel_y = -25
 	},
@@ -122126,6 +122202,12 @@
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/fsmaint)
+"inK" = (
+/obj/abstract/map/paint_coat/paint_stroke{
+	dir = 1
+	},
+/turf/simulated/floor,
+/area/maintenance/fpmaint)
 "ioQ" = (
 /obj/machinery/atmospherics/pipe/manifold/scrubbers/hidden{
 	dir = 4
@@ -122184,6 +122266,15 @@
 	},
 /obj/machinery/atmospherics/pipe/simple/supply/hidden{
 	dir = 4
+	},
+/turf/simulated/floor/plating,
+/area/maintenance/fpmaint)
+"iGm" = (
+/obj/structure/easel,
+/obj/item/mounted/frame/painting/custom/landscape,
+/obj/item/painting_brush{
+	pixel_y = 16;
+	pixel_x = -8
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
@@ -123374,6 +123465,12 @@
 	},
 /turf/simulated/floor/plating,
 /area/medical/virology)
+"wqs" = (
+/obj/item/stack/tile/metal{
+	amount = 15
+	},
+/turf/simulated/floor/plating,
+/area/maintenance/fpmaint)
 "wJa" = (
 /obj/machinery/disease2/incubator,
 /turf/simulated/floor{
@@ -225728,9 +225825,9 @@ ayh
 aza
 awr
 aBC
+inK
 axP
-axP
-aFD
+iGm
 awr
 aIb
 aFq
@@ -226230,7 +226327,7 @@ ayg
 azc
 awr
 aBB
-aBE
+wqs
 axP
 aFC
 awr

@@ -11694,9 +11694,18 @@
 	})
 "auX" = (
 /obj/structure/table,
-/obj/item/weapon/chisel,
-/obj/item/weapon/chisel,
-/obj/item/weapon/storage/fancy/crayons,
+/obj/item/weapon/chisel{
+	pixel_x = 2;
+	pixel_y = 6
+	},
+/obj/item/weapon/chisel{
+	pixel_x = 8;
+	pixel_y = 4
+	},
+/obj/item/weapon/storage/fancy/crayons{
+	pixel_y = 2;
+	pixel_x = -4
+	},
 /obj/item/weapon/storage/fancy/crayons,
 /obj/structure/cable{
 	d2 = 4;
@@ -11727,7 +11736,10 @@
 /area/storage/art)
 "auZ" = (
 /obj/structure/table,
-/obj/item/device/camera_film,
+/obj/item/device/camera_film{
+	pixel_x = 4;
+	pixel_y = 8
+	},
 /obj/item/device/camera,
 /obj/machinery/light_switch{
 	pixel_x = 28
@@ -103409,6 +103421,14 @@
 /mob/living/simple_animal/mouse/common,
 /turf/simulated/floor/plating,
 /area/maintenance/aft)
+"rfu" = (
+/obj/machinery/electric_loom,
+/turf/simulated/floor/plating,
+/area/maintenance/port)
+"rBu" = (
+/obj/machinery/vending/art,
+/turf/simulated/floor,
+/area/storage/art)
 "rOY" = (
 /obj/machinery/light{
 	dir = 4
@@ -198338,7 +198358,7 @@ bqL
 bsU
 aaa
 bnW
-bnn
+rfu
 bnn
 bnW
 bAk
@@ -215864,7 +215884,7 @@ anA
 aoE
 apA
 aqN
-aqN
+ase
 ase
 auY
 awu
@@ -216367,7 +216387,7 @@ aoE
 apB
 aqO
 ase
-ase
+rBu
 auZ
 awv
 axG

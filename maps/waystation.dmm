@@ -18789,6 +18789,15 @@
 	icon_state = "whiteyellow"
 	},
 /area/medical/chemistry)
+"ejT" = (
+/obj/abstract/map/paint_coat/paint_stroke{
+	icon_state = "border_splatter";
+	dir = 8
+	},
+/turf/simulated/floor{
+	icon_state = "floorgrime"
+	},
+/area/storage/art)
 "ejU" = (
 /obj/structure/window/reinforced{
 	dir = 4
@@ -25014,7 +25023,9 @@
 /area/medical/genetics)
 "fAE" = (
 /obj/structure/table,
-/obj/item/weapon/chisel,
+/obj/item/weapon/chisel{
+	pixel_x = 5
+	},
 /obj/item/weapon/chisel,
 /turf/simulated/floor/plating,
 /area/storage/art)
@@ -46624,6 +46635,11 @@
 	},
 /area/turret_protected/ai_upload)
 "kyM" = (
+/obj/abstract/map/paint_coat/paint_stroke{
+	icon_state = "border_splatter";
+	dir = 4
+	},
+/obj/item/paint_roller,
 /turf/simulated/floor/plating,
 /area/storage/art)
 "kzn" = (
@@ -46760,7 +46776,10 @@
 /area/engineering/atmos)
 "kBl" = (
 /obj/structure/table,
-/obj/item/stack/cable_coil/yellow,
+/obj/item/stack/cable_coil/yellow{
+	pixel_x = -2;
+	pixel_y = 2
+	},
 /obj/item/stack/cable_coil/cyan,
 /turf/simulated/floor{
 	icon_state = "floorgrime"
@@ -47875,6 +47894,13 @@
 	icon_state = "floor"
 	},
 /area/centcom/control)
+"kPn" = (
+/obj/abstract/map/paint_coat,
+/obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/white,
+/turf/simulated/floor{
+	icon_state = "floorgrime"
+	},
+/area/storage/art)
 "kPy" = (
 /obj/machinery/door/window{
 	dir = 2;
@@ -50685,9 +50711,16 @@
 /area/medical/storage)
 "ltl" = (
 /obj/structure/table,
-/obj/item/weapon/storage/fancy/crayons,
+/obj/item/weapon/storage/fancy/crayons{
+	pixel_y = 2;
+	pixel_x = -1
+	},
 /obj/item/weapon/storage/fancy/crayons,
 /obj/machinery/light/small,
+/obj/abstract/map/paint_coat/paint_stroke{
+	icon_state = "border_splatter";
+	dir = 1
+	},
 /turf/simulated/floor/plating,
 /area/storage/art)
 "ltm" = (
@@ -80375,6 +80408,9 @@
 	d1 = 1;
 	d2 = 4;
 	icon_state = "1-4"
+	},
+/obj/abstract/map/paint_coat/paint_stroke{
+	icon_state = "border_splatter"
 	},
 /turf/simulated/floor/plating,
 /area/storage/art)
@@ -213584,7 +213620,7 @@ bDN
 pEz
 bLw
 tWX
-kHj
+kPn
 ltl
 cas
 ujV
@@ -214086,7 +214122,7 @@ moP
 osk
 kun
 bRM
-kHj
+ejT
 lyx
 cas
 rZZ

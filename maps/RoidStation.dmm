@@ -50607,12 +50607,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/port)
 "bQi" = (
-/obj/structure/table,
-/obj/item/weapon/storage/fancy/crayons,
-/obj/item/weapon/storage/fancy/crayons,
-/obj/machinery/light/small{
-	dir = 1
-	},
+/obj/machinery/vending/art,
 /turf/simulated/floor,
 /area/storage/art)
 "bQj" = (
@@ -50631,12 +50626,17 @@
 /area/storage/art)
 "bQk" = (
 /obj/structure/table,
-/obj/item/weapon/storage/box/labels,
+/obj/item/weapon/storage/box/labels{
+	pixel_y = 6
+	},
 /obj/item/weapon/hand_labeler,
 /obj/machinery/light_switch{
 	dir = 4;
 	pixel_x = -24;
 	pixel_y = 7
+	},
+/obj/machinery/light/small{
+	dir = 1
 	},
 /turf/simulated/floor,
 /area/storage/art)
@@ -51928,9 +51928,13 @@
 /area/storage/art)
 "bSB" = (
 /obj/structure/table,
+/obj/item/stack/cable_coil/random{
+	pixel_y = 3
+	},
 /obj/item/stack/cable_coil/random,
-/obj/item/stack/cable_coil/random,
-/obj/item/weapon/chisel,
+/obj/item/weapon/chisel{
+	pixel_x = -5
+	},
 /obj/item/weapon/chisel,
 /obj/machinery/alarm{
 	dir = 4;
@@ -53166,13 +53170,23 @@
 /area/storage/art)
 "bUJ" = (
 /obj/structure/table,
-/obj/item/device/camera_film,
-/obj/item/device/camera,
+/obj/item/weapon/storage/fancy/crayons{
+	pixel_y = 12;
+	pixel_x = -4
+	},
 /obj/machinery/power/apc{
 	name = "_South APC";
 	pixel_y = -24
 	},
 /obj/structure/cable,
+/obj/item/weapon/storage/fancy/crayons{
+	pixel_y = 12
+	},
+/obj/item/device/camera_film{
+	pixel_x = 4;
+	pixel_y = 6
+	},
+/obj/item/device/camera,
 /turf/simulated/floor,
 /area/storage/art)
 "bUK" = (
@@ -146601,6 +146615,12 @@
 	icon_state = "dark"
 	},
 /area/medical/coldstorage)
+"fUE" = (
+/obj/structure/spinning_wheel,
+/turf/simulated/floor/plating{
+	icon_state = "platingdmg2"
+	},
+/area/maintenance/aft)
 "fXM" = (
 /obj/structure/catwalk,
 /obj/structure/disposalpipe/segment,
@@ -253734,7 +253754,7 @@ drx
 bSW
 dsK
 dto
-cXF
+fUE
 duy
 cxm
 cMc

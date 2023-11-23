@@ -213,6 +213,7 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 	else
 		reagents.add_reagent(TOBACCO, 5)
 	update_brightness()
+	update_icon()
 
 /obj/item/clothing/mask/cigarette/Destroy()
 	. = ..()

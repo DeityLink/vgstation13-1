@@ -33478,7 +33478,6 @@
 /obj/machinery/light_switch{
 	pixel_y = 28
 	},
-/obj/machinery/vending/art,
 /turf/simulated/floor{
 	icon_state = "grimy"
 	},
@@ -44378,6 +44377,9 @@
 	},
 /obj/machinery/light{
 	dir = 4
+	},
+/obj/structure/bed/chair/comfy/black{
+	dir = 8
 	},
 /turf/simulated/floor/wood,
 /area/library)
@@ -97426,6 +97428,10 @@
 	},
 /turf/unsimulated/floor/snow,
 /area/shuttle/mining/station)
+"ojT" = (
+/obj/machinery/vending/art,
+/turf/simulated/floor/wood,
+/area/library)
 "okE" = (
 /obj/structure/bed/chair/comfy/black{
 	dir = 8
@@ -97909,6 +97915,12 @@
 /area/engine/construction_storage{
 	name = "\improper Atmospherics Medical"
 	})
+"oZQ" = (
+/obj/structure/bookcase{
+	name = "bookcase (Religious)"
+	},
+/turf/simulated/floor/wood,
+/area/library)
 "oZR" = (
 /obj/machinery/computer/rdconsole/robotics,
 /turf/simulated/floor{
@@ -153609,7 +153621,7 @@ bPO
 bQA
 bRb
 bRH
-bRJ
+oZQ
 bRJ
 bTb
 bTC
@@ -153911,7 +153923,7 @@ bPO
 bQA
 bRd
 bRJ
-bRJ
+bRf
 bSH
 bTe
 bTE
@@ -154513,7 +154525,7 @@ bNI
 bIC
 bPR
 bQA
-bRf
+ojT
 bRJ
 bSf
 bSJ

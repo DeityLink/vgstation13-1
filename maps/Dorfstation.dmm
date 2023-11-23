@@ -1768,6 +1768,10 @@
 	})
 "bac" = (
 /obj/item/clothing/head/flatcap,
+/obj/item/painting_brush{
+	pixel_x = 8;
+	pixel_y = -4
+	},
 /turf/simulated/floor/asteroid/air,
 /area/library)
 "baJ" = (

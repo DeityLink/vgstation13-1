@@ -50496,6 +50496,7 @@
 /obj/item/weapon/storage/fancy/crayons,
 /obj/item/weapon/storage/fancy/crayons,
 /obj/item/weapon/storage/fancy/crayons,
+/obj/item/paint_roller,
 /turf/simulated/floor{
 	icon_state = "black";
 	tag = "icon-black"
@@ -51994,6 +51995,7 @@
 /obj/machinery/light{
 	dir = 4
 	},
+/obj/machinery/vending/art,
 /turf/simulated/floor,
 /area/storage/art)
 "bWe" = (
@@ -55333,7 +55335,7 @@
 /area/storage/primary)
 "ccg" = (
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden,
-/obj/item/weapon/c_tube,
+/obj/structure/easel,
 /turf/simulated/floor,
 /area/storage/art)
 "cch" = (
@@ -121275,6 +121277,14 @@
 /obj/structure/catwalk,
 /turf/space,
 /area/engineering/engine)
+"pMY" = (
+/obj/item/weapon/c_tube,
+/turf/simulated/floor{
+	dir = 1;
+	icon_state = "blackcorner";
+	tag = "icon-blackcorner (NORTH)"
+	},
+/area/storage/art)
 "pTT" = (
 /obj/structure/cable/yellow{
 	d2 = 2;
@@ -259108,7 +259118,7 @@ bOm
 bQk
 bLg
 bOz
-bTP
+pMY
 bTP
 cjD
 cjD
