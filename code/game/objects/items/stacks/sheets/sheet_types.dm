@@ -242,6 +242,18 @@
 		KS.knitting = 0
 		KS.update_icon()
 
+
+/obj/item/stack/sheet/cloth/on_empty()
+	if(istype(loc, /obj/machinery/sewing_machine))
+		var/obj/machinery/sewing_machine/SM = loc
+		SM.stored_cloth = null
+		SM.update_icon()
+	else if (istype(loc, /obj/item/knitting_needles))
+		var/obj/item/knitting_needles/KS = loc
+		KS.stored_cloth = null
+		KS.update_icon()
+	..()
+
 /obj/item/stack/sheet/cloth/loc_override()
 	if (istype(loc, /obj/machinery/sewing_machine))
 		var/obj/machinery/sewing_machine/SM = loc

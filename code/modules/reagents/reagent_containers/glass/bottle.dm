@@ -589,7 +589,7 @@ var/datum/disease2/disease/wizarditis = null
 	reagents.add_reagent(NANOBOTS, 10)
 
 /obj/item/weapon/reagent_containers/glass/bottle/bleach
-	name = "Bleach Bottle"
+	name = "bleach bottle"
 	desc = "A bottle of BLAM! Ultraclean brand bleach. Has many warning labels."
 	icon = 'icons/obj/chemical.dmi'
 	icon_state = "bleachbottle"
@@ -612,7 +612,7 @@ var/datum/disease2/disease/wizarditis = null
 	reagents.add_reagent(BLEACH, 100)
 
 /obj/item/weapon/reagent_containers/glass/bottle/acetone
-	name = "Acetone Bottle"
+	name = "acetone bottle"
 	desc = "The Dip. The enemy of all things made of paint."
 	icon = 'icons/obj/chemical.dmi'
 	icon_state = "acetonebottle"

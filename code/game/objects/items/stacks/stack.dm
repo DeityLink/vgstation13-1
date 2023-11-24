@@ -199,28 +199,31 @@
 		return 0
 	. = 1
 	if (src.amount<=0) //If the stack is empty after removing the required amount of items!
-		if(usr)
-			if(istype(usr,/mob/living/silicon/robot))
-				var/mob/living/silicon/robot/R=usr
-				if(R.module)
-					R.module.modules -= src
-				if(R.module_active == src)
-					R.module_active = null
-				if(R.module_state_1 == src)
-					R.uneq_module(R.module_state_1)
-					R.module_state_1 = null
-					R.inv1.icon_state = "inv1"
-				else if(R.module_state_2 == src)
-					R.uneq_module(R.module_state_2)
-					R.module_state_2 = null
-					R.inv2.icon_state = "inv2"
-				else if(R.module_state_3 == src)
-					R.uneq_module(R.module_state_3)
-					R.module_state_3 = null
-					R.inv3.icon_state = "inv3"
-			usr.before_take_item(src)
+		on_empty()
 		spawn()
 			qdel(src)
+
+/obj/item/stack/proc/on_empty()
+	if(usr)
+		if(istype(usr,/mob/living/silicon/robot))
+			var/mob/living/silicon/robot/R=usr
+			if(R.module)
+				R.module.modules -= src
+			if(R.module_active == src)
+				R.module_active = null
+			if(R.module_state_1 == src)
+				R.uneq_module(R.module_state_1)
+				R.module_state_1 = null
+				R.inv1.icon_state = "inv1"
+			else if(R.module_state_2 == src)
+				R.uneq_module(R.module_state_2)
+				R.module_state_2 = null
+				R.inv2.icon_state = "inv2"
+			else if(R.module_state_3 == src)
+				R.uneq_module(R.module_state_3)
+				R.module_state_3 = null
+				R.inv3.icon_state = "inv3"
+		usr.before_take_item(src)
 
 /obj/item/stack/proc/add(var/amount)
 	src.amount += amount

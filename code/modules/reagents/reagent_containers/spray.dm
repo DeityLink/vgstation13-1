@@ -127,7 +127,7 @@
 	update_icon()
 
 /obj/item/weapon/reagent_containers/spray/cleaner/update_icon()
-	overlays -= content_reagent
+	overlays.len = 0
 	if (!is_empty())
 		if (!content_reagent)
 			content_reagent = image(icon,src,"cleaner-content3")

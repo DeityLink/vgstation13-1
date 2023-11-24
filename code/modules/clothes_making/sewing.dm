@@ -10,6 +10,7 @@
 /obj/item/knitting_needles
 	name = "knitting needles"
 	desc = "Needles that allow the dexterous to process cloth into more intricate clothing than is possible with bare hands."
+	gender = PLURAL
 	icon = 'icons/obj/clothes_making.dmi'
 	icon_state = "knitting_needles"
 	item_state = "knitting_needles"

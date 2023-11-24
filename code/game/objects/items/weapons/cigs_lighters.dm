@@ -203,9 +203,9 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 	surgerysound = 'sound/items/cautery.ogg'
 
 /obj/item/clothing/mask/cigarette/New()
-	..()
 	base_name = name
 	base_icon = icon_state
+	..()
 	flags |= NOREACT // so it doesn't react until you light it
 	create_reagents(chem_volume) // making the cigarrete a chemical holder with a maximum volume of 15
 	if(Holiday == APRIL_FOOLS_DAY)
