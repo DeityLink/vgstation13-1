@@ -196,45 +196,23 @@ LINEN BINS
 	return TRUE
 
 /obj/item/weapon/bedsheet/proc/plaid_convert()
-	switch(icon_state)
-		if ("plaidsheetwhite")
-			icon_state = "sheetwhite"
-		if ("plaidsheetblue")
-			icon_state = "sheetblue"
-		if ("plaidsheetorange")
-			icon_state = "sheetorange"
-		if ("plaidsheetred")
-			icon_state = "sheetred"
-		if ("plaidsheetpurple")
-			icon_state = "sheetpurple"
-		if ("plaidsheetgreen")
-			icon_state = "sheetgreen"
-		if ("plaidsheetyellow")
-			icon_state = "sheetyellow"
-		if ("sheetwhite")
-			icon_state = "plaidsheetwhite"
-		if ("sheetblue")
-			icon_state = "plaidsheetblue"
-		if ("sheetorange")
-			icon_state = "plaidsheetorange"
-		if ("sheetred")
-			icon_state = "plaidsheetred"
-		if ("sheetpurple")
-			icon_state = "plaidsheetpurple"
-		if ("sheetgreen")
-			icon_state = "plaidsheetgreen"
-		if ("sheetyellow")
-			icon_state = "plaidsheetyellow"
-		if ("plaidsheetdyeable")
-			icon_state = "sheetdyeable"
-		if ("sheetdyeable")
-			icon_state = "plaidsheetdyeable"
-		else
-			return
-	if (copytext(icon_state, 1, 6) == "plaid")
+	var/list/plaid_sheet_colors = list(
+		"sheetwhite",
+		"sheetblue",
+		"sheetorange",
+		"sheetred",
+		"sheetpurple",
+		"sheetgreen",
+		"sheetyellow",
+		"sheetdyeable",
+		)
+
+	if (icon_state in plaid_sheet_colors)
+		icon_state = "plaid[icon_state]"
 		overlays.len = 0
 		update_blood_overlay()
-	else
+	else if  (copytext(icon_state, 1, 6) == "plaid")
+		icon_state = copytext(icon_state, 6)
 		var/image/I = image(icon, src, "sheet-overlay")
 		I.appearance_flags = RESET_COLOR
 		overlays += I
