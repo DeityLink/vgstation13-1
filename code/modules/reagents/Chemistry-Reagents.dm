@@ -517,7 +517,7 @@
 				species_list["[S.name] ([S.blood_color])"] = S.blood_color
 		var/chosen = input(admin,"Blood Color","Choose the Blood Color","#FFFFFF") as null|anything in species_list
 		if (chosen)
-			data["blood_color"] = BlendRYB(species_list[chosen], data["blood_color"], added_volume / (added_volume+volume))
+			data["blood_colour"] = BlendRYB(species_list[chosen], data["blood_colour"], added_volume / (added_volume+volume))
 			color = data["blood_colour"]
 	else if(added_data)
 		if(added_data["virus2"])
@@ -526,8 +526,8 @@
 			data["virus2"] |= virus_copylist(added_data["virus2"])
 		if (added_data["blood_type"])
 			data["blood_type"] = combine_blood_types(data["blood_type"], added_data["blood_type"])
-		if (added_data["blood_color"])
-			data["blood_color"] = BlendRYB(added_data["blood_color"], data["blood_color"], added_volume / (added_volume+volume))
+		if (added_data["blood_colour"])
+			data["blood_colour"] = BlendRYB(added_data["blood_colour"], data["blood_colour"], added_volume / (added_volume+volume))
 			color = data["blood_colour"]
 
 /datum/reagent/blood/handle_data_copy(var/list/added_data=null, var/added_volume, var/mob/admin)
@@ -539,33 +539,15 @@
 				species_list["[S.name] ([S.blood_color])"] = S.blood_color
 		var/chosen = input(admin,"Blood Color","Choose the Blood Color","#FFFFFF") as null|anything in species_list
 		if (chosen)
-			data["blood_color"] = species_list[chosen]
+			data["blood_colour"] = species_list[chosen]
 			color = data["blood_colour"]
 	else if (added_data)
 		data = added_data.Copy()
 		if(added_data["virus2"])
-			data["virus2"] |= virus_copylist(added_data["virus2"])
+			data["virus2"] = virus_copylist(added_data["virus2"])
 		if(added_data["blood_colour"])
-			data["blood_color"] = added_data["blood_colour"]
+			data["blood_colour"] = added_data["blood_colour"]
 			color = data["blood_colour"]
-
-/datum/reagent/paint/handle_data_mix(var/list/added_data=null, var/added_volume, var/mob/admin)
-	var/base_color = data["color"]
-	var/added_color = base_color
-	if (admin)
-		added_color = input(admin,"Paint Color","Choose a Paint Color","#FFFFFF") as color
-	else if (added_data)
-		added_color = added_data["color"]
-	data["color"] = BlendRYB(added_color, base_color, added_volume / (added_volume+volume))
-	color = data["color"]
-
-/datum/reagent/paint/handle_data_copy(var/list/added_data=null, var/added_volume, var/mob/admin)
-	if (added_data)
-		data["color"] = added_data["color"]
-		color = data["color"]
-	else if (admin)
-		data["color"] = input(admin,"Paint Color","Choose a Paint Color","#FFFFFF") as color
-		color = data["color"]
 
 
 /datum/reagent/blood/when_drinkingglass_master_reagent(var/obj/item/weapon/reagent_containers/food/drinks/drinkingglass/D)

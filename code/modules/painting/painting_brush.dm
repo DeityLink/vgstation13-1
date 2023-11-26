@@ -324,7 +324,7 @@
 		var/mob/M = loc
 		M.update_inv_hands()
 
-/obj/item/paint_roller/AltClick(var/mob/user)
+/obj/item/paint_roller/attack_self(var/mob/user)
 	if (user.incapacitated() || !Adjacent(user))
 		return
 	var/choices = list()
@@ -334,6 +334,9 @@
 	if (!new_mode || user.incapacitated() || !Adjacent(user))
 		return
 	stroke_state = stroke_states[new_mode]
+
+/obj/item/paint_roller/AltClick(var/mob/user)
+	attack_self(user)
 
 /obj/item/paint_roller/verb/set_painting_mode()
 	set name = "Change painting mode"

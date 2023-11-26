@@ -162,9 +162,8 @@
 				playsound(loc,'sound/effects/slap2.ogg', 10, 1, -2)
 
 /obj/item/weapon/reagent_containers/food/drinks/attack(mob/living/M as mob, mob/user as mob, def_zone)
-
 	//Smashing on someone
-	if(user.a_intent == I_HURT && isGlass && molotov != 1)  //To smash a bottle on someone, the user must be harm intent, the bottle must be out of glass, and we don't want a rag in here
+	if(!controlled_splash && user.a_intent == I_HURT && isGlass && molotov != 1)  //To smash a bottle on someone, the user must be harm intent, the bottle must be out of glass, and we don't want a rag in here
 
 		if(!M) //This really shouldn't be checked here, but sure
 			return
@@ -263,7 +262,7 @@
 		imbibe(user)
 		return 0
 
-	else if(istype(M, /mob/living/carbon/human))
+	else if(istype(M, /mob/living/carbon/human) && (!controlled_splash || user.a_intent == I_HELP))
 
 		user.visible_message("<span class='danger'>[user] attempts to feed [M] \the [src].</span>", "<span class='danger'>You attempt to feed [M] \the [src].</span>")
 
@@ -318,8 +317,16 @@
 	if (transfer(target, user, can_send = FALSE, can_receive = TRUE))
 		return
 
-	// Attempt to transfer from our glass
-	transfer(target, user, can_send = TRUE, can_receive = FALSE)
+	if (!controlled_splash)
+		// Attempt to transfer from our glass
+		transfer(target, user, can_send = TRUE, can_receive = FALSE)
+		return
+
+	var/transfer_result = transfer(target, user, splashable_units = amount_per_transfer_from_this)
+	if (transfer_result)
+		splash_special()
+	if((transfer_result >= 10) && (isturf(target) || istype(target, /obj/machinery/portable_atmospherics/hydroponics)))	//if we're splashing a decent amount of reagent on the floor
+		playsound(target, 'sound/effects/slosh.ogg', 25, 1)
 
 /obj/item/weapon/reagent_containers/food/drinks/examine(mob/user)
 	..()
@@ -1953,10 +1960,7 @@
 				user?.attack_log += text("\[[time_stamp()]\] <span class='danger'>Threw a [lit ? "lit" : "unlit"] molotov to \the [hit_atom], containing [reagents.get_reagent_ids()]</span>")
 				log_attack("[lit ? "Lit" : "Unlit"] molotov shattered at [formatJumpTo(get_turf(hit_atom))], thrown by [key_name(user)] and containing [reagents.get_reagent_ids()]")
 				message_admins("[lit ? "Lit" : "Unlit"] molotov shattered at [formatJumpTo(get_turf(hit_atom))], thrown by [key_name_admin(user)] and containing [reagents.get_reagent_ids()]")
-			reagents.reaction(get_turf(src), TOUCH) //splat the floor AND the thing we hit, otherwise fuel wouldn't ignite when hitting anything that wasn't a floor
-			if(hit_atom != get_turf(src)) //prevent spilling on the floor twice though
-				var/list/hit_zone = user && user.zone_sel ? list(user.zone_sel.selecting) : ALL_LIMBS
-				reagents.reaction(hit_atom, TOUCH, zone_sels = hit_zone)  //maybe this could be improved?
+			reagents.splashplosion(reagents.total_volume >= (reagents.maximum_volume/2))//splashing everything on the tile hit, and the surrounding ones if we're over half full.
 		invisibility = INVISIBILITY_MAXIMUM  //so it stays a while to ignite any fuel
 
 		if(molotov == 1) //for molotovs
@@ -1964,7 +1968,6 @@
 				new /obj/effect/decal/cleanable/ash(get_turf(src))
 				var/turf/loca = get_turf(src)
 				if(loca)
-//					to_chat(world, "<span  class='warning'>Burning...</span>")
 					loca.hotspot_expose(700, 1000,surfaces=istype(loc,/turf))
 			else
 				new /obj/item/weapon/reagent_containers/glass/rag(get_turf(src))

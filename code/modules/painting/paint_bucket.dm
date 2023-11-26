@@ -100,10 +100,8 @@ var/global/list/paint_types = subtypesof(/datum/reagent/paint)
 
 /obj/item/weapon/reagent_containers/glass/metal_bucket/container_splash_sub(var/datum/reagents/reagents, var/atom/target, var/amount, var/mob/user = null)
 	var/spot_color = mix_color_from_reagents(reagents.reagent_list, TRUE)
-	if (!spot_color)
-		return
 	. = ..()
-	if (. != -1)
+	if (. != -1 && spot_color)
 		add_spots(3, spot_color)
 
 /obj/item/weapon/reagent_containers/glass/metal_bucket/update_icon()
