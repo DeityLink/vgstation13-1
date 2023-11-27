@@ -157,8 +157,6 @@
 		overlay.overlays.len = 0//we're applying a full opaque coat of paint so let's get rid of the other overlays
 		sub_overlays.len = 0
 		blood_DNA = list()
-		for(var/obj/effect/decal/cleanable/blood/tracks/T in my_turf)
-			qdel(T)//and let's remove footprints too
 	if (!_mask)
 		if (_nano_paint || (nano_paint && !_nano_paint))
 			main_color = _color
@@ -171,6 +169,8 @@
 		sub_overlays += new_paint_layer
 		if (_alpha >= 200)
 			wet(_color, 10 SECONDS, 3)
+			for(var/obj/effect/decal/cleanable/blood/tracks/T in my_turf)
+				qdel(T)//and let's remove footprints too
 	else
 		var/image/terrain = image(my_turf.get_paint_icon(),my_turf,my_turf.get_paint_state(), dir = my_turf.dir)
 		terrain.blend_mode = BLEND_INSET_OVERLAY
