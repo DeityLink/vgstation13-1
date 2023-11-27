@@ -185,7 +185,9 @@
 							var/type2build = src.circuit.build_path
 							if(arcanetampered || circuit.arcanetampered)
 								type2build = pick(typesof(/obj/machinery/cooking))
-							var/obj/machinery/new_machine = new type2build(src.loc)
+							var/obj/machinery/new_machine = new type2build(loc)
+							if (locate(/obj/structure/table) in loc)
+								new_machine.table_shift()
 							for(var/obj/O in new_machine.component_parts)
 								qdel(O)
 							new_machine.component_parts = list()

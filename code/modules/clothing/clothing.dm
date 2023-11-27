@@ -212,19 +212,79 @@
 	if(usr.incapacitated())
 		return
 
-	var/mob/living/carbon/human/user = usr
-	if(!istype(user))
-		return
-	if(!is_hood_up && !user.get_item_by_slot(slot_head) && hood.mob_can_equip(user,slot_head))
-		to_chat(user, "You put the hood up.")
-		hoodup(user)
-	else if(user.get_item_by_slot(slot_head) == hood)
-		hooddown(user)
-		to_chat(user, "You put the hood down.")
-	else
-		to_chat(user, "You try to put your hood up, but there is something in the way.")
-		return
-	user.update_inv_w_uniform()
+	toggle_hood(usr)
+
+/obj/item/clothing/proc/toggle_hood(var/mob/wearer, var/mob/user)
+	if(ismob(wearer))
+		if (user && (user!=wearer))
+			if(!is_hood_up && !wearer.get_item_by_slot(slot_head) && hood.mob_can_equip(wearer,slot_head))
+				to_chat(user, "You put their hood up.")
+				to_chat(wearer, "[user] puts your hood up.")
+				hoodup(wearer)
+			else if(wearer.get_item_by_slot(slot_head) == hood)
+				hooddown(wearer)
+				to_chat(user, "You put their hood down.")
+				to_chat(wearer, "[user] puts your hood down.")
+			else
+				to_chat(user, "You try to put their hood up, but there is something in the way.")
+				to_chat(wearer, "[user] tries in vain to put your hood up, but there is something in the way.")
+				return
+		else
+			if(!is_hood_up && !wearer.get_item_by_slot(slot_head) && hood.mob_can_equip(wearer,slot_head))
+				to_chat(wearer, "You put the hood up.")
+				hoodup(wearer)
+			else if(wearer.get_item_by_slot(slot_head) == hood)
+				hooddown(wearer)
+				to_chat(wearer, "You put the hood down.")
+			else
+				to_chat(wearer, "You try to put your hood up, but there is something in the way.")
+				return
+		wearer.update_inv_w_uniform()
+	else if (istype(wearer, /obj/structure/mannequin))
+		var/obj/structure/mannequin/mannequin = wearer
+		if(!is_hood_up && !mannequin.clothing[SLOT_MANNEQUIN_HEAD])
+			to_chat(user, "You put the hood up.")
+			hoodup(wearer)
+		else if(mannequin.clothing[SLOT_MANNEQUIN_HEAD] == hood)
+			hooddown(wearer)
+			to_chat(user, "You put the hood down.")
+		else
+			to_chat(user, "You try to put the hood up, but there is something in the way.")
+			return
+
+/obj/item/clothing/proc/hoodup(var/atom/movable/AM)
+	if(istype(AM, /mob/living/carbon/human))
+		var/mob/living/carbon/human/H = AM
+		hood.dyed_parts = dyed_parts.Copy()
+		hood.color = color
+		hood.update_icon()
+		H.equip_to_slot(hood, slot_head)
+		icon_state = hood_up_icon_state
+		is_hood_up = TRUE
+		H.update_inv_w_uniform()
+		H.update_inv_wear_suit()
+	else if (istype(AM, /obj/structure/mannequin))
+		var/obj/structure/mannequin/M = AM
+		M.clothing[SLOT_MANNEQUIN_HEAD] = hood
+		hood.mannequin_equip(M,SLOT_MANNEQUIN_HEAD)
+
+/obj/item/clothing/proc/hooddown(var/atom/movable/AM, var/unequip = 1)
+	if(istype(AM, /mob/living/carbon/human))
+		var/mob/living/carbon/human/H = AM
+		icon_state = hood_down_icon_state
+		if(unequip)
+			H.u_equip(H.head,0)
+		is_hood_up = FALSE
+		H.update_inv_w_uniform()
+		H.update_inv_wear_suit()
+	else if (istype(AM, /obj/structure/mannequin))
+		var/obj/structure/mannequin/M = AM
+		M.clothing[SLOT_MANNEQUIN_HEAD] = null
+		hood.mannequin_unequip(M)
+
+/obj/item/clothing/mannequin_unequip(var/obj/structure/mannequin/mannequin)
+	if (hood && (mannequin.clothing[SLOT_MANNEQUIN_HEAD] == hood))
+		hooddown(mannequin)
 
 /obj/item/clothing/clean_act(var/cleanliness)
 	..()
@@ -610,7 +670,7 @@
 	..()
 
 /obj/item/clothing/head/pickup(var/mob/living/carbon/human/user)
-	if(hood_suit && istype(hood_suit) && ((user.get_item_by_slot(slot_wear_suit) == hood_suit)||(user.get_item_by_slot(slot_w_uniform) == hood_suit)))
+	if(hood_suit && istype(hood_suit) && (istype(hood_suit.loc, /obj/structure/mannequin)||(user.get_item_by_slot(slot_wear_suit) == hood_suit)||(user.get_item_by_slot(slot_w_uniform) == hood_suit)))
 		hood_suit.hooddown(user, unequip = 0)
 		user.drop_from_inventory(src)
 		forceMove(hood_suit)
@@ -893,22 +953,6 @@ var/global/maxStackDepth = 10
 /obj/item/clothing/suit/attack_self()
 	if (hood && !force_hood)
 		togglehood()
-
-/obj/item/clothing/proc/hoodup(var/mob/living/carbon/human/user)
-	hood.dyed_parts = dyed_parts.Copy()
-	hood.color = color
-	hood.update_icon()
-	user.equip_to_slot(hood, slot_head)
-	icon_state = hood_up_icon_state
-	is_hood_up = TRUE
-	user.update_inv_wear_suit()
-
-/obj/item/clothing/proc/hooddown(var/mob/living/carbon/human/user, var/unequip = 1)
-	icon_state = hood_down_icon_state
-	if(unequip)
-		user.u_equip(user.head,0)
-	is_hood_up = FALSE
-	user.update_inv_wear_suit()
 
 /obj/item/clothing/equipped(var/mob/user, var/slot, hand_index = 0)
 	..()

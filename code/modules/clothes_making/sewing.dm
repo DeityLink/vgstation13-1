@@ -425,3 +425,9 @@
 		to_chat(usr, "<span class='warning'>You don't have the dexterity to do this!</span>")
 	else
 		attack_hand(user)
+
+/obj/machinery/sewing_machine/table_shift()
+	pixel_y = 4
+
+/obj/machinery/sewing_machine/table_unshift()
+	pixel_y = 0

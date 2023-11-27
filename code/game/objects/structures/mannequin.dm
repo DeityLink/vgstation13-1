@@ -434,6 +434,26 @@
 				else
 					return
 
+	else if(href_list["toggle_uniform_hood"])
+		if(trapped_strip)
+			to_chat(user,"<span class='danger'>\The [src] starts moving.</span>")
+			Awaken()
+			return
+		if (clothing[SLOT_MANNEQUIN_ICLOTHING])
+			var/obj/item/clothing/I = clothing[SLOT_MANNEQUIN_ICLOTHING]
+			if (I.hood)
+				I.toggle_hood(src,usr)
+
+	else if(href_list["toggle_suit_hood"])
+		if(trapped_strip)
+			to_chat(user,"<span class='danger'>\The [src] starts moving.</span>")
+			Awaken()
+			return
+		if (clothing[SLOT_MANNEQUIN_OCLOTHING])
+			var/obj/item/clothing/I = clothing[SLOT_MANNEQUIN_OCLOTHING]
+			if (I.hood)
+				I.toggle_hood(src,usr)
+
 	update_icon()
 	show_inv(user)
 
@@ -579,9 +599,21 @@
 		dat += "<BR>"
 		if(!primitive)
 			dat += "<BR><B>Exosuit:</B> <A href='?src=\ref[src];item=[SLOT_MANNEQUIN_OCLOTHING]'>[makeStrippingButton(clothing[SLOT_MANNEQUIN_OCLOTHING])]</A>"
+			if (clothing[SLOT_MANNEQUIN_OCLOTHING])
+				var/obj/item/I = clothing[SLOT_MANNEQUIN_OCLOTHING]
+				if (istype(I, /obj/item/clothing))
+					var/obj/item/clothing/C = I
+					if (C.hood)
+						dat += "<BR>[HTMLTAB]&#8627;<B>Hood:</B> <A href='?src=\ref[src];toggle_suit_hood=1'>Toggle</A>"
 			dat += "<BR><B>Shoes:</B> <A href='?src=\ref[src];item=[SLOT_MANNEQUIN_FEET]'>[makeStrippingButton(clothing[SLOT_MANNEQUIN_FEET])]</A>"
 			dat += "<BR><B>Gloves:</B> <A href='?src=\ref[src];item=[SLOT_MANNEQUIN_GLOVES]'>[makeStrippingButton(clothing[SLOT_MANNEQUIN_GLOVES])]</A>"
 		dat += "<BR><B>Uniform:</B> <A href='?src=\ref[src];item=[SLOT_MANNEQUIN_ICLOTHING]'>[makeStrippingButton(clothing[SLOT_MANNEQUIN_ICLOTHING])]</A>"
+		if (clothing[SLOT_MANNEQUIN_ICLOTHING])
+			var/obj/item/I = clothing[SLOT_MANNEQUIN_ICLOTHING]
+			if (istype(I, /obj/item/clothing))
+				var/obj/item/clothing/C = I
+				if (C.hood)
+					dat += "<BR>[HTMLTAB]&#8627;<B>Hood:</B> <A href='?src=\ref[src];toggle_uniform_hood=1'>Toggle</A>"
 		if(!primitive)
 			dat += "<BR><B>Belt:</B> <A href='?src=\ref[src];item=[SLOT_MANNEQUIN_BELT]'>[makeStrippingButton(clothing[SLOT_MANNEQUIN_BELT])]</A>"
 			dat += "<BR><B>ID:</B> <A href='?src=\ref[src];item=[SLOT_MANNEQUIN_ID]'>[makeStrippingButton(clothing[SLOT_MANNEQUIN_ID])]</A>"

@@ -907,3 +907,11 @@ Class Procs:
 		if("Machine Location")
 			output_dir = 0
 			to_chat(user, "<span class='notice'>Output set.</span>")
+
+//Called when either built over a table, or when placing a table underneath, or said table gets unflipped
+/obj/machinery/proc/table_shift()
+	return
+
+//Called when a table underneath is removed, or flipped
+/obj/machinery/proc/table_unshift()
+	return

@@ -655,4 +655,14 @@
 	if(prob(50))
 		cook()
 
+
+/obj/machinery/microwave/table_shift()
+	pixel_x = -3
+	pixel_y = 6
+
+/obj/machinery/microwave/table_unshift()
+	pixel_x = 0
+	pixel_y = 0
+
+
 #undef CAN_AUTOMAKE_SOMETHING
