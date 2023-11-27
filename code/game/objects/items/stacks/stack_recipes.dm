@@ -537,7 +537,7 @@ var/list/datum/stack_recipe/cloth_recipes_by_hand = list (
 var/list/datum/stack_recipe/cloth_recipes_with_tool = list (
 	null,
 	"Uniforms",
-	new/datum/stack_recipe/cloth("Jumpsuit",				/obj/item/clothing/under/color,					5,	time = 200),
+	new/datum/stack_recipe/cloth("Jumpsuit",				/obj/item/clothing/under/color/linen,			5,	time = 200),
 	new/datum/stack_recipe/cloth/composite("Composite Set",	/obj/item/clothing/under/composite,2),
 	new/datum/stack_recipe/cloth("Sleeve-less Dress",		/obj/item/clothing/under/dress,					4,	time = 160),
 	new/datum/stack_recipe/cloth("Villager Dress",			/obj/item/clothing/under/villager_dress,		5,	time = 200),

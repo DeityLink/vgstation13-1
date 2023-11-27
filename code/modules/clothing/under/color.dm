@@ -13,6 +13,9 @@
 	dye_base_iconstate_override = "white"//so we can dye the other jumpsuits without having to add additional icon states
 	dye_base_itemstate_override = "w_suit"
 
+/obj/item/clothing/under/color/linen
+	//sub-type to track manually crafted jumpsuits for centcomm orders
+
 /obj/item/clothing/under/color/white
 	name = "white jumpsuit"
 	icon_state = "white"
