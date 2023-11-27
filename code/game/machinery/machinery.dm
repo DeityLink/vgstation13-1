@@ -178,7 +178,7 @@ Class Procs:
 	//if(ticker) initialize()
 	. = ..()
 	if (locate(/obj/structure/table) in loc)
-		new_machine.table_shift()
+		table_shift()
 
 /obj/machinery/initialize()
 	..()
