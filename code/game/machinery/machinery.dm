@@ -176,7 +176,9 @@ Class Procs:
 	machines += src
 	initialize_malfhack_abilities()
 	//if(ticker) initialize()
-	return ..()
+	. = ..()
+	if (locate(/obj/structure/table) in loc)
+		new_machine.table_shift()
 
 /obj/machinery/initialize()
 	..()
