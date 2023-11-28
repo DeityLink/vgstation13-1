@@ -212,19 +212,14 @@
 							if ("border_roller_progress")
 								apply(_color,_alpha,null,_dir,_blood_DNA,_nano_paint)//On the third click we just apply a coat over the whole tile
 								return
-	if (stroke_icon == "wall_side" || stroke_icon == "wall_splatter")//painting around a wall
-		var/sides = 0
-		for (var/direction in cardinal)
-			var/turf/T = get_step(my_turf, direction)
-			if (isfloor(T))
-				sides |= direction
-		for (var/image/lay in sub_overlays)
+	if (stroke_icon == "wall_side")//painting around a wall
+		if (sub_overlays.len > 0)
+			var/image/lay = sub_overlays[sub_overlays.len]//grabbing the most recent overlay
 			if (lay.icon == 'icons/turf/paint_masks.dmi')
-				if ((lay.color ? lay.color : "#ffffff") == copytext(_color,1,8) && lay.alpha == round(_alpha))//same paint
-					sides -= lay.dir
-		if (sides <= 0 || sides == _dir)
-			apply(_color,_alpha,null,_dir,_blood_DNA,_nano_paint)
-			return
+				if ((lay.color ? lay.color : "#ffffff") == copytext(_color,1,8) && lay.alpha == round(_alpha))//painting the same side twice in a row with the same paint covers the whole wall
+					if (lay.dir == _dir)
+						apply(_color,_alpha,null,_dir,_blood_DNA,_nano_paint)
+						return
 	apply(_color,_alpha,stroke_icon,_dir,_blood_DNA,_nano_paint)
 
 /datum/paint_overlay/proc/update()//updates the paint layers when floors get damaged and such

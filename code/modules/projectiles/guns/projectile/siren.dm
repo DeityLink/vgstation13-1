@@ -88,7 +88,7 @@
 		to_chat(user, "<span class='warning'>A label sticks the trigger to the trigger guard!</span>")//Such a new feature, the player might not know what's wrong if it doesn't tell them.
 
 		return
-	if(reagents.total_volume < 10)
+	if(reagents.total_volume < 5)
 		return click_empty(user)
 	if(in_chamber)
 		if(in_chamber.reagents && in_chamber.reagents.total_volume)
@@ -110,7 +110,7 @@
 	return in_chamber
 
 /obj/item/weapon/gun/siren/can_discharge()
-	if(reagents.total_volume < 10)
+	if(reagents.total_volume < 5)
 		return 1
 
 /obj/item/weapon/gun/siren/caduceus
@@ -160,7 +160,7 @@
 	if(harm_labeled >= min_harm_label)
 		to_chat(user, "<span class='warning'>A label sticks the trigger to the trigger guard!</span>")//Such a new feature, the player might not know what's wrong if it doesn't tell them.
 		return
-	if(reagents.total_volume < 10 && !in_chamber)
+	if(reagents.total_volume < 5 && !in_chamber)
 		return click_empty(user)
 	if(!in_chamber)
 		in_chamber = new projectile_type(src, min(3+(round(pumps/2)),15), mixed_color, mixed_alpha)
