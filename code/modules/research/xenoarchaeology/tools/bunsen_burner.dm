@@ -54,6 +54,9 @@
 	processing_objects.Remove(src)
 	create_reagents(250)
 
+	if(ticker)
+		initialize()
+
 /obj/machinery/bunsen_burner/mapping/New()
 	..()
 	reagents.add_reagent(GLYCEROL, 250)

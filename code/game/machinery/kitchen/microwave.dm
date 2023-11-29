@@ -75,6 +75,9 @@
 				acceptable_reagents |= reagent
 		sortTim(available_recipes, /proc/cmp_microwave_recipe_dsc)
 
+	if(ticker)
+		initialize()
+
 /*******************
 *   Part Upgrades
 ********************/

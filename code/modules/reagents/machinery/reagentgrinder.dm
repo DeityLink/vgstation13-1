@@ -92,7 +92,8 @@ var/global/list/juice_items = list (
 
 	RefreshParts()
 
-	return
+	if(ticker)
+		initialize()
 
 /obj/machinery/reagentgrinder/RefreshParts()
 	var/T = 0

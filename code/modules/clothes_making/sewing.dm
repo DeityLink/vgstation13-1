@@ -194,6 +194,9 @@
 	RefreshParts()
 	update_icon()
 
+	if(ticker)
+		initialize()
+
 /obj/machinery/sewing_machine/examine(mob/user)
 	..()
 	if(stored_cloth)
