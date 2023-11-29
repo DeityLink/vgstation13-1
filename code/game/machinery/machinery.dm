@@ -176,12 +176,12 @@ Class Procs:
 	machines += src
 	initialize_malfhack_abilities()
 	//if(ticker) initialize()
-	. = ..()
-	if (locate(/obj/structure/table) in loc)
-		table_shift()
+	return ..()
 
 /obj/machinery/initialize()
 	..()
+	if (locate(/obj/structure/table) in loc)
+		table_shift()
 	if(machine_flags & PURCHASER)
 		reconnect_database()
 		linked_account = vendor_account
