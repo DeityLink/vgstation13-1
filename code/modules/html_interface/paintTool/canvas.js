@@ -412,6 +412,7 @@ function setColor(color,nano){
 	} 
 	updateSelectedColorDisplay(color, getOpacity())
 
+	//telling the game that we're changing color so that the player's painting brush actually changes its current color.
 	var content = "newcolor=" + encodeURIComponent(color) + ";";
 	content += "nanopaint=" + encodeURIComponent(nanopaint);
 	HREFmultipartHandler(src, content);

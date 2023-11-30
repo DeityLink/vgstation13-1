@@ -17,6 +17,7 @@
 	var/base_color
 	var/nano_paint = FALSE
 	var/polarized = FALSE
+	var/list/components = list()
 
 /datum/painting_utensil/New(mob/user, obj/item/held_item)
 	if (!user) // Special case
@@ -30,10 +31,13 @@
 		max_strength = PENCIL_STRENGTH_MAX
 		min_strength = PENCIL_STRENGTH_MIN
 		palette += p.colour_rgb
+		nano_palette += "#161616"
 		base_color = p.colour_rgb
+		components = list("pen ink")
 
 	// Painting with a crayon
 	if (istype(held_item, /obj/item/toy/crayon))
+		components = list("crayon")
 		for (var/obj/item/weapon/storage/fancy/crayons/box in user.held_items)
 			for (var/crayon in box)
 				var/obj/item/toy/crayon/c = crayon
@@ -47,20 +51,28 @@
 		max_strength = PENCIL_STRENGTH_MAX
 		min_strength = PENCIL_STRENGTH_MIN
 		palette += c.mainColour
+		nano_palette += "#161616"
 		palette += c.shadeColour
+		nano_palette += "#161616"
 		base_color = c.mainColour
 
 	// Painting with hair dye sprays
 	if (istype(held_item, /obj/item/weapon/hair_dye))
+		components = list("hair dye")
 		var/obj/item/weapon/hair_dye/h = held_item
 		max_strength = PENCIL_STRENGTH_MAX
 		min_strength = PENCIL_STRENGTH_MIN
 		palette += rgb(h.color_r, h.color_g, h.color_b)
+		nano_palette += "#161616"
 		base_color = rgb(h.color_r, h.color_g, h.color_b)
 
 	// Painting with a brush
 	if (istype(held_item, /obj/item/painting_brush))
 		// If holding a palette (item) add it's colors to the brush's list
+
+		var/obj/item/painting_brush/b = held_item
+		components = b.component.Copy()
+
 		for (var/obj/item/palette/pal in user.held_items)
 			for (var/c in pal.stored_colours)
 				palette += pal.stored_colours[c]
@@ -72,7 +84,6 @@
 					if (PAINTLIGHT_FULL)
 						nano_palette += "#FFFFFF"
 
-		var/obj/item/painting_brush/b = held_item
 		if (b.paint_color)
 			max_strength = BRUSH_STRENGTH_MAX
 			min_strength = BRUSH_STRENGTH_MIN
@@ -121,6 +132,7 @@
 	dupe.nano_palette = src.nano_palette
 	dupe.base_color = src.base_color
 	dupe.nano_paint = src.nano_paint
+	dupe.components = src.components.Copy()
 	dupe.tag = "\ref[dupe]"
 	return dupe
 
@@ -162,6 +174,8 @@
 	var/contributing_artists = list()
 
 	var/copy = 0
+
+	var/list/components = list()
 
 /datum/custom_painting/New(parent, bitmap_width, bitmap_height, offset_x=0, offset_y=0, base_color=src.base_color)
 	src.parent = parent
@@ -240,6 +254,7 @@
 
 
 /datum/custom_painting/proc/blank_contents()
+	components = list()
 	bucket_fill(base_color)
 
 /datum/custom_painting/proc/is_blank()
@@ -329,6 +344,16 @@
 			var/obj/item/painting_brush/PB = held_item
 			PB.paint_color = href_list["newcolor"]
 			PB.nano_paint = text2num(href_list["nanopaint"])
+			for (var/obj/item/palette/pal in user.held_items)
+				for (var/c in pal.stored_colours)
+					var/found = FALSE
+					if (pal.stored_colours[c] == PB.paint_color)
+						var/list/pal_comp = pal.components[c]
+						PB.component = pal_comp.Copy()
+						found = TRUE
+						break
+					if (!found)
+						PB.component = PB.component_alt.Copy()//using the original brush color that isn't on the palette
 			PB.update_icon()
 
 	// Save changes
@@ -344,6 +369,8 @@
 
 		if (!do_after(usr, parent, 30))
 			return
+
+		components |= pu.components//This won't get us all the components if the player changed c
 
 		//Save and sanitize bitmap
 		bitmap = splittext(url_decode(href_list["bitmap"]), ",")
@@ -401,6 +428,38 @@
 			has_nano_paint = TRUE
 
 	return image(ico)
+
+/datum/custom_painting/proc/get_components()
+	var/mats = ""
+
+	var/is_drawing = TRUE
+	var/list/drawing_implements = list(
+		"crayon",
+		"pen ink",
+		)
+	if (components.len > 0)
+		var/mat = components[1]
+		mats = "\a [mat]"
+		if (!(mat in drawing_implements))
+			is_drawing = FALSE
+
+		for (var/i = 2 to components.len)
+			if (i == components.len)
+				mats += " and "
+			else
+				mats += ", "
+
+			mat = components[i]
+			if (!(mat in drawing_implements))
+				is_drawing = FALSE
+			mats += mat
+
+		if (is_drawing)
+			mats += " drawing"
+		else
+			mats += " painting"
+
+	return mats
 
 // -- export/import stuff
 // -- don't we have a serializer for this? :thinking:

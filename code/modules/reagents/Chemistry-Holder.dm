@@ -759,6 +759,21 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 	for (var/datum/reagent/R in reagent_list)
 		R.special_behaviour()
 
+/datum/reagents/proc/get_pigment_names()
+	var/list/names = list()
+	for (var/datum/reagent/R in reagent_list)
+		switch (R.id)
+			if (ACRYLIC)
+				names += "acrylic"
+			if (NANOPAINT)
+				names += "nano"
+			if (FLAXOIL)
+				names += "oil"
+			else
+				if (R.flags & CHEMFLAG_PIGMENT)
+					names += lowertext(R.name)
+	return names
+
 /datum/reagents/proc/remove_reagent(var/reagent, var/amount, var/safety)//Added a safety check for the trans_id_to
 
 	if(!isnum(amount))

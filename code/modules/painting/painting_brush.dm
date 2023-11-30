@@ -37,6 +37,8 @@
 	var/paint_color = null
 	var/nano_paint = PAINTLIGHT_NONE
 	var/list/blood_data = list("wet paint" = "paint")
+	var/list/component = list()
+	var/list/component_alt = list()
 
 /obj/item/painting_brush/update_icon()
 	..()
@@ -73,6 +75,7 @@
 			// Clean up that brush
 			paint_color = null
 			nano_paint = PAINTLIGHT_NONE
+			component = list()
 			to_chat(user, "<span class='notice'>You clean \the [name] in \the [target.name].</span>")
 		else
 			// Take the pigment mix's color
@@ -80,6 +83,8 @@
 			if (!paint_rgb)
 				to_chat(user, "<span class='notice'>Your [name] fails to grab any pigment from \the [target.name].</span>")
 				return
+			component = target.reagents.get_pigment_names()
+			component_alt = component.Copy()
 			var/list/paint_color_rgb = rgb2num(paint_rgb)
 			paint_color = rgb(paint_color_rgb[1], paint_color_rgb[2], paint_color_rgb[3], mix_alpha_from_reagents(target.reagents.reagent_list))
 			nano_paint = target.reagents.get_max_paint_light()

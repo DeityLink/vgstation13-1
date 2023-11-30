@@ -94,7 +94,12 @@
 
 				// Reagent mix is opaque enough to paint the canvas, do so
 				else
-					painting_data.bucket_fill(mix_color_from_reagents(container.reagents.reagent_list), container.reagents.get_max_paint_light())
+					var/mixed_color = mix_color_from_reagents(container.reagents.reagent_list, TRUE)
+					if (!mixed_color)
+						to_chat(usr, "<span class='warning'>Looks like there were no pigments inside \the [W]!</span>")
+						return TRUE
+					painting_data.components = container.reagents.get_pigment_names()
+					painting_data.bucket_fill(mixed_color, container.reagents.get_max_paint_light())
 				playsound(loc, 'sound/effects/slosh.ogg', 25, 1)
 				container.reagents.remove_any(5)
 				update_painting(TRUE)
@@ -206,7 +211,8 @@
 	blank = painting_data.is_blank()
 	overlays.len = 0
 	if (!blank)
-		name = (painting_data.title ? ("\proper[painting_data.title]") : "untitled artwork") + (painting_data.author ? ", by [painting_data.author]" : "")
+		var/comp = painting_data.get_components()
+		name = (painting_data.title ? ("\proper[painting_data.title]") : "untitled artwork") + (painting_data.author ? ", [comp ? "[comp] " : ""]by [painting_data.author]" : "[comp ? ", [comp]" : ""]")
 		desc = painting_data.description ? "A small plaque reads: \"<span class='info'>[painting_data.description]\"</span>" : "A painting... But what could it mean?"
 		if (painting_data.copy)
 			desc += "A tag on this artwork indicates that it's a replica reproduced from Nanotrasen's databanks."
@@ -416,7 +422,8 @@
 /obj/item/mounted/frame/painting/custom/update_painting(render)
 	blank = painting_data.is_blank()
 	if (!blank)
-		name = (painting_data.title ? ("\proper[painting_data.title]") : "untitled artwork") + (painting_data.author ? ", by [painting_data.author]" : "")
+		var/comp = painting_data.get_components()
+		name = (painting_data.title ? ("\proper[painting_data.title]") : "untitled artwork") + (painting_data.author ? ", [comp ? "[comp] " : ""]by [painting_data.author]" : "[comp ? ", [comp]" : ""]")
 		desc = painting_data.description ? "A small plaque reads: \"<span class='info'>[painting_data.description]\"</span>" : "A painting... But what could it mean?"
 		if (render)
 			rendered_icon = painting_data.render_on(icon(base_icon, base_icon_state))

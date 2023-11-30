@@ -73,6 +73,7 @@ interactions:
 	var/tagindex = 0
 	var/list/stored_colours = list()
 	var/list/nanopaint_indexes = list()
+	var/list/components = list()
 
 /obj/item/palette/attack_self(mob/user)
 	. = ..()
@@ -84,6 +85,7 @@ interactions:
 	if (p.base_color)
 		stored_colours["[++tagindex]"] = p.base_color
 		nanopaint_indexes["[tagindex]"] = p.nano_paint
+		components["[tagindex]"] = p.components.Copy()
 		to_chat(user, "<span class='notice'>You add a new color to \the [src].</span>")
 		update_icon()
 
@@ -150,8 +152,9 @@ interactions:
 		return
 	if (href_list["colour"])
 		var/colour_tag = href_list["colour"]
-		var/colour = stored_colours[href_list["colour"]]
-		var/nanopaint = nanopaint_indexes[href_list["colour"]]
+		var/colour = stored_colours[colour_tag]
+		var/nanopaint = nanopaint_indexes[colour_tag]
+		var/list/component = components[colour_tag]
 		if (!colour)
 			return
 		var/mob/living/L = usr
@@ -170,13 +173,18 @@ interactions:
 				if (!PB.paint_color)
 					PB.paint_color = colour
 					PB.nano_paint = nanopaint
+					PB.component = component.Copy()
 					to_chat(usr, "<span class='notice'>You apply the color to \the [PB].</span>")
 				else
 					to_chat(usr, "<span class='notice'>You start mixing colours...</span>")
 					var/strengh = input("How much do you want to mix the colours? 0.5 is for an even mixing. Values toward 0 get a stronger shade of the colour in the palette, value toward 1 get a stronger shade of the colour in the pencil.", "Strenght of mixing", 0.5) as null|num
+					if (!strengh || (strengh < 0))
+						return
 					strengh = clamp(strengh, 0, 1)
 					var/colour_pencil = rgb2num(PB.paint_color)
 					var/colour_palette = rgb2num(colour)
+					PB.component |= component
+					components[colour_tag] = PB.component.Copy()
 					//Nano Paint turns any paint it touches into more nano paint and blends additively
 					if ((nanopaint == PAINTLIGHT_FULL) || (PB.nano_paint == PAINTLIGHT_FULL))
 						var/blend_rgb = AddRGB(colour, PB.paint_color, strengh)
@@ -196,9 +204,11 @@ interactions:
 			if ("duplicate")
 				stored_colours["[++tagindex]"] += colour
 				nanopaint_indexes["[tagindex]"] = nanopaint
+				components["[tagindex]"] = component.Copy()
 			if ("delete")
 				stored_colours -= colour_tag
 				nanopaint_indexes -= colour_tag
+				components -= colour_tag
 
 	else if (href_list["wash_pencil"])
 		var/mob/living/carbon/C = usr
