@@ -232,16 +232,16 @@
 		return _time * 0.75
 	return _time
 
-/obj/item/stack/sheet/cloth/stop_build()
-	if(istype(loc, /obj/machinery/sewing_machine))
-		var/obj/machinery/sewing_machine/SM = loc
-		SM.operating = 0
-		SM.update_icon()
-	else if (istype(loc, /obj/item/knitting_needles))
-		var/obj/item/knitting_needles/KS = loc
-		KS.knitting = 0
-		KS.update_icon()
-
+/obj/item/stack/sheet/cloth/stop_build(var/_last_crafting = FALSE)
+	if (_last_crafting)
+		if(istype(loc, /obj/machinery/sewing_machine))
+			var/obj/machinery/sewing_machine/SM = loc
+			SM.operating = 0
+			SM.update_icon()
+		else if (istype(loc, /obj/item/knitting_needles))
+			var/obj/item/knitting_needles/KS = loc
+			KS.knitting = 0
+			KS.update_icon()
 
 /obj/item/stack/sheet/cloth/on_empty()
 	if(istype(loc, /obj/machinery/sewing_machine))

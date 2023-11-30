@@ -22,6 +22,7 @@
 	var/redeemed = 0 // For selling minerals to central command via supply shuttle.
 	var/restock_amount = 0 //For borg chargers restocking.
 	var/sheettype = null //this is used for girders in the creation of walls/false walls. Used by both tiles and sheets.
+	var/last_work = 0 //rounded last world.time at which a crafting began
 
 /obj/item/stack/New(var/loc, var/amount=null)
 	..()
@@ -158,7 +159,7 @@
 /obj/item/stack/proc/allow_use(var/mob/living/user)
 	return (user.get_active_hand() == src)
 
-/obj/item/stack/proc/stop_build()
+/obj/item/stack/proc/stop_build(var/_last_crafting = FALSE)
 	return
 
 /obj/item/stack/Topic(href, href_list)

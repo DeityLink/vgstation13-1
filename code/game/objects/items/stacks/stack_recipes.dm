@@ -59,13 +59,15 @@
 		construct_loc = usr.loc
 	if (!can_build_here(usr, construct_loc))
 		return
+	var/current_work = round(world.time)
+	S.last_work = current_work
 	if (time)
 		var/actual_time = S.time_modifier(time)
 		if (!do_after(usr, get_turf(S), actual_time))
-			S.stop_build()
+			S.stop_build(current_work == S.last_work)
 			return
 	if (S.amount < req_amount*multiplier)
-		S.stop_build()
+		S.stop_build(current_work == S.last_work)
 		return
 	var/list/stacks_to_consume = list()
 	if(other_reqs.len)
@@ -96,7 +98,7 @@
 							stacks_to_consume.Add(SS)
 							stacks_to_consume[SS] = req_amount
 			if(!found)
-				S.stop_build()
+				S.stop_build(current_work == S.last_work)
 				return
 	var/atom/O
 	if(ispath(result_type, /obj/item/stack))
@@ -107,7 +109,7 @@
 		for(var/i = 1 to (max_res_amount>1 ? res_amount*multiplier : 1))
 			O = new result_type(construct_loc)
 
-	S.stop_build()
+	S.stop_build(current_work == S.last_work)
 	O.change_dir(usr.dir)
 	if(start_unanchored)
 		var/obj/A = O
