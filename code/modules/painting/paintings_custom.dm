@@ -305,6 +305,10 @@
 	QDEL_NULL(painting_data)
 	..()
 
+/obj/item/mounted/frame/painting/custom/proc/smear(var/amount=50, var/strength=1)
+	painting_data.smear(amount,strength)
+	update_painting(TRUE)
+
 /obj/item/mounted/frame/painting/custom/attackby(obj/item/W, mob/user)
 	// Painting
 	var/datum/painting_utensil/p = new(user, W)
@@ -325,15 +329,26 @@
 			if (do_after(user, src, 10))
 				// Reagent mix is strong enough to clean the canvas, do so
 				var/cleaner_percent = get_reagent_paint_cleaning_percent(container)
-				if (cleaner_percent >= PAINT_CLEANER_THRESHOLD)
+				if (cleaner_percent > 1)//using acetone or bleach
 					painting_data.blank_contents()
 					to_chat(usr, "<span class='warning'>You wash the paint off \the [name]!</span>")
+				else if (cleaner_percent >= PAINT_CLEANER_THRESHOLD)//just water, or diluted cleaners
+					spawn()
+						smear((painting_height*painting_width)/2, 3)
+					to_chat(usr, "<span class='warning'>You smear the paint across \the [name]!</span>")
 
 				// Reagent mix is opaque enough to paint the canvas, do so
 				else
-					painting_data.bucket_fill(mix_color_from_reagents(container.reagents.reagent_list), container.reagents.get_max_paint_light())
-					container.reagents.remove_any(5)
+					var/mixed_color = mix_color_from_reagents(container.reagents.reagent_list, TRUE)
+					if (!mixed_color)
+						to_chat(usr, "<span class='warning'>Looks like there were no pigments inside \the [W]!</span>")
+						return TRUE
+					painting_data.components = container.reagents.get_pigment_names()
+					painting_data.bucket_fill(mixed_color, container.reagents.get_max_paint_light())
+				playsound(loc, 'sound/effects/slosh.ogg', 25, 1)
+				container.reagents.remove_any(5)
 				update_painting(TRUE)
+
 			return TRUE
 
 	// Covering

@@ -208,6 +208,7 @@
 	copy.description = description
 	copy.bitmap = bitmap.Copy()
 	copy.nanomap = nanomap.Copy()
+	copy.components = components.Copy()
 	return copy
 
 /datum/custom_painting/proc/set_parent(parent)
