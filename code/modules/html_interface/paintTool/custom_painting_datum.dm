@@ -474,6 +474,7 @@
 		painting.base_color,
 		painting.bitmap,
 		painting.nanomap,
+		painting.components,
 	)
 	return json_encode(L)
 
@@ -482,9 +483,11 @@
 	var/datum/custom_painting/painting = new(null, L[1], L[2], L[3], L[4], L[5]) // no parents
 	var/list/bitmap_to_copy = L[6]
 	painting.bitmap = bitmap_to_copy.Copy()
-	if (L.len > 6)
+	if (L.len > 6)//post Paint & Linen update
 		var/list/nanomap_to_copy = L[7]
 		painting.nanomap = nanomap_to_copy.Copy()
+		var/list/components_to_copy = L[8]
+		painting.components = components_to_copy.Copy()
 	painting.title = title
 	painting.author = author
 	painting.description = description

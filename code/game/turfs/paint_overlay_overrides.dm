@@ -193,6 +193,8 @@ var/list/paint_overlay_override_floors = list(
 	"tatami-yellow-2mat-hori" = "tatami-green-2mat-hori",
 	"tatami-yellow-2mat-verti" = "tatami-green-2mat-verti",
 	"tatami-yellow-halfmat" = "tatami-green-halfmat",
+	"gold" = "silver",
+	"gold_broken" = "silver_broken",
 )
 
 var/list/paint_overlay_override_shuttle_walls = list(
