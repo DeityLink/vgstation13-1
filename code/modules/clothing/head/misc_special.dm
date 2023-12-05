@@ -33,6 +33,9 @@
 	species_fit = list(VOX_SHAPED,INSECT_SHAPED, GREY_SHAPED)
 	autoignition_temperature = AUTOIGNITION_PROTECTIVE
 
+	autoignition_temperature = 0
+	fire_fuel = 0
+
 /obj/item/clothing/head/welding/attack_self()
 	toggle()
 
