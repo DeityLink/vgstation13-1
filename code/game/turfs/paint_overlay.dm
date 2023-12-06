@@ -36,10 +36,13 @@
 		paint_icon_state = paint_overlay_override_walls[paint_icon_state]
 	return paint_icon_state
 
-/turf/simulated/wall/mineral/silver/get_paint_state()
+/turf/simulated/wall/mineral/gold/get_paint_state()
+	return replacetext(icon_state,mineral,"silver")
+
+/turf/simulated/wall/mineral/silver/silver_old/get_paint_state()
 	return replacetext(icon_state,mineral,"diamond")
 
-/turf/simulated/wall/mineral/gold/get_paint_state()
+/turf/simulated/wall/mineral/gold/gold_old/get_paint_state()
 	return replacetext(icon_state,mineral,"diamond")
 
 /turf/simulated/wall/mineral/iron/get_paint_state()
